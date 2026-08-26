@@ -19,6 +19,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { itemCount, openCart } = useCart();
   const { categories } = useCategories();
@@ -242,24 +243,46 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="mt-1 border-t border-border pt-2">
-                <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+              <div className="mt-1 border-t border-border pt-1">
+                <button
+                  onClick={() => setMobileCategoriesOpen((s) => !s)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-white hover:text-ink"
+                >
                   Categories
-                </p>
-                <div className="grid grid-cols-2 gap-1">
-                  {categories.map((c) => (
-                    <Link
-                      key={c.slug}
-                      href={`/products?category=${c.slug}`}
-                      onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        "rounded-lg px-3 py-2 text-sm text-ink/80 hover:bg-white hover:text-ink"
-                      )}
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted transition-transform duration-200",
+                      mobileCategoriesOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+                <AnimatePresence initial={false}>
+                  {mobileCategoriesOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
                     >
-                      {c.shortName}
-                    </Link>
-                  ))}
-                </div>
+                      <div className="grid grid-cols-2 gap-1 pb-1 pt-1">
+                        {categories.map((c) => (
+                          <Link
+                            key={c.slug}
+                            href={`/products?category=${c.slug}`}
+                            onClick={() => {
+                              setMobileOpen(false);
+                              setMobileCategoriesOpen(false);
+                            }}
+                            className="rounded-lg px-3 py-2 text-sm text-ink/80 hover:bg-white hover:text-ink"
+                          >
+                            {c.shortName}
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               <Link
                 href="/contact"
