@@ -2,6 +2,7 @@ import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { TrustBadges } from "@/components/home/TrustBadges";
+import { PromoBanners } from "@/components/home/PromoBanners";
 import { VisitStrip } from "@/components/home/VisitStrip";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -27,6 +28,7 @@ export default function Home() {
         <CategoryGrid />
       </section>
 
+      <PromoBanners />
       <FeaturedProducts />
       <VisitStrip />
     </>

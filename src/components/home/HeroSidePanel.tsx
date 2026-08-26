@@ -33,6 +33,7 @@ export function HeroSidePanel() {
             src="https://images.unsplash.com/photo-1483388147740-e5c70536042e?q=80&w=1200&auto=format&fit=crop"
             alt="iMac"
             fill
+            unoptimized
             sizes="(min-width: 1024px) 33vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />

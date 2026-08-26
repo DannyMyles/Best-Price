@@ -41,6 +41,7 @@ export function CategoryGrid() {
                     src={image}
                     alt={category.name}
                     fill
+                    unoptimized
                     sizes="(min-width: 768px) 25vw, 50vw"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                   />

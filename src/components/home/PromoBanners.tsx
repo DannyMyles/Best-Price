@@ -20,7 +20,7 @@ const banners = [
     cta: "Shop Surface",
     href: "/products?category=surface",
     image:
-      "https://images.unsplash.com/photo-1587613842578-f811e043c1be?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1665686310429-ee43624978fa?q=80&w=1400&auto=format&fit=crop",
   },
 ];
 
@@ -36,6 +36,7 @@ export function PromoBanners() {
                   src={b.image}
                   alt={b.title}
                   fill
+                  unoptimized
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />

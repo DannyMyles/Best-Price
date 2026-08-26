@@ -37,6 +37,7 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
+        unoptimized={resolved.startsWith("http")}
         className="object-cover"
       />
     </div>

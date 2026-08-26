@@ -86,6 +86,7 @@ export function HeroCarousel() {
             src={slide.image}
             alt=""
             fill
+            unoptimized
             priority={index === 0}
             sizes="(min-width: 1024px) 66vw, 100vw"
             className="object-cover"
