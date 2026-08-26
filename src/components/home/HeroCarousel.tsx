@@ -25,7 +25,7 @@ const slides: Slide[] = [
     cta: "Shop All Products",
     href: "/products",
     image:
-      "https://images.unsplash.com/photo-1627766556564-5d89b3765c46?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1542767352-e98201e84ed8?q=80&w=1600&auto=format&fit=crop",
   },
   {
     eyebrow: "Best Seller",
@@ -35,7 +35,7 @@ const slides: Slide[] = [
     cta: "Shop MacBook Pro",
     href: "/products?category=macbook-pro",
     image:
-      "https://images.unsplash.com/photo-1542767352-e98201e84ed8?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1627766556564-5d89b3765c46?q=80&w=1600&auto=format&fit=crop",
   },
   {
     eyebrow: "New Arrival",
@@ -92,7 +92,7 @@ export function HeroCarousel() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-panel-dark/95 via-panel-dark/55 to-transparent" />
 
-          <div className="relative flex h-full max-w-lg flex-col justify-center gap-4 px-8 sm:px-12">
+          <div className="relative flex h-full max-w-xl flex-col justify-center gap-4 px-8 sm:px-12">
             <motion.span
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
