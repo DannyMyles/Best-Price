@@ -7,6 +7,7 @@ import { filterAndSortProducts } from "@/services/productService";
 import { getCategory } from "@/lib/data/categories";
 import { SearchBar } from "@/components/product/SearchBar";
 import { FilterPanel, SortOption } from "@/components/product/FilterPanel";
+import { CategorySidebar } from "@/components/product/CategorySidebar";
 import { ProductGrid } from "@/components/product/ProductGrid";
 
 export function ProductsView() {
@@ -56,20 +57,26 @@ export function ProductsView() {
         </p>
       </div>
 
-      <div className="mb-6 max-w-lg">
-        <SearchBar value={query} onChange={setQuery} />
-      </div>
+      <div className="flex gap-8">
+        <CategorySidebar activeCategory={category} onCategoryChange={updateCategory} />
 
-      <div className="mb-8">
-        <FilterPanel
-          activeCategory={category}
-          onCategoryChange={updateCategory}
-          sort={sort}
-          onSortChange={setSort}
-        />
-      </div>
+        <div className="min-w-0 flex-1">
+          <div className="mb-6 max-w-lg">
+            <SearchBar value={query} onChange={setQuery} />
+          </div>
 
-      <ProductGrid products={filtered} />
+          <div className="mb-8">
+            <FilterPanel
+              activeCategory={category}
+              onCategoryChange={updateCategory}
+              sort={sort}
+              onSortChange={setSort}
+            />
+          </div>
+
+          <ProductGrid products={filtered} />
+        </div>
+      </div>
     </div>
   );
 }

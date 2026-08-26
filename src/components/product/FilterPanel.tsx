@@ -25,7 +25,7 @@ export function FilterPanel({
 }) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar sm:flex-wrap">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar sm:flex-wrap lg:hidden">
         <button
           onClick={() => onCategoryChange(null)}
           className={cn(
@@ -44,8 +44,8 @@ export function FilterPanel({
             className={cn(
               "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
               activeCategory === c.slug
-                ? "border-ink bg-ink text-white"
-                : "border-border bg-surface text-ink/70 hover:border-ink/30"
+                ? "border-brand bg-brand text-white"
+                : "border-border bg-surface text-ink/70 hover:border-brand/40"
             )}
           >
             {c.shortName}
@@ -56,7 +56,7 @@ export function FilterPanel({
       <select
         value={sort}
         onChange={(e) => onSortChange(e.target.value as SortOption)}
-        className="shrink-0 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-ink outline-none focus:border-brand/50"
+        className="shrink-0 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-ink outline-none focus:border-brand/50 lg:ml-auto"
       >
         {sortOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
