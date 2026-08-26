@@ -8,7 +8,7 @@ import { WHATSAPP_NUMBER } from "@/components/layout/WhatsAppButton";
 
 const mapSrc =
   "https://www.google.com/maps?q=" +
-  encodeURIComponent("Nation Centre, Nairobi CBD, Kenya") +
+  encodeURIComponent("Bihi Towers, Nairobi CBD, Kenya") +
   "&output=embed";
 
 export default function ContactPage() {
@@ -42,7 +42,7 @@ export default function ContactPage() {
             <InfoCard
               icon={<MapPin className="h-5 w-5" />}
               label="Location"
-              value="Nation Centre, Nairobi CBD"
+              value="Bihi Towers, G7 Ground Floor, Nairobi CBD"
             />
             <InfoCard
               icon={<Phone className="h-5 w-5" />}

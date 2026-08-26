@@ -13,7 +13,7 @@ export function VisitStrip() {
               Prefer to talk it through?
             </h3>
             <p className="mt-2 flex items-center gap-2 text-sm text-white/60">
-              <MapPin className="h-4 w-4" /> Nation Centre, Nairobi CBD
+              <MapPin className="h-4 w-4" /> Bihi Towers, G7 Ground Floor, Nairobi CBD
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

@@ -51,7 +51,7 @@ export function HeroSidePanel() {
         <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-muted">
           Quick Categories
         </p>
-        <div className="flex flex-1 flex-col justify-center gap-1.5">
+        <div className="flex flex-col gap-1">
           {categories.map((c, i) => {
             const Icon = iconMap[c.icon];
             return (

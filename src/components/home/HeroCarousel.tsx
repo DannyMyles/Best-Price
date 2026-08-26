@@ -71,7 +71,7 @@ export function HeroCarousel() {
     <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="group relative h-[480px] w-full overflow-hidden rounded-3xl sm:h-[580px] lg:h-[680px]"
+      className="group relative h-[440px] w-full overflow-hidden rounded-3xl sm:h-[520px] lg:h-[600px]"
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div

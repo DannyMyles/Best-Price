@@ -85,19 +85,19 @@ export function Footer() {
               <li>
                 <span className="text-muted/70">Located in: </span>
                 <a
-                  href="https://www.google.com/maps?q=Nation+Centre,+Nairobi+CBD,+Kenya"
+                  href="https://www.google.com/maps?q=Bihi+Towers,+Nairobi+CBD,+Kenya"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand transition-colors hover:text-ink"
                 >
-                  Nation Centre
+                  Bihi Towers
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted/70" />
                 <span>
                   <span className="text-muted/70">Address: </span>
-                  Nation Centre, Nairobi CBD, Kenya
+                  Bihi Towers, G7 Ground Floor, Nairobi CBD, Kenya
                 </span>
               </li>
               <li className="flex items-center gap-2">

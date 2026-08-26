@@ -25,12 +25,12 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-2"
+            className="lg:col-span-3"
           >
             <HeroCarousel />
           </motion.div>

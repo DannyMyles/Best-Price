@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: "Can I see the device before I buy?",
-    a: "Of course — visit us at Nation Centre, Nairobi CBD, and our team will walk you through the device in person.",
+    a: "Of course — visit us at Bihi Towers, G7 Ground Floor, Nairobi CBD, and our team will walk you through the device in person.",
   },
   {
     q: "What if a product I want isn't listed?",

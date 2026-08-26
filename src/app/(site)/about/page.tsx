@@ -14,7 +14,7 @@ const points = [
   {
     icon: MapPin,
     title: "Based in Nairobi CBD",
-    body: "Walk in at Nation Centre to see a device in person before you buy, or order online for delivery.",
+    body: "Walk in at Bihi Towers to see a device in person before you buy, or order online for delivery.",
   },
   {
     icon: MessageCircle,
