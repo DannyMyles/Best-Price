@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Public catalogue — anyone can browse, only admins can manage it.
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Guest checkout: anyone can place an order, nobody but an admin can
+    // read the order list, change status, or edit someone else's order.
+    match /orders/{orderId} {
+      allow create: if request.resource.data.status == 'pending'
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.customer.name is string
+        && request.resource.data.customer.phone is string
+        && request.resource.data.customer.address is string
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.subtotal is number;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Reviews are prepared for later: anyone may submit one (unapproved by
+    // default), only approved reviews are publicly readable, and only an
+    // admin can approve/moderate.
+    match /reviews/{reviewId} {
+      allow create: if request.resource.data.approved == false
+        && request.resource.data.productSku is string
+        && request.resource.data.customerName is string
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow read: if resource.data.approved == true || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // A signed-in user may read their own profile (to check their role).
+    // Only an admin can create/change roles — bootstrap the first admin
+    // from the Firebase console or the Admin SDK.
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isAdmin();
+    }
+  }
+}
