@@ -28,7 +28,7 @@ export function HeroSidePanel() {
   return (
     <div className="flex h-full flex-col gap-4">
       <Link href="/products?category=imac" className="group block">
-        <div className="relative h-40 overflow-hidden rounded-3xl bg-surface-muted sm:h-[220px]">
+        <div className="relative h-44 overflow-hidden rounded-3xl bg-surface-muted sm:h-[260px] lg:h-[300px]">
           <Image
             src="https://images.unsplash.com/photo-1483388147740-e5c70536042e?q=80&w=1200&auto=format&fit=crop"
             alt="iMac"
@@ -47,12 +47,12 @@ export function HeroSidePanel() {
         </div>
       </Link>
 
-      <div className="flex-1 rounded-3xl border border-border bg-surface p-4">
+      <div className="flex flex-1 flex-col rounded-3xl border border-border bg-surface p-4">
         <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-muted">
           Quick Categories
         </p>
-        <div className="flex flex-col gap-1">
-          {categories.slice(0, 5).map((c, i) => {
+        <div className="flex flex-1 flex-col justify-center gap-1.5">
+          {categories.map((c, i) => {
             const Icon = iconMap[c.icon];
             return (
               <motion.div
