@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, Search, ShoppingCart } from "lucide-react";
+import { Menu, X, Search, ShoppingCart, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCategories } from "@/hooks/useCategories";
 import { LogoFull } from "@/components/ui/Logo";
@@ -18,10 +18,16 @@ const navLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { itemCount, openCart } = useCart();
   const { categories } = useCategories();
   const router = useRouter();
+  const pathname = usePathname();
+
+  function isActive(href: string) {
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +39,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface-muted/95 backdrop-blur-lg">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
           <LogoFull className="h-14 w-auto sm:h-16" />
         </Link>
@@ -44,34 +50,75 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+              className={cn(
+                "relative text-sm font-medium transition-colors",
+                isActive(link.href)
+                  ? "text-brand after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand"
+                  : "text-ink/70 hover:text-ink"
+              )}
             >
               {link.label}
             </Link>
           ))}
 
-          <div className="group relative">
-            <button className="text-sm font-medium text-ink/70 transition-colors hover:text-ink">
+          <div
+            className="relative py-4"
+            onMouseEnter={() => setCategoriesOpen(true)}
+            onMouseLeave={() => setCategoriesOpen(false)}
+          >
+            <button
+              className={cn(
+                "flex items-center gap-1 text-sm font-medium transition-colors",
+                categoriesOpen ? "text-ink" : "text-ink/70 hover:text-ink"
+              )}
+            >
               Categories
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 transition-transform duration-200",
+                  categoriesOpen && "rotate-180"
+                )}
+              />
             </button>
-            <div className="invisible absolute left-1/2 top-full z-20 w-64 -translate-x-1/2 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-              <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-white p-2 shadow-xl shadow-black/10">
-                {categories.map((c) => (
-                  <Link
-                    key={c.slug}
-                    href={`/products?category=${c.slug}`}
-                    className="rounded-lg px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-surface-muted hover:text-brand"
-                  >
-                    {c.shortName}
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <AnimatePresence>
+              {categoriesOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2"
+                >
+                  <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-xl shadow-black/10">
+                    <p className="px-4 pt-3.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                      Shop by category
+                    </p>
+                    <div className="grid grid-cols-2 gap-1 p-3">
+                      {categories.map((c) => (
+                        <Link
+                          key={c.slug}
+                          href={`/products?category=${c.slug}`}
+                          onClick={() => setCategoriesOpen(false)}
+                          className="rounded-lg px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-surface-muted hover:text-brand"
+                        >
+                          {c.shortName}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <Link
             href="/contact"
-            className="text-sm font-medium text-ink/70 transition-colors hover:text-ink"
+            className={cn(
+              "relative text-sm font-medium transition-colors",
+              isActive("/contact")
+                ? "text-brand after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand"
+                : "text-ink/70 hover:text-ink"
+            )}
           >
             Contact
           </Link>
@@ -185,7 +232,12 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-white hover:text-ink"
+                  className={cn(
+                    "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    isActive(link.href)
+                      ? "bg-brand/10 text-brand"
+                      : "text-ink/80 hover:bg-white hover:text-ink"
+                  )}
                 >
                   {link.label}
                 </Link>
@@ -212,7 +264,12 @@ export function Navbar() {
               <Link
                 href="/contact"
                 onClick={() => setMobileOpen(false)}
-                className="mt-1 rounded-lg border-t border-border px-3 py-2.5 pt-3.5 text-sm font-medium text-ink/80 hover:bg-white hover:text-ink"
+                className={cn(
+                  "mt-1 rounded-lg border-t border-border px-3 py-2.5 pt-3.5 text-sm font-medium transition-colors",
+                  isActive("/contact")
+                    ? "text-brand"
+                    : "text-ink/80 hover:bg-white hover:text-ink"
+                )}
               >
                 Contact
               </Link>

@@ -44,7 +44,7 @@ export function ProductsView() {
   const activeCategoryName = category ? getCategory(category)?.name : null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
           {activeCategoryName ?? "All Products"}

@@ -12,7 +12,7 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-4 px-4 py-24 text-center sm:px-6">
+      <div className="mx-auto flex max-w-[1600px] flex-col items-center justify-center gap-4 px-4 py-24 text-center sm:px-6">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-surface-muted">
           <ShoppingBag className="h-9 w-9 text-muted" />
         </div>
@@ -29,7 +29,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <Link
         href="/products"
         className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink/60 hover:text-ink"

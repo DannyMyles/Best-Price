@@ -12,7 +12,7 @@ export function Hero() {
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-200/40 blur-3xl animate-float-slow" />
       <div className="pointer-events-none absolute -right-16 top-40 h-80 w-80 rounded-full bg-sky-200/50 blur-3xl animate-float-slower" />
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+      <div className="relative mx-auto max-w-[1600px] px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -35,7 +35,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+      <div className="relative mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

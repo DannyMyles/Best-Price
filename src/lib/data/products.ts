@@ -15,6 +15,7 @@ export const products: Product[] = [
     color: "Silver",
     inStock: true,
     badge: "New",
+    images: ["https://images.unsplash.com/photo-1524600870520-229b3f2cc406?q=80&w=1600&auto=format&fit=crop"],
     description:
       "The everyday iPad, now with the A16 chip. Lightweight, fast, and ready for cellular connectivity on the go.",
     specs: [
@@ -31,6 +32,7 @@ export const products: Product[] = [
     price: 109999,
     color: "Grey",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1679759799183-8899c0d67b43?q=80&w=1600&auto=format&fit=crop"],
     description:
       "iPad Air with the M3 chip delivers a huge leap in performance for creative work, all in a thin, light design.",
     specs: [
@@ -48,6 +50,7 @@ export const products: Product[] = [
     price: 129999,
     color: "Purple",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1585789574212-15ee78d0e7d9?q=80&w=1600&auto=format&fit=crop"],
     description:
       "More storage for photos, apps and projects, with the same powerful M3 performance in a striking purple finish.",
     specs: [
@@ -65,6 +68,7 @@ export const products: Product[] = [
     price: 184999,
     inStock: true,
     badge: "Best Seller",
+    images: ["https://images.unsplash.com/photo-1565443492615-7e3d2324d925?q=80&w=1600&auto=format&fit=crop"],
     description:
       "The ultimate iPad experience. The M5 chip and stunning 13-inch display make this the most capable iPad ever.",
     specs: [
@@ -80,6 +84,7 @@ export const products: Product[] = [
     category: "ipad",
     price: 159999,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1524600870520-229b3f2cc406?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Pro-level performance in a compact 11-inch design, powered by the all-new M5 chip.",
     specs: [
@@ -95,6 +100,7 @@ export const products: Product[] = [
     category: "ipad",
     price: 214999,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1679759799183-8899c0d67b43?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Maximum storage on the 11-inch iPad Pro, for pro workflows that demand more space and speed.",
     specs: [
@@ -114,6 +120,7 @@ export const products: Product[] = [
     color: "Sky Blue",
     inStock: true,
     badge: "Best Seller",
+    images: ["https://images.unsplash.com/photo-1628115367019-607aedaee62a?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Strikingly thin and fast, the M4 MacBook Air is built for all-day battery life and effortless portability.",
     specs: [
@@ -133,6 +140,7 @@ export const products: Product[] = [
     price: 119999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1558625628-8b7292e0c335?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A dependable everyday laptop with plenty of storage for photos, files and applications.",
     specs: [
@@ -149,6 +157,7 @@ export const products: Product[] = [
     price: 94999,
     color: "Citrus",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1620116377917-3998e4937a3a?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Light, colorful and capable — a great entry point for browsing, study and everyday productivity.",
     specs: [
@@ -165,6 +174,7 @@ export const products: Product[] = [
     price: 94999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1529405147636-6aaa3abe9536?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Light, colorful and capable — a great entry point for browsing, study and everyday productivity.",
     specs: [
@@ -181,6 +191,7 @@ export const products: Product[] = [
     price: 94999,
     color: "Indigo",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1558625628-8b7292e0c335?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Light, colorful and capable — a great entry point for browsing, study and everyday productivity.",
     specs: [
@@ -199,6 +210,7 @@ export const products: Product[] = [
     price: 239999,
     color: "Space Black",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1465418031253-26bca286214c?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Pro performance with the new M5 chip, a stunning Liquid Retina XDR display and all-day battery life.",
     specs: [
@@ -216,6 +228,7 @@ export const products: Product[] = [
     price: 239999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1531938716357-224c16b5ace3?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Pro performance with the new M5 chip, a stunning Liquid Retina XDR display and all-day battery life.",
     specs: [
@@ -234,6 +247,7 @@ export const products: Product[] = [
     color: "Space Black",
     inStock: true,
     badge: "Best Seller",
+    images: ["https://images.unsplash.com/photo-1733325021308-1c114fbef778?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Elevated performance with the M5 Pro chip — built for demanding creative and professional workflows.",
     specs: [
@@ -251,6 +265,7 @@ export const products: Product[] = [
     price: 224999,
     color: "Space Black",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1465418031253-26bca286214c?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Pro performance with the new M5 chip in a 512GB configuration, ready for work anywhere.",
     specs: [
@@ -268,6 +283,7 @@ export const products: Product[] = [
     price: 314999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1531938716357-224c16b5ace3?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Elevated performance with the M5 Pro chip — built for demanding creative and professional workflows.",
     specs: [
@@ -287,6 +303,7 @@ export const products: Product[] = [
     price: 199999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1601919263076-4a6a8514c461?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A stunning all-in-one desktop powered by the M4 chip, with a vivid 24-inch 4.5K Retina display.",
     specs: [
@@ -304,6 +321,7 @@ export const products: Product[] = [
     price: 249999,
     color: "Silver",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1483388147740-e5c70536042e?q=80&w=1600&auto=format&fit=crop"],
     description:
       "More GPU cores and more storage for creative work, gaming and everyday multitasking.",
     specs: [
@@ -322,6 +340,7 @@ export const products: Product[] = [
     color: "Blue",
     inStock: true,
     badge: "New",
+    images: ["https://images.unsplash.com/photo-1495521939206-a217db9df264?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A striking blue finish paired with the 10-core M4 chip for smooth, vibrant everyday computing.",
     specs: [
@@ -339,6 +358,7 @@ export const products: Product[] = [
     price: 284999,
     color: "Blue",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1601919263076-4a6a8514c461?q=80&w=1600&auto=format&fit=crop"],
     description:
       "The top-tier 24-inch iMac configuration — more memory and storage in a beautiful blue finish.",
     specs: [
@@ -358,6 +378,7 @@ export const products: Product[] = [
     price: 164999,
     color: "Graphite",
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1665686310429-ee43624978fa?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A powerful 2-in-1 Windows device — laptop performance with tablet flexibility, built for hybrid work.",
     specs: [
@@ -373,6 +394,7 @@ export const products: Product[] = [
     category: "surface",
     price: null,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1587829741301-dc798b83add3?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A full keyboard with trackpad that attaches magnetically to Surface Pro for a true laptop feel.",
     specs: [
@@ -388,6 +410,7 @@ export const products: Product[] = [
     category: "accessories",
     price: null,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Connect USB, HDMI and more to your Mac or iPad with this compact, reliable adapter.",
     specs: [{ label: "Ports", value: "USB-C, USB-A, HDMI" }],
@@ -413,6 +436,7 @@ export const products: Product[] = [
     category: "accessories",
     price: null,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1630515787921-0086c7cca853?q=80&w=1600&auto=format&fit=crop"],
     description:
       "A wireless, rechargeable mouse with a Multi-Touch surface for effortless gestures.",
     specs: [{ label: "Connection", value: "Bluetooth" }],
@@ -423,6 +447,7 @@ export const products: Product[] = [
     category: "accessories",
     price: null,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=1600&auto=format&fit=crop"],
     description:
       "Fast, efficient charging for iPhone, iPad and other USB-C compatible devices.",
     specs: [{ label: "Output", value: "20W USB-C Power Delivery" }],
@@ -433,6 +458,7 @@ export const products: Product[] = [
     category: "accessories",
     price: null,
     inStock: true,
+    images: ["https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=1600&auto=format&fit=crop"],
     description: "Fast charging and sync cable for Lightning-equipped devices.",
     specs: [{ label: "Length", value: "1m" }],
   }),

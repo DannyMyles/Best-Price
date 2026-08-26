@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER } from "@/components/layout/WhatsAppButton";
 
 export function VisitStrip() {
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+    <section className="mx-auto max-w-[1600px] px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
       <ScrollReveal>
         <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-panel-dark px-6 py-10 text-white sm:flex-row sm:items-center sm:px-10">
           <div>

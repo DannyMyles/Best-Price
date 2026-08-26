@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { MapPin, Phone, Clock, Smartphone } from "lucide-react";
+import Image from "next/image";
+import { MapPin, Phone, Clock } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 import { LogoFull } from "@/components/ui/Logo";
-import { WHATSAPP_NUMBER } from "./WhatsAppButton";
+import { WHATSAPP_NUMBER, WhatsAppIcon } from "./WhatsAppButton";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -32,7 +33,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-surface-muted text-ink">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-3">
           <div>
             <h4 className="text-sm font-semibold text-ink">Get to Know Us</h4>
@@ -113,11 +114,13 @@ export function Footer() {
               </li>
             </ul>
 
-            <div className="mt-5 flex items-center gap-2 rounded-xl border border-border bg-white px-3.5 py-2.5">
-              <Smartphone className="h-4 w-4 shrink-0 text-brand" />
+            <div className="mt-5 flex items-center gap-3 rounded-xl border border-border bg-white px-3.5 py-2.5">
+              <div className="relative h-6 w-32 shrink-0 overflow-hidden rounded">
+                <Image src="/mpesa.jpg" alt="M-Pesa" fill className="object-cover" />
+              </div>
               <p className="text-xs text-muted">
-                We accept <span className="font-medium text-ink">M-Pesa</span>, cash
-                and bank transfer — confirmed via WhatsApp at checkout.
+                Plus <span className="font-medium text-ink">cash</span> and bank
+                transfer — confirmed via WhatsApp at checkout.
               </p>
             </div>
           </div>
@@ -129,9 +132,6 @@ export function Footer() {
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted/70">
-              Our Socials
-            </span>
             <div className="flex items-center gap-2">
               {socials.map((s) => (
                 <a
@@ -150,9 +150,7 @@ export function Footer() {
                 aria-label="WhatsApp"
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white transition-transform hover:scale-105"
               >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                  <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8.9-.2.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.2.2-.4.1-.1 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9 0 1.1.8 2.2.9 2.4.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.2-.4-.3Z" />
-                </svg>
+                <WhatsAppIcon className="h-4 w-4" />
               </a>
             </div>
           </div>

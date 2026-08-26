@@ -25,7 +25,7 @@ const slides: Slide[] = [
     cta: "Shop All Products",
     href: "/products",
     image:
-      "https://images.unsplash.com/photo-1542767352-e98201e84ed8?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1507470828332-ab3b90a0a13f?q=80&w=1920&auto=format&fit=crop",
   },
   {
     eyebrow: "Best Seller",
@@ -35,7 +35,7 @@ const slides: Slide[] = [
     cta: "Shop MacBook Pro",
     href: "/products?category=macbook-pro",
     image:
-      "https://images.unsplash.com/photo-1627766556564-5d89b3765c46?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1733325021308-1c114fbef778?q=80&w=1600&auto=format&fit=crop",
   },
   {
     eyebrow: "New Arrival",
@@ -45,7 +45,7 @@ const slides: Slide[] = [
     cta: "Shop iPad",
     href: "/products?category=ipad",
     image:
-      "https://images.unsplash.com/photo-1669691177924-f12fcc3cc540?q=80&w=1600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1585789574212-15ee78d0e7d9?q=80&w=1600&auto=format&fit=crop",
   },
 ];
 

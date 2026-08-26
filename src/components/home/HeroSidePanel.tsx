@@ -30,7 +30,7 @@ export function HeroSidePanel() {
       <Link href="/products?category=imac" className="group block">
         <div className="relative h-40 overflow-hidden rounded-3xl bg-surface-muted sm:h-[220px]">
           <Image
-            src="https://images.unsplash.com/photo-1527443195645-1133f7f28990?q=80&w=1200&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1483388147740-e5c70536042e?q=80&w=1200&auto=format&fit=crop"
             alt="iMac"
             fill
             sizes="(min-width: 1024px) 33vw, 100vw"

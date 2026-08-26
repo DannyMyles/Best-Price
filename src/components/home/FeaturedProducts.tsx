@@ -12,7 +12,7 @@ export function FeaturedProducts() {
   const list = featured.length >= 4 ? featured : products.slice(0, 8);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <section className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <ScrollReveal>
         <div className="mb-8 flex items-end justify-between">
           <div>

@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Hero />
 
-      <section id="categories" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <section id="categories" className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <ScrollReveal>
           <div className="mb-8">
             <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
