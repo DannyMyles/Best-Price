@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, Heart } from "lucide-react";
 import { useState } from "react";
 import { Product } from "@/lib/types";
 import { formatKES } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { ProductImage } from "@/components/ui/ProductImage";
@@ -15,7 +16,9 @@ import { badgeStyles } from "@/lib/badges";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const { toggle, isSaved } = useWishlist();
   const [added, setAdded] = useState(false);
+  const saved = isSaved(product.slug);
 
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
@@ -23,6 +26,12 @@ export function ProductCard({ product }: { product: Product }) {
     addItem(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  }
+
+  function handleToggleWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle(product.slug);
   }
 
   return (
@@ -39,6 +48,16 @@ export function ProductCard({ product }: { product: Product }) {
               {product.badge}
             </span>
           )}
+          <button
+            onClick={handleToggleWishlist}
+            aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
+            className={cn(
+              "absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur-sm transition-colors",
+              saved ? "bg-brand text-white" : "bg-white/80 text-ink/60 hover:text-brand"
+            )}
+          >
+            <Heart className="h-4 w-4" fill={saved ? "currentColor" : "none"} strokeWidth={1.8} />
+          </button>
           <TiltCard maxTilt={5} className="aspect-square">
             <ProductImage
               src={product.images?.[0]}

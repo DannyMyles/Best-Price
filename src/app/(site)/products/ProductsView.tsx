@@ -74,7 +74,7 @@ export function ProductsView() {
             />
           </div>
 
-          <ProductGrid products={filtered} />
+          <ProductGrid products={filtered} loading={loading} />
         </div>
       </div>
     </div>

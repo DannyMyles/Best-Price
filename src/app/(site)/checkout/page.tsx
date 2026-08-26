@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   );
   const [placed, setPlaced] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   function buildMessage() {
     const itemLines = lines
@@ -59,7 +60,7 @@ export default function CheckoutPage() {
     if (lines.length === 0 || !name.trim() || !phone.trim() || !address.trim()) return;
 
     setSubmitting(true);
-    await placeOrder({
+    const id = await placeOrder({
       customer: { name: name.trim(), phone: phone.trim(), address: address.trim() },
       items: lines.map((l) => ({
         sku: l.sku,
@@ -79,6 +80,7 @@ export default function CheckoutPage() {
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank"
     );
+    setOrderId(id);
     setSubmitting(false);
     setPlaced(true);
     clearCart();
@@ -96,6 +98,11 @@ export default function CheckoutPage() {
           confirm — our team will get back to you shortly to arrange payment and
           delivery.
         </p>
+        {orderId && (
+          <p className="rounded-full bg-surface-muted px-4 py-1.5 text-xs font-medium text-ink/70">
+            Order reference: #{orderId.slice(0, 8).toUpperCase()}
+          </p>
+        )}
         <AnimatedLinkButton href="/products" variant="dark" className="mt-2">
           Continue Shopping
         </AnimatedLinkButton>

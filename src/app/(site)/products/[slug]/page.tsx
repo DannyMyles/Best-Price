@@ -8,6 +8,8 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ProductActions } from "./ProductActions";
+import { WishlistButton } from "@/components/product/WishlistButton";
+import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 
 // Regenerate periodically so products added/edited via the admin dashboard
 // show up without a full rebuild; new slugs still render on-demand.
@@ -67,12 +69,17 @@ export default async function ProductPage({
         </ScrollReveal>
 
         <ScrollReveal y={16} delay={0.1}>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            {category?.name}
-          </p>
-          <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-            {product.name}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                {category?.name}
+              </p>
+              <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+                {product.name}
+              </h1>
+            </div>
+            <WishlistButton slug={product.slug} />
+          </div>
           <p className="mt-3 text-2xl font-semibold text-ink">
             {formatKES(product.price)}
           </p>
@@ -111,6 +118,8 @@ export default async function ProductPage({
           <ProductGrid products={related} />
         </section>
       )}
+
+      <RecentlyViewed currentSlug={product.slug} />
     </div>
   );
 }

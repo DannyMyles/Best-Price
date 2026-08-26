@@ -4,10 +4,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function FeaturedProducts() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const featured = products.filter((p) => p.badge || p.featured).slice(0, 8);
   const list = featured.length >= 4 ? featured : products.slice(0, 8);
 
@@ -33,11 +34,13 @@ export function FeaturedProducts() {
       </ScrollReveal>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-        {list.map((product, i) => (
-          <ScrollReveal key={product.sku} delay={Math.min(i * 0.05, 0.3)}>
-            <ProductCard product={product} />
-          </ScrollReveal>
-        ))}
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+          : list.map((product, i) => (
+              <ScrollReveal key={product.sku} delay={Math.min(i * 0.05, 0.3)}>
+                <ProductCard product={product} />
+              </ScrollReveal>
+            ))}
       </div>
 
       <div className="mt-8 flex justify-center sm:hidden">

@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, Search, ShoppingCart, ChevronDown } from "lucide-react";
+import { Menu, X, Search, ShoppingCart, ChevronDown, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { useCategories } from "@/hooks/useCategories";
 import { LogoFull } from "@/components/ui/Logo";
 import { cn } from "@/lib/cn";
@@ -22,6 +23,7 @@ export function Navbar() {
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { itemCount, openCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   const router = useRouter();
   const pathname = usePathname();
@@ -147,6 +149,27 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
+          <Link
+            href="/wishlist"
+            aria-label="Wishlist"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-white hover:text-ink"
+          >
+            <Heart className="h-5 w-5" />
+            <AnimatePresence>
+              {wishlistCount > 0 && (
+                <motion.span
+                  key={wishlistCount}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white"
+                >
+                  {wishlistCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </Link>
+
           <div className="hidden items-center sm:flex">
             <AnimatePresence mode="wait" initial={false}>
               {searchOpen ? (
