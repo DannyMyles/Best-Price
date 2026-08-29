@@ -8,6 +8,7 @@ import {
   orderBy,
   limit as fbLimit,
   setDoc,
+  updateDoc,
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
@@ -32,9 +33,11 @@ function fromDoc(id: string, data: ProductDoc): Product {
     stockCount: data.stockCount ?? null,
     rating: data.rating ?? null,
     reviewCount: data.reviewCount ?? null,
-    badge: data.badge,
+    badge: data.badge ?? undefined,
     images: data.images ?? [],
     featured: data.featured,
+    active: data.active ?? true,
+    featureRank: data.featureRank ?? null,
   };
 }
 
@@ -80,6 +83,15 @@ export async function upsertProduct(slug: string, data: Omit<ProductDoc, "create
     },
     { merge: true }
   );
+}
+
+/** Admin only — enforced by Firestore security rules. */
+export async function setProductActive(slug: string, active: boolean) {
+  if (!db) throw new Error("Firebase is not configured");
+  await updateDoc(doc(db, COLLECTION, slug), {
+    active,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 /** Admin only — enforced by Firestore security rules. */

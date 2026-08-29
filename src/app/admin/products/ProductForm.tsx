@@ -3,16 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Plus, Trash2, Upload, Loader2 } from "lucide-react";
+import { Plus, Trash2, Upload, Loader2, Link2, X } from "lucide-react";
 import { storage } from "@/lib/firebase/config";
 import { upsertProduct } from "@/lib/firebase/products";
+import { invalidateAdminData } from "@/hooks/useAdminData";
+import { useToast } from "@/context/ToastContext";
 import { categories } from "@/lib/data/categories";
 import { slugify } from "@/lib/format";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
-import type { Product, ProductSpec, CategorySlug } from "@/lib/types";
+import type { Product, ProductSpec, CategorySlug, ProductBadge } from "@/lib/types";
+
+const BADGE_OPTIONS: ProductBadge[] = [
+  "New",
+  "Best Seller",
+  "Popular",
+  "Sale",
+  "Clearance",
+  "Limited",
+];
 
 export function ProductForm({ initial }: { initial?: Product }) {
   const router = useRouter();
+  const { push } = useToast();
   const isEdit = Boolean(initial);
 
   const [sku, setSku] = useState(initial?.sku ?? "");
@@ -29,15 +41,32 @@ export function ProductForm({ initial }: { initial?: Product }) {
   const [reviewCount, setReviewCount] = useState(
     initial?.reviewCount?.toString() ?? ""
   );
+  const [badge, setBadge] = useState<string>(initial?.badge ?? "");
+  const [featureRank, setFeatureRank] = useState(
+    initial?.featureRank?.toString() ?? ""
+  );
   const [color, setColor] = useState(initial?.color ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [inStock, setInStock] = useState(initial?.inStock ?? true);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
+  const [active, setActive] = useState(initial?.active ?? true);
   const [images, setImages] = useState<string[]>(initial?.images ?? []);
+  const [imageUrl, setImageUrl] = useState("");
   const [specs, setSpecs] = useState<ProductSpec[]>(initial?.specs ?? []);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function addImageUrl() {
+    const url = imageUrl.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      setError("Enter a full image URL starting with http(s)://");
+      return;
+    }
+    setImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
+    setImageUrl("");
+    setError(null);
+  }
 
   async function handleUpload(files: FileList | null) {
     if (!files || !storage) return;
@@ -83,11 +112,17 @@ export function ProductForm({ initial }: { initial?: Product }) {
         stockCount: stockCount.trim() === "" ? null : Number(stockCount),
         rating: rating.trim() === "" ? null : Number(rating),
         reviewCount: reviewCount.trim() === "" ? null : Number(reviewCount),
+        badge: (badge as ProductBadge) || null,
+        featureRank: featureRank.trim() === "" ? null : Number(featureRank),
         featured,
+        active,
       });
+      invalidateAdminData("admin:products");
+      push({ type: "success", message: isEdit ? "Product updated" : "Product created" });
       router.push("/admin/products");
     } catch {
       setError("Couldn't save product. Check your connection and try again.");
+      push({ type: "error", message: "Couldn't save product" });
     } finally {
       setSaving(false);
     }
@@ -171,6 +206,29 @@ export function ProductForm({ initial }: { initial?: Product }) {
             className="input"
           />
         </Field>
+        <Field label="Badge (optional)">
+          <select
+            value={badge}
+            onChange={(e) => setBadge(e.target.value)}
+            className="input"
+          >
+            <option value="">No badge</option>
+            {BADGE_OPTIONS.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Feature rank (optional — lower shows first)">
+          <input
+            type="number"
+            min={0}
+            value={featureRank}
+            onChange={(e) => setFeatureRank(e.target.value)}
+            className="input"
+          />
+        </Field>
         <Field label="Description" className="sm:col-span-2">
           <textarea
             required
@@ -226,8 +284,24 @@ export function ProductForm({ initial }: { initial?: Product }) {
         <p className="mb-2 text-xs font-medium text-ink/70">Images</p>
         <div className="flex flex-wrap gap-3">
           {images.map((src) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={src} src={src} alt="" className="h-20 w-20 rounded-lg border border-border object-cover" />
+            <span key={src} className="group relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt=""
+                className="h-20 w-20 rounded-lg border border-border object-cover"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setImages((prev) => prev.filter((u) => u !== src))
+                }
+                aria-label="Remove image"
+                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
           ))}
           <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted hover:border-brand/50">
             {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
@@ -241,10 +315,37 @@ export function ProductForm({ initial }: { initial?: Product }) {
             />
           </label>
         </div>
-        <p className="mt-1.5 text-xs text-muted">Leave empty to use the category&apos;s default photo.</p>
+        <div className="mt-2 flex gap-2">
+          <input
+            type="url"
+            inputMode="url"
+            placeholder="Paste an image URL (https://…)"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addImageUrl();
+              }
+            }}
+            className="input flex-1"
+          />
+          <button
+            type="button"
+            onClick={addImageUrl}
+            className="btn-secondary shrink-0"
+          >
+            <Link2 className="h-4 w-4" /> Add
+          </button>
+        </div>
+        <p className="mt-1.5 text-xs text-muted">
+          Upload needs Firebase Storage (Blaze plan). On the free plan, paste
+          hosted image URLs instead. Leave empty to use the category&apos;s
+          default photo.
+        </p>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 text-sm text-ink">
           <input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
           In stock
@@ -252,6 +353,10 @@ export function ProductForm({ initial }: { initial?: Product }) {
         <label className="flex items-center gap-2 text-sm text-ink">
           <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
           Featured on homepage
+        </label>
+        <label className="flex items-center gap-2 text-sm text-ink">
+          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
+          Visible in storefront
         </label>
       </div>
 

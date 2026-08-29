@@ -12,6 +12,10 @@ export interface Category {
   /** A key understood by `categoryIcon()` — an icon name ("camera") or the
    *  slug itself. Unknown values fall back to a generic package icon. */
   icon: string;
+  /** Hidden from the storefront when `false`. Defaults to `true`. */
+  active?: boolean;
+  /** Ascending sort key for nav / department order. Defaults to `0`. */
+  order?: number;
 }
 
 export interface ProductSpec {
@@ -51,4 +55,8 @@ export interface Product {
    *  category stock photo when empty. */
   images?: string[];
   featured?: boolean;
+  /** Hidden from the storefront when `false`. Defaults to `true`. */
+  active?: boolean;
+  /** Lower ranks surface first in "featured" / homepage rails. */
+  featureRank?: number | null;
 }

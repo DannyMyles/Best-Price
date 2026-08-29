@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
-import { LayoutGrid, Package, Tags, ClipboardList, LogOut } from "lucide-react";
+import {
+  LayoutGrid,
+  Package,
+  Tags,
+  ClipboardList,
+  Star,
+  LogOut,
+} from "lucide-react";
 import { auth } from "@/lib/firebase/config";
+import { clearAdminSession } from "@/lib/adminSession";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { LogoMark } from "@/components/ui/Logo";
 
@@ -13,12 +21,19 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, status } = useAdminAuth();
+  const { user, status, retry } = useAdminAuth();
+
+  async function handleSignOut() {
+    if (auth) await signOut(auth);
+    clearAdminSession();
+    router.push("/admin/login");
+  }
 
   if (pathname === "/admin/login") return <>{children}</>;
 
@@ -26,6 +41,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted">
         Loading…
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-sm font-medium text-ink">
+          Couldn&apos;t verify your access just now.
+        </p>
+        <p className="max-w-xs text-xs text-muted">
+          This is usually a network blip, not a permissions problem. Your
+          sign-in is still active.
+        </p>
+        <button onClick={retry} className="btn-primary mt-1">
+          Try again
+        </button>
       </div>
     );
   }
@@ -72,10 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="border-t border-border p-3">
           <p className="truncate px-3 pb-2 text-xs text-muted">{user?.email}</p>
           <button
-            onClick={async () => {
-              if (auth) await signOut(auth);
-              router.push("/admin/login");
-            }}
+            onClick={handleSignOut}
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-ink/70 hover:bg-surface-muted"
           >
             <LogOut className="h-4 w-4" /> Sign out
@@ -86,13 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-border bg-white px-4 py-3 sm:hidden">
           <span className="text-sm font-semibold text-ink">PriceHub Admin</span>
-          <button
-            onClick={async () => {
-              if (auth) await signOut(auth);
-              router.push("/admin/login");
-            }}
-            className="text-sm text-muted"
-          >
+          <button onClick={handleSignOut} className="text-sm text-muted">
             Sign out
           </button>
         </header>

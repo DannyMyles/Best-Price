@@ -1,3 +1,19 @@
+/** Serialises rows (keyed by header) back into an RFC-4180 CSV string.
+ *  Fields containing a comma, quote or newline are wrapped in quotes with
+ *  inner quotes doubled. Column order is fixed by `columns`. */
+export function toCsv(
+  rows: Record<string, string | number | null | undefined>[],
+  columns: string[]
+): string {
+  const esc = (v: string | number | null | undefined) => {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [columns.join(",")];
+  for (const r of rows) lines.push(columns.map((c) => esc(r[c])).join(","));
+  return lines.join("\n") + "\n";
+}
+
 /** Minimal RFC-4180-ish CSV parser — handles quoted fields, embedded commas,
  *  newlines and "" escapes. Returns an array of row objects keyed by header. */
 export function parseCsv(text: string): Record<string, string>[] {

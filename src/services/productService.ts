@@ -13,11 +13,14 @@ import type { SortOption } from "@/lib/productFilters";
  * then (or if a read fails) we fall back to the bundled seed catalogue so
  * the storefront keeps working out of the box.
  */
+/** Hidden products (`active === false`) never reach the storefront. */
+const visible = (list: Product[]) => list.filter((p) => p.active !== false);
+
 export async function getProducts(): Promise<Product[]> {
   if (!isFirebaseConfigured) return seedProducts;
   try {
     const remote = await fetchAllProducts();
-    return remote.length > 0 ? remote : seedProducts;
+    return remote.length > 0 ? visible(remote) : seedProducts;
   } catch {
     return seedProducts;
   }
@@ -34,12 +37,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getFeaturedProducts(max = 8): Promise<Product[]> {
-  if (!isFirebaseConfigured) return seedProducts.filter((p) => p.badge).slice(0, max);
+  const seedFeatured = seedProducts.filter((p) => p.badge).slice(0, max);
+  if (!isFirebaseConfigured) return seedFeatured;
   try {
-    const remote = await fetchFeaturedProducts(max);
-    return remote.length > 0 ? remote : seedProducts.filter((p) => p.badge).slice(0, max);
+    const remote = visible(await fetchFeaturedProducts(max)).sort(
+      (a, b) => (a.featureRank ?? 999) - (b.featureRank ?? 999)
+    );
+    return remote.length > 0 ? remote : seedFeatured;
   } catch {
-    return seedProducts.filter((p) => p.badge).slice(0, max);
+    return seedFeatured;
   }
 }
 

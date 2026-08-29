@@ -17,7 +17,11 @@ export interface ProductDoc {
   rating?: number | null;
   reviewCount?: number | null;
   featured: boolean;
-  badge?: ProductBadge;
+  badge?: ProductBadge | null;
+  /** Hidden from the storefront when `false`. */
+  active?: boolean;
+  /** Lower ranks surface first in "featured" rails. */
+  featureRank?: number | null;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -31,6 +35,8 @@ export interface CategoryDoc {
   icon: string;
   image?: string;
   active: boolean;
+  /** Ascending nav / department order. */
+  order?: number;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }

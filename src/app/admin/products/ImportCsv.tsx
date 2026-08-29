@@ -3,28 +3,11 @@
 import { useState } from "react";
 import { Upload, Download, Loader2, Check, AlertTriangle } from "lucide-react";
 import { parseCsv } from "@/lib/csv";
-import { slugify } from "@/lib/format";
+import { PRODUCT_CSV_COLUMNS, csvRowToProductDoc } from "@/lib/productCsv";
 import { upsertProduct } from "@/lib/firebase/products";
-import type { ProductDoc } from "@/types/firestore";
+import { invalidateAdminData } from "@/hooks/useAdminData";
 
-const COLUMNS = [
-  "sku",
-  "name",
-  "category",
-  "price",
-  "compareAtPrice",
-  "description",
-  "color",
-  "stockCount",
-  "rating",
-  "reviewCount",
-  "badge",
-  "featured",
-  "inStock",
-  "image1",
-  "image2",
-  "image3",
-];
+const COLUMNS = [...PRODUCT_CSV_COLUMNS];
 
 const TEMPLATE =
   COLUMNS.join(",") +
@@ -41,7 +24,9 @@ const TEMPLATE =
     "",
     "",
     "Best Seller",
+    "",
     "false",
+    "true",
     "true",
     "https://example.com/a55-1.jpg",
     "",
@@ -49,24 +34,13 @@ const TEMPLATE =
   ].join(",") +
   "\n";
 
-function num(v: string): number | null {
-  if (!v || v.trim() === "") return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-}
-function bool(v: string, dflt = true): boolean {
-  if (!v) return dflt;
-  return /^(true|yes|y|1)$/i.test(v.trim());
-}
-
 export function ImportCsv({ onDone }: { onDone: () => void }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{
-    ok: number;
-    errors: string[];
-  } | null>(null);
+  const [result, setResult] = useState<{ ok: number; errors: string[] } | null>(
+    null
+  );
 
   async function runImport() {
     setBusy(true);
@@ -79,40 +53,25 @@ export function ImportCsv({ onDone }: { onDone: () => void }) {
     }
     let ok = 0;
     const errors: string[] = [];
-    for (const [i, r] of rows.entries()) {
-      const label = r.name || r.sku || `row ${i + 2}`;
-      if (!r.sku?.trim() || !r.name?.trim() || !r.category?.trim()) {
-        errors.push(`${label}: missing sku, name or category`);
+    for (const r of rows) {
+      const parsed = csvRowToProductDoc(r);
+      if ("error" in parsed) {
+        errors.push(parsed.error);
         continue;
       }
-      const slug = slugify(`${r.name}-${r.sku}`);
-      const doc: Omit<ProductDoc, "createdAt" | "updatedAt"> = {
-        sku: r.sku.trim(),
-        name: r.name.trim(),
-        category: r.category.trim().toLowerCase(),
-        price: num(r.price),
-        compareAtPrice: num(r.compareAtPrice),
-        description: r.description?.trim() ?? "",
-        specs: [],
-        color: r.color?.trim() || undefined,
-        images: [r.image1, r.image2, r.image3].filter((u) => u && u.trim()),
-        inStock: bool(r.inStock, true),
-        stockCount: num(r.stockCount),
-        rating: num(r.rating),
-        reviewCount: num(r.reviewCount),
-        featured: bool(r.featured, false),
-        badge: (r.badge?.trim() as ProductDoc["badge"]) || undefined,
-      };
       try {
-        await upsertProduct(slug, doc);
+        await upsertProduct(parsed.slug, parsed.doc);
         ok++;
       } catch {
-        errors.push(`${label}: failed to save`);
+        errors.push(`${r.name || r.sku}: failed to save`);
       }
     }
     setResult({ ok, errors });
     setBusy(false);
-    if (ok > 0) onDone();
+    if (ok > 0) {
+      invalidateAdminData("admin:products");
+      onDone();
+    }
   }
 
   if (!open) {
@@ -127,7 +86,7 @@ export function ImportCsv({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div className="mt-4 rounded-2xl border border-border bg-white p-5">
+    <div className="mt-4 w-full rounded-2xl border border-border bg-white p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink">Bulk import products</h2>
         <a
@@ -141,7 +100,8 @@ export function ImportCsv({ onDone }: { onDone: () => void }) {
 
       <p className="mt-2 text-xs text-muted">
         Columns: {COLUMNS.join(", ")}. Existing SKUs are updated. Specs are added
-        per-product in the form.
+        per-product in the form. Tip: use <b>Export CSV</b> to get a filled-in
+        file to edit.
       </p>
 
       <input

@@ -6,6 +6,7 @@ import {
   updateDoc,
   query,
   orderBy,
+  limit as fbLimit,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "./config";
@@ -36,6 +37,15 @@ export async function createOrder(
 export async function fetchAllOrders(): Promise<OrderWithId[]> {
   if (!db) throw new Error("Firebase is not configured");
   const snap = await getDocs(query(collection(db, COLLECTION), orderBy("createdAt", "desc")));
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as OrderDoc) }));
+}
+
+/** Admin only — the most recent `max` orders (for the dashboard). */
+export async function fetchRecentOrders(max = 5): Promise<OrderWithId[]> {
+  if (!db) throw new Error("Firebase is not configured");
+  const snap = await getDocs(
+    query(collection(db, COLLECTION), orderBy("createdAt", "desc"), fbLimit(max))
+  );
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as OrderDoc) }));
 }
 
