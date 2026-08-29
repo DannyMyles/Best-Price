@@ -1,5 +1,6 @@
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
+import { FeatureTiles } from "@/components/home/FeatureTiles";
 import { HomeRails } from "@/components/home/HomeRails";
 import { TrustBadges } from "@/components/home/TrustBadges";
 import { PromoBanners } from "@/components/home/PromoBanners";
@@ -11,24 +12,23 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <TrustBadges />
 
-      <div className="py-12 sm:py-16">
-        <TrustBadges />
-      </div>
+      <FeatureTiles />
 
-      <section id="categories" className="section pb-4">
+      <HomeRails />
+
+      <section id="categories" className="section py-12 sm:py-16">
         <ScrollReveal>
           <SectionHeader
             eyebrow="Browse"
-            title="Shop by Category"
-            description="Find exactly what you're looking for"
+            title="Shop by Department"
+            description="Every category, one tap away"
             viewAll={{ href: "/products", label: "All products" }}
           />
         </ScrollReveal>
         <CategoryGrid />
       </section>
-
-      <HomeRails />
 
       <PromoBanners />
 

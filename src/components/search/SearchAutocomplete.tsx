@@ -28,11 +28,13 @@ interface Option {
 
 export function SearchAutocomplete({
   variant = "bar",
+  size = "md",
   autoFocus = false,
   onNavigate,
   className,
 }: {
   variant?: "bar" | "overlay";
+  size?: "md" | "lg";
   autoFocus?: boolean;
   onNavigate?: () => void;
   className?: string;
@@ -181,7 +183,12 @@ export function SearchAutocomplete({
         }}
         className="relative"
       >
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" />
+        <Search
+          className={cn(
+            "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted",
+            size === "lg" ? "left-5 h-5 w-5" : "left-4 h-4.5 w-4.5"
+          )}
+        />
         <input
           ref={inputRef}
           type="search"
@@ -200,8 +207,12 @@ export function SearchAutocomplete({
           aria-controls={listboxId}
           aria-autocomplete="list"
           className={cn(
-            "w-full rounded-full border border-border bg-surface pl-11 text-sm outline-none transition-all focus:border-brand focus:ring-4 focus:ring-brand/10",
-            variant === "overlay" ? "py-3.5 pr-4" : "py-2.5 pr-24"
+            "w-full rounded-full border border-border bg-surface outline-none transition-all focus:border-brand focus:ring-4 focus:ring-brand/10",
+            variant === "overlay"
+              ? "py-3.5 pl-11 pr-4 text-sm"
+              : size === "lg"
+                ? "py-4 pl-12 pr-28 text-base shadow-sm"
+                : "py-2.5 pl-11 pr-24 text-sm"
           )}
         />
         {query && (
@@ -223,7 +234,10 @@ export function SearchAutocomplete({
         {variant === "bar" && (
           <button
             type="submit"
-            className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center rounded-full bg-brand px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-strong"
+            className={cn(
+              "absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center rounded-full bg-brand text-sm font-semibold text-white transition-colors hover:bg-brand-strong",
+              size === "lg" ? "px-5 py-2.5" : "px-4 py-1.5"
+            )}
           >
             Search
           </button>
