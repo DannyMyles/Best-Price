@@ -11,9 +11,12 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <TrustBadges />
 
-      <section id="categories" className="section pt-12 sm:pt-16">
+      <div className="py-12 sm:py-16">
+        <TrustBadges />
+      </div>
+
+      <section id="categories" className="section pb-4">
         <ScrollReveal>
           <SectionHeader
             eyebrow="Browse"
