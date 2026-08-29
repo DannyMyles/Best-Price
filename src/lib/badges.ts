@@ -5,6 +5,7 @@ export type BadgeVariant =
   | "best-seller"
   | "popular"
   | "sale"
+  | "clearance"
   | "low-stock"
   | "limited";
 
@@ -16,6 +17,7 @@ export const badgeConfig: Record<
   "best-seller": { label: "Best Seller", className: "bg-panel-dark text-white" },
   popular: { label: "Popular", className: "bg-brand-050 text-brand" },
   sale: { label: "Sale", className: "bg-accent text-white" },
+  clearance: { label: "Clearance", className: "bg-danger text-white" },
   "low-stock": { label: "Low stock", className: "bg-warning-050 text-warning" },
   limited: { label: "Limited", className: "bg-panel-dark text-white" },
 };
@@ -26,6 +28,7 @@ export const badgeStyles: Record<string, string> = {
   "Best Seller": badgeConfig["best-seller"].className,
   Popular: badgeConfig.popular.className,
   Sale: badgeConfig.sale.className,
+  Clearance: badgeConfig.clearance.className,
   Limited: badgeConfig.limited.className,
 };
 
@@ -34,6 +37,7 @@ const explicitMap: Record<string, BadgeVariant> = {
   "Best Seller": "best-seller",
   Popular: "popular",
   Sale: "sale",
+  Clearance: "clearance",
   Limited: "limited",
 };
 

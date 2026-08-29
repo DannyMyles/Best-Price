@@ -2,6 +2,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { CompareBar } from "@/components/product/CompareBar";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +22,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Footer />
       <MobileTabBar />
       <CartDrawer />
+      <CompareBar />
+      <CookieConsent />
       <WhatsAppButton />
     </>
   );

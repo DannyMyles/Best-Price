@@ -6,13 +6,16 @@ import { isFirebaseConfigured } from "@/lib/firebase/config";
 import { fetchApprovedReviews, type ReviewWithId } from "@/lib/firebase/reviews";
 import { Rating } from "@/components/ui/Rating";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ReviewForm } from "./ReviewForm";
 
 export function ProductReviews({
   sku,
+  productName,
   fallbackRating,
   fallbackCount,
 }: {
   sku: string;
+  productName: string;
   fallbackRating?: number | null;
   fallbackCount?: number | null;
 }) {
@@ -98,6 +101,8 @@ export function ProductReviews({
             </ul>
           </>
         )}
+
+        {!loading && <ReviewForm sku={sku} productName={productName} />}
       </div>
     </section>
   );

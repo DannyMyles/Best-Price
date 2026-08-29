@@ -24,6 +24,7 @@ export type ProductBadge =
   | "Best Seller"
   | "Popular"
   | "Sale"
+  | "Clearance"
   | "Limited";
 
 export interface Product {

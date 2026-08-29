@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Check, Heart, Eye, MessageCircle } from "lucide-react";
+import {
+  Plus,
+  Check,
+  Heart,
+  Eye,
+  MessageCircle,
+  GitCompareArrows,
+} from "lucide-react";
 import { useState } from "react";
 import { Product } from "@/lib/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useCompare } from "@/context/CompareContext";
 import { useToast } from "@/context/ToastContext";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Badge } from "@/components/ui/Badge";
@@ -27,10 +35,16 @@ export function ProductCard({
 }) {
   const { addItem } = useCart();
   const { toggle, isSaved } = useWishlist();
+  const {
+    has: inCompare,
+    toggle: toggleCompare,
+    isFull: compareFull,
+  } = useCompare();
   const { push } = useToast();
   const [added, setAdded] = useState(false);
   const [pop, setPop] = useState(false);
   const saved = isSaved(product.slug);
+  const comparing = inCompare(product.sku);
   const badges = getProductBadges(product);
   const soldOut = isOutOfStock(product);
 
@@ -65,6 +79,21 @@ export function ProductCard({
     onQuickView?.(product);
   }
 
+  function handleCompare(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!comparing && compareFull) {
+      push({ type: "info", message: "Compare holds up to 4 products" });
+      return;
+    }
+    toggleCompare(product.sku);
+    push({
+      type: comparing ? "info" : "success",
+      message: comparing ? "Removed from compare" : "Added to compare",
+      action: comparing ? undefined : { label: "Compare now", href: "/compare" },
+    });
+  }
+
   return (
     <div className="card card-hover group relative flex h-full flex-col overflow-hidden">
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
@@ -92,6 +121,20 @@ export function ProductCard({
               fill={saved ? "currentColor" : "none"}
               strokeWidth={1.8}
             />
+          </button>
+
+          <button
+            onClick={handleCompare}
+            aria-label={comparing ? "Remove from compare" : "Add to compare"}
+            aria-pressed={comparing}
+            className={cn(
+              "absolute right-3 top-12 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors",
+              comparing
+                ? "bg-brand text-white"
+                : "bg-white/85 text-ink/60 hover:text-brand"
+            )}
+          >
+            <GitCompareArrows className="h-4 w-4" strokeWidth={1.8} />
           </button>
 
           <div className="aspect-square">

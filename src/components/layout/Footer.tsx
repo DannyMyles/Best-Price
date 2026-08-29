@@ -3,6 +3,7 @@ import { MapPin, Phone, Clock, ShieldCheck, Truck, RotateCcw } from "lucide-reac
 import { categories } from "@/lib/data/categories";
 import { LogoFull } from "@/components/ui/Logo";
 import { WhatsAppIcon } from "./WhatsAppButton";
+import { CookieSettingsButton } from "./CookieSettingsButton";
 import {
   WHATSAPP_NUMBER,
   SUPPORT_PHONE_DISPLAY,
@@ -97,6 +98,14 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-ink">Shop</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
+              <li>
+                <Link
+                  href="/deals"
+                  className="font-semibold text-accent transition-colors hover:text-accent/80"
+                >
+                  Deals &amp; Clearance
+                </Link>
+              </li>
               {categories.slice(0, 6).map((c) => (
                 <li key={c.slug}>
                   <Link
@@ -129,9 +138,27 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/track" className="transition-colors hover:text-brand">
+                  Track Order
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="transition-colors hover:text-brand">
                   Contact Us
                 </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="transition-colors hover:text-brand">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="transition-colors hover:text-brand">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <CookieSettingsButton />
               </li>
             </ul>
           </div>

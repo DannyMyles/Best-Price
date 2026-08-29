@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { CompareProvider } from "@/context/CompareContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { Toaster } from "@/components/ui/Toaster";
+import {
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_EMAIL,
+  STORE_ADDRESS,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+} from "@/lib/contact";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +52,50 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#1d4ed8",
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "PriceHub",
+  alternateName: "BallyTech Electronics",
+  url: siteUrl,
+  logo: `${siteUrl}/icon.svg`,
+  email: SUPPORT_EMAIL,
+  telephone: SUPPORT_PHONE_DISPLAY,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: STORE_ADDRESS,
+    addressLocality: "Nairobi",
+    addressCountry: "KE",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: SUPPORT_PHONE_DISPLAY,
+    contactType: "customer service",
+    areaServed: "KE",
+    availableLanguage: ["en", "sw"],
+  },
+  sameAs: [FACEBOOK_URL, INSTAGRAM_URL],
+};
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "PriceHub",
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/products?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -51,9 +103,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([orgJsonLd, siteJsonLd]),
+          }}
+        />
         <ToastProvider>
           <CartProvider>
-            <WishlistProvider>{children}</WishlistProvider>
+            <WishlistProvider>
+              <CompareProvider>{children}</CompareProvider>
+            </WishlistProvider>
           </CartProvider>
           <Toaster />
         </ToastProvider>

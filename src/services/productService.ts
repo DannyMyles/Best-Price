@@ -103,16 +103,43 @@ export function selectNewArrivals(all: Product[], max = 8): Product[] {
   return [...picked, ...filler].slice(0, max);
 }
 
+export function isDeal(p: Product): boolean {
+  return (
+    p.badge === "Sale" ||
+    p.badge === "Clearance" ||
+    (p.price !== null &&
+      typeof p.compareAtPrice === "number" &&
+      p.compareAtPrice > p.price)
+  );
+}
+
 export function selectDeals(all: Product[], max = 8): Product[] {
-  return all
-    .filter(
-      (p) =>
-        p.badge === "Sale" ||
-        (p.price !== null &&
-          typeof p.compareAtPrice === "number" &&
-          p.compareAtPrice > p.price)
-    )
-    .slice(0, max);
+  return all.filter(isDeal).slice(0, max);
+}
+
+/** Complementary items to offer as a "frequently bought together" bundle. */
+export function selectBundle(
+  all: Product[],
+  product: Product,
+  max = 2
+): Product[] {
+  const pool = all.filter(
+    (p) => p.sku !== product.sku && p.inStock && p.price !== null
+  );
+  const prefer =
+    product.category === "cameras"
+      ? ["lenses", "accessories"]
+      : product.category === "accessories"
+        ? ["accessories"]
+        : ["accessories"];
+  const picks: Product[] = [];
+  for (const cat of prefer) {
+    for (const p of pool.filter((p) => p.category === cat)) {
+      if (picks.length >= max) break;
+      if (!picks.some((x) => x.sku === p.sku)) picks.push(p);
+    }
+  }
+  return picks.slice(0, max);
 }
 
 export function selectRecommended(

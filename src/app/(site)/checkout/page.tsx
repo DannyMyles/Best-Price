@@ -91,8 +91,15 @@ export default function CheckoutPage() {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
+      const saved = raw
+        ? { ...emptyDraft, ...(JSON.parse(raw) as Partial<Draft>) }
+        : { ...emptyDraft };
+      // Prefill the county from the product-page delivery estimator.
+      if (!saved.county) {
+        saved.county = window.localStorage.getItem("pricehub-county") ?? "";
+      }
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setDraft({ ...emptyDraft, ...JSON.parse(raw) });
+      setDraft(saved);
     } catch {
       /* ignore */
     }
@@ -178,10 +185,15 @@ export default function CheckoutPage() {
 
   async function handlePlace() {
     setSubmitting(true);
-    const localRef = `PH-${Date.now().toString(36).toUpperCase().slice(-6)}`;
-    let id: string | null = null;
+    // Generate the customer-facing reference up front and store it on the
+    // order so /track can look it up by ref + phone.
+    const ref = `PH-${Date.now().toString(36).toUpperCase().slice(-4)}${Math.random()
+      .toString(36)
+      .toUpperCase()
+      .slice(2, 4)}`;
     try {
-      id = await placeOrder({
+      await placeOrder({
+        ref,
         customer: {
           name: draft.name.trim(),
           phone: toMsisdn(draft.phone),
@@ -214,7 +226,6 @@ export default function CheckoutPage() {
       });
     }
 
-    const ref = id ? `#${id.slice(0, 8).toUpperCase()}` : localRef;
     setPlacedSnapshot({ items: lines, total, deliveryFee });
     try {
       window.open(
@@ -302,18 +313,25 @@ export default function CheckoutPage() {
           </dl>
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <AnimatedLinkButton
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(trackMsg)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="mpesa"
-            >
-              <MessageCircle className="h-4 w-4" /> Track Order on WhatsApp
+            <AnimatedLinkButton href="/track" variant="primary">
+              <MessageCircle className="h-4 w-4" /> Track this order
             </AnimatedLinkButton>
             <AnimatedLinkButton href="/products" variant="secondary">
               Continue Shopping
             </AnimatedLinkButton>
           </div>
+          <p className="mt-3 text-xs text-muted">
+            Keep your reference <b>{orderRef}</b>. You can also{" "}
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(trackMsg)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand hover:underline"
+            >
+              ask for an update on WhatsApp
+            </a>
+            .
+          </p>
         </div>
       </div>
     );

@@ -50,6 +50,8 @@ export interface OrderItem {
 
 /** orders/{id} */
 export interface OrderDoc {
+  /** Short customer-facing reference (e.g. "PH-4F2K"). Used by /track. */
+  ref?: string;
   customer: {
     name: string;
     phone: string;

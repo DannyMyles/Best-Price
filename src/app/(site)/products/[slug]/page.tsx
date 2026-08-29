@@ -13,6 +13,7 @@ import {
   getProductBySlug,
   getRelatedProducts,
   getColorVariants,
+  selectBundle,
 } from "@/services/productService";
 import { getCategory } from "@/lib/data/categories";
 import { getCategoryImages } from "@/lib/data/categoryImages";
@@ -24,6 +25,8 @@ import { Price } from "@/components/ui/Price";
 import { Rating } from "@/components/ui/Rating";
 import { StockPill } from "@/components/ui/StockPill";
 import { ProductActions } from "./ProductActions";
+import { DeliveryEstimator } from "@/components/product/DeliveryEstimator";
+import { FrequentlyBoughtTogether } from "@/components/product/FrequentlyBoughtTogether";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { MPESA_PAYBILL_NUMBER, STORE_ADDRESS } from "@/lib/contact";
@@ -76,6 +79,7 @@ export default async function ProductPage({
   const all = await getProducts();
   const related = getRelatedProducts(all, product);
   const variants = getColorVariants(all, product);
+  const bundle = product.price !== null ? selectBundle(all, product) : [];
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://pricehub.co.ke";
@@ -116,11 +120,43 @@ export default async function ProductPage({
       : {}),
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}/` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Products",
+        item: `${siteUrl}/products`,
+      },
+      ...(category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: category.name,
+              item: `${siteUrl}/products?category=${category.slug}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: category ? 4 : 3,
+        name: product.name,
+        item: `${siteUrl}/products/${product.slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="section py-8 sm:py-12">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([jsonLd, breadcrumbJsonLd]),
+        }}
       />
       <nav
         aria-label="Breadcrumb"
@@ -223,6 +259,10 @@ export default async function ProductPage({
             <ProductActions product={product} />
           </div>
 
+          <div className="mt-6">
+            <DeliveryEstimator />
+          </div>
+
           <p className="mt-4 text-xs text-muted">SKU: {product.sku}</p>
         </ScrollReveal>
       </div>
@@ -258,8 +298,13 @@ export default async function ProductPage({
         </p>
       </div>
 
+      {bundle.length > 0 && (
+        <FrequentlyBoughtTogether main={product} addons={bundle} />
+      )}
+
       <ProductReviews
         sku={product.sku}
+        productName={product.name}
         fallbackRating={product.rating}
         fallbackCount={product.reviewCount}
       />

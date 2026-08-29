@@ -259,6 +259,12 @@ export function Navbar() {
                 </div>
                 <div className="mt-5 border-t border-border pt-4">
                   <Link
+                    href="/track"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted"
+                  >
+                    Track Order
+                  </Link>
+                  <Link
                     href="/contact"
                     className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted"
                   >
