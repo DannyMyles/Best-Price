@@ -324,6 +324,44 @@ textarea:focus-visible,
   animation: band-sheen 7s ease-in-out infinite;
 }
 
+/* ---- IoT network backdrop (hero) --------------------------------- */
+/* a tiny bright dot of light that slides the full length of each wire —
+   pathLength=1 on the <line> normalises this regardless of wire length */
+@keyframes iot-wire {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.iot-wire-pulse {
+  stroke-dasharray: 0.005 1;
+  animation: iot-wire var(--dur, 5s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+/* slow "current" shimmer on the base wires */
+@keyframes iot-edge-dash {
+  to { stroke-dashoffset: -12; }
+}
+.iot-edge {
+  stroke-dasharray: 1 4;
+  animation: iot-edge-dash 3.4s linear infinite;
+}
+/* device thumbnails gently bob */
+@keyframes iot-node-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.iot-node {
+  animation: iot-node-float var(--f, 6s) ease-in-out infinite;
+  animation-delay: var(--fd, 0s);
+}
+/* soft brand glow behind each thumbnail */
+@keyframes iot-glow-pulse {
+  0%, 100% { opacity: 0.16; transform: scale(0.9); }
+  50% { opacity: 0.4; transform: scale(1.14); }
+}
+.iot-node-glow {
+  animation: iot-glow-pulse 3.6s ease-in-out infinite;
+}
+
 /* ---- Reduced motion ---------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -340,10 +378,14 @@ textarea:focus-visible,
   .animate-float-slower,
   .marquee-track,
   .animate-gradient-pan,
-  .band-sheen::after {
+  .band-sheen::after,
+  .iot-edge,
+  .iot-node,
+  .iot-node-glow {
     animation: none !important;
   }
-  .band-sheen::after {
+  .band-sheen::after,
+  .iot-wire-pulse {
     display: none;
   }
   .marquee-track {

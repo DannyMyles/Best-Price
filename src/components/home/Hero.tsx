@@ -4,12 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { CategoryChips } from "./CategoryChips";
-import { InteractiveBackdrop } from "./InteractiveBackdrop";
+import { IotBackdrop } from "./IotBackdrop";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-surface">
-      <InteractiveBackdrop />
+      <IotBackdrop />
 
       <div className="section relative py-14 sm:py-20">
         <motion.div
@@ -22,8 +22,8 @@ export function Hero() {
             The best way to buy the tech you love.
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted">
-            MacBooks, iPads, iMacs and Surface devices — warrantied, delivered
-            countrywide, and paid for with M-Pesa.
+            Laptops, tablets, desktops and everyday electronics — genuine,
+            warrantied, delivered countrywide, and paid for with M-Pesa.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
