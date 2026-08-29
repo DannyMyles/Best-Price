@@ -10,7 +10,6 @@ import { useCategories } from "@/hooks/useCategories";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useMounted } from "@/hooks/useMounted";
 import { filterAndSortProducts, priceBounds } from "@/services/productService";
-import { getCategory } from "@/lib/data/categories";
 import {
   parseFilters,
   filtersToParams,
@@ -87,7 +86,8 @@ export function ProductsView() {
   );
 
   const activeCategoryName = filters.category
-    ? getCategory(filters.category)?.name
+    ? (categories.find((c) => c.slug === filters.category)?.name ??
+      filters.category)
     : null;
   const count = activeFilterCount(filters);
 

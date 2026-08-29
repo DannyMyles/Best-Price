@@ -5,7 +5,7 @@ import { Search, X } from "lucide-react";
 export function SearchBar({
   value,
   onChange,
-  placeholder = "Search products, e.g. “MacBook Air”",
+  placeholder = "Search laptops, phones, cameras, TVs…",
 }: {
   value: string;
   onChange: (value: string) => void;

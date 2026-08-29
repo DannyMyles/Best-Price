@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, MessageCircle, ArrowRight, Clock, Smartphone } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { CopyInline } from "@/components/ui/CopyInline";
 import {
   WHATSAPP_NUMBER,
   STORE_ADDRESS,
@@ -45,7 +46,20 @@ export function VisitStrip() {
             <Detail
               icon={Smartphone}
               label="Pay with M-Pesa"
-              value={`Send Money to ${MPESA_PAYBILL_NUMBER}`}
+              value={
+                <>
+                  Send Money to{" "}
+                  <CopyInline
+                    value={MPESA_PAYBILL_NUMBER.replace(/\s/g, "")}
+                    display={
+                      <span className="font-semibold">{MPESA_PAYBILL_NUMBER}</span>
+                    }
+                    toastMessage="M-Pesa number copied"
+                    ariaLabel="Copy M-Pesa number"
+                    className="text-white"
+                  />
+                </>
+              }
             />
             <Detail
               icon={MessageCircle}
@@ -66,7 +80,7 @@ function Detail({
 }: {
   icon: typeof MapPin;
   label: string;
-  value: string;
+  value: React.ReactNode;
 }) {
   return (
     <div className="flex gap-2.5">

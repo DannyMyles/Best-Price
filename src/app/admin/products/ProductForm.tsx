@@ -6,12 +6,20 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Plus, Trash2, Upload, Loader2, Link2, X } from "lucide-react";
 import { storage } from "@/lib/firebase/config";
 import { upsertProduct } from "@/lib/firebase/products";
-import { invalidateAdminData } from "@/hooks/useAdminData";
+import { useAdminData, invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
-import { categories } from "@/lib/data/categories";
+import { fetchAllCategoriesAdmin } from "@/lib/firebase/categories";
+import { categories as seedCategories } from "@/lib/data/categories";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
 import { slugify } from "@/lib/format";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
-import type { Product, ProductSpec, CategorySlug, ProductBadge } from "@/lib/types";
+import type {
+  Product,
+  ProductSpec,
+  CategorySlug,
+  ProductBadge,
+  Category,
+} from "@/lib/types";
 
 const BADGE_OPTIONS: ProductBadge[] = [
   "New",
@@ -25,11 +33,22 @@ const BADGE_OPTIONS: ProductBadge[] = [
 export function ProductForm({ initial }: { initial?: Product }) {
   const router = useRouter();
   const { push } = useToast();
+  const { data: liveCategories } = useAdminData<Category[]>(
+    "admin:categories",
+    fetchAllCategoriesAdmin,
+    isFirebaseConfigured
+  );
+  const categories =
+    liveCategories && liveCategories.length > 0
+      ? liveCategories
+      : seedCategories;
   const isEdit = Boolean(initial);
 
   const [sku, setSku] = useState(initial?.sku ?? "");
   const [name, setName] = useState(initial?.name ?? "");
-  const [category, setCategory] = useState<CategorySlug>(initial?.category ?? categories[0].slug);
+  const [category, setCategory] = useState<CategorySlug>(
+    initial?.category ?? categories[0]?.slug ?? ""
+  );
   const [price, setPrice] = useState(initial?.price?.toString() ?? "");
   const [compareAtPrice, setCompareAtPrice] = useState(
     initial?.compareAtPrice?.toString() ?? ""
@@ -146,9 +165,14 @@ export function ProductForm({ initial }: { initial?: Product }) {
             onChange={(e) => setCategory(e.target.value as CategorySlug)}
             className="input"
           >
+            {category &&
+              !categories.some((c) => c.slug === category) && (
+                <option value={category}>{category} (unknown)</option>
+              )}
             {categories.map((c) => (
               <option key={c.slug} value={c.slug}>
                 {c.name}
+                {c.active === false ? " — hidden" : ""}
               </option>
             ))}
           </select>

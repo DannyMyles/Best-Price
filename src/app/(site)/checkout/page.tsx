@@ -33,6 +33,7 @@ import { placeOrder } from "@/services/orderService";
 import { AnimatedButton, AnimatedLinkButton } from "@/components/ui/AnimatedButton";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { MpesaInstructions } from "@/components/checkout/MpesaInstructions";
+import { CopyInline } from "@/components/ui/CopyInline";
 
 const DRAFT_KEY = "pricehub-checkout-draft";
 
@@ -287,7 +288,17 @@ export default function CheckoutPage() {
               <dt className="text-xs text-muted">Payment</dt>
               <dd className="font-medium text-ink">
                 {paymentMethods.find((p) => p.value === draft.payment)?.label}
-                {draft.payment === "mpesa" && ` · ${MPESA_PAYBILL_NUMBER}`}
+                {draft.payment === "mpesa" && (
+                  <>
+                    {" · "}
+                    <CopyInline
+                      value={MPESA_PAYBILL_NUMBER.replace(/\s/g, "")}
+                      display={MPESA_PAYBILL_NUMBER}
+                      toastMessage="M-Pesa number copied"
+                      ariaLabel="Copy M-Pesa number"
+                    />
+                  </>
+                )}
               </dd>
             </div>
             <div>

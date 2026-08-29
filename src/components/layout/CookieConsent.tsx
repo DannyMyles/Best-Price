@@ -49,9 +49,11 @@ export function CookieConsent() {
             <p className="flex items-start gap-2.5 text-sm text-ink/80">
               <Cookie className="mt-0.5 h-4.5 w-4.5 shrink-0 text-brand" />
               <span>
-                We use cookies and local storage to remember your cart and
-                wishlist, and — if you allow it — to understand how the site is
-                used. See our{" "}
+                We use cookies and similar technologies to provide a seamless
+                shopping experience, remember your cart and wishlist, and improve
+                our website. With your consent, we may also use cookies to
+                understand how our site is used and personalize your experience.
+                Learn more in our{" "}
                 <Link
                   href="/privacy"
                   className="font-semibold text-brand hover:underline"

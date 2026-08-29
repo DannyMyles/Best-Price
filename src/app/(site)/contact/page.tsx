@@ -11,6 +11,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { CopyInline } from "@/components/ui/CopyInline";
 import { ContactForm } from "./ContactForm";
 import {
   SUPPORT_PHONE_DISPLAY,
@@ -107,8 +108,16 @@ export default function ContactPage() {
             <InfoCard
               icon={<Phone className="h-5 w-5" />}
               label="Call / SMS"
-              value={SUPPORT_PHONE_DISPLAY}
-              href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/\s/g, "")}`}
+              value={
+                <CopyInline
+                  value={SUPPORT_PHONE_DISPLAY.replace(/[^\d+]/g, "")}
+                  display={SUPPORT_PHONE_DISPLAY}
+                  toastMessage="Phone number copied"
+                  ariaLabel="Copy phone number"
+                  className="text-ink"
+                />
+              }
+              sub="Tap the number to copy"
             />
             <InfoCard
               icon={<Mail className="h-5 w-5" />}
@@ -224,7 +233,7 @@ function InfoCard({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: React.ReactNode;
   sub?: string;
   href?: string;
   className?: string;

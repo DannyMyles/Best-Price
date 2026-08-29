@@ -15,7 +15,7 @@ import {
   getColorVariants,
   selectBundle,
 } from "@/services/productService";
-import { getCategory } from "@/lib/data/categories";
+import { getCategories } from "@/services/categoryService";
 import { getCategoryImages } from "@/lib/data/categoryImages";
 import { formatKES } from "@/lib/format";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -29,6 +29,7 @@ import { DeliveryEstimator } from "@/components/product/DeliveryEstimator";
 import { FrequentlyBoughtTogether } from "@/components/product/FrequentlyBoughtTogether";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
+import { CopyInline } from "@/components/ui/CopyInline";
 import { MPESA_PAYBILL_NUMBER, STORE_ADDRESS } from "@/lib/contact";
 
 // Regenerate periodically so products added/edited via the admin dashboard
@@ -75,8 +76,9 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const category = getCategory(product.category);
   const all = await getProducts();
+  const categories = await getCategories();
+  const category = categories.find((c) => c.slug === product.category);
   const related = getRelatedProducts(all, product);
   const variants = getColorVariants(all, product);
   const bundle = product.price !== null ? selectBundle(all, product) : [];
@@ -277,7 +279,19 @@ export default async function ProductPage({
         <InfoCard
           icon={Store}
           title="Payment"
-          body={`Pay on M-Pesa (Send Money to ${MPESA_PAYBILL_NUMBER}), cash on delivery, or bank transfer.`}
+          body={
+            <>
+              Pay on M-Pesa (Send Money to{" "}
+              <CopyInline
+                value={MPESA_PAYBILL_NUMBER.replace(/\s/g, "")}
+                display={MPESA_PAYBILL_NUMBER}
+                toastMessage="M-Pesa number copied"
+                ariaLabel="Copy M-Pesa number"
+                className="font-medium text-ink"
+              />
+              ), cash on delivery, or bank transfer.
+            </>
+          }
         />
         <InfoCard
           icon={ShieldCheck}
@@ -330,7 +344,7 @@ function InfoCard({
 }: {
   icon: typeof Truck;
   title: string;
-  body: string;
+  body: React.ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4">

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Clock, ShieldCheck, Truck, RotateCcw } from "lucide-react";
-import { categories } from "@/lib/data/categories";
+import { getCategories } from "@/services/categoryService";
 import { LogoFull } from "@/components/ui/Logo";
 import { WhatsAppIcon } from "./WhatsAppButton";
 import { CookieSettingsButton } from "./CookieSettingsButton";
+import { CopyInline } from "@/components/ui/CopyInline";
 import {
   WHATSAPP_NUMBER,
   SUPPORT_PHONE_DISPLAY,
@@ -37,8 +39,9 @@ const trust = [
   { icon: RotateCcw, label: "7-day returns" },
 ];
 
-export function Footer() {
+export async function Footer() {
   const year = new Date().getFullYear();
+  const categories = await getCategories();
 
   return (
     <footer className="border-t border-border bg-surface-muted text-ink">
@@ -191,12 +194,24 @@ export function Footer() {
                 {STORE_HOURS}
               </li>
               <li className="mt-3 rounded-xl border border-border bg-surface px-3.5 py-2.5">
-                <p className="text-xs font-semibold text-mpesa">Lipa na M-Pesa</p>
-                <p className="mt-0.5 text-xs text-muted">
+                <div className="relative h-9 w-44">
+                  <Image
+                    src="/mpesa.jpg"
+                    alt="Lipa na M-Pesa"
+                    fill
+                    sizes="176px"
+                    className="object-cover object-center"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-muted">
                   Send Money to{" "}
-                  <span className="font-semibold text-ink">
-                    {MPESA_PAYBILL_NUMBER}
-                  </span>{" "}
+                  <CopyInline
+                    value={MPESA_PAYBILL_NUMBER.replace(/\s/g, "")}
+                    display={MPESA_PAYBILL_NUMBER}
+                    toastMessage="M-Pesa number copied"
+                    ariaLabel="Copy M-Pesa number"
+                    className="font-semibold text-ink"
+                  />{" "}
                   — plus cash &amp; bank transfer.
                 </p>
               </li>
