@@ -62,7 +62,7 @@ export async function Footer() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-10 pt-10 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 pt-10 md:grid-cols-4 md:gap-10">
           <div className="col-span-2 md:col-span-1">
             <span className="text-panel-dark">
               <LogoFull className="text-[1.3rem]" />
@@ -166,7 +166,7 @@ export async function Footer() {
             </ul>
           </div>
 
-          <div>
+          <div className="col-span-2 min-w-0 md:col-span-1">
             <h4 className="text-sm font-semibold text-ink">Visit &amp; Pay</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted">
               <li className="flex items-start gap-2">
@@ -193,13 +193,13 @@ export async function Footer() {
                 <Clock className="h-3.5 w-3.5 shrink-0 text-muted/70" />
                 {STORE_HOURS}
               </li>
-              <li className="mt-3 rounded-xl border border-border bg-surface px-3.5 py-2.5">
-                <div className="relative h-9 w-44">
+              <li className="mt-3 max-w-xs rounded-xl border border-border bg-surface px-3.5 py-2.5">
+                <div className="relative h-8 w-40 max-w-full overflow-hidden">
                   <Image
                     src="/mpesa.jpg"
                     alt="Lipa na M-Pesa"
                     fill
-                    sizes="176px"
+                    sizes="160px"
                     className="object-cover object-center"
                   />
                 </div>
