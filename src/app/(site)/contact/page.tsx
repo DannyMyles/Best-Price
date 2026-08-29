@@ -1,99 +1,213 @@
-"use client";
-
-import { useState } from "react";
-import { MapPin, Phone, MessageCircle, Clock } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  MapPin,
+  Phone,
+  MessageCircle,
+  Mail,
+  Clock,
+  Navigation,
+  Truck,
+  HelpCircle,
+} from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { AnimatedButton } from "@/components/ui/AnimatedButton";
-import { WHATSAPP_NUMBER } from "@/components/layout/WhatsAppButton";
+import { ContactForm } from "./ContactForm";
+import {
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_EMAIL,
+  STORE_ADDRESS,
+  STORE_HOURS,
+  STORE_HOURS_NOTE,
+  STORE_GEO,
+  STORE_DIRECTIONS_URL,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+  whatsappLink,
+} from "@/lib/contact";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description:
+    "Talk to PriceHub — WhatsApp, call, email or visit our shop at Bihi Towers, Nairobi CBD. We reply within minutes, Mon–Sat 9am–6pm.",
+  alternates: { canonical: "/contact" },
+};
 
 const mapSrc =
   "https://www.google.com/maps?q=" +
   encodeURIComponent("Bihi Towers, Nairobi CBD, Kenya") +
   "&output=embed";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ElectronicsStore",
+  name: "PriceHub",
+  description:
+    "Multi-brand electronics shop in Nairobi — laptops, phones, tablets, cameras, TVs, audio and accessories.",
+  telephone: SUPPORT_PHONE_DISPLAY,
+  email: SUPPORT_EMAIL,
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://pricehub.co.ke",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Bihi Towers, G7 Ground Floor, Moi Avenue",
+    addressLocality: "Nairobi",
+    addressRegion: "Nairobi",
+    addressCountry: "KE",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: STORE_GEO.lat,
+    longitude: STORE_GEO.lng,
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+    opens: "09:00",
+    closes: "18:00",
+  },
+  currenciesAccepted: "KES",
+  paymentAccepted: "M-Pesa, Cash, Bank transfer",
+  sameAs: [FACEBOOK_URL, INSTAGRAM_URL],
+};
+
 export default function ContactPage() {
-  const [message, setMessage] = useState("");
-
-  function handleSend(e: React.FormEvent) {
-    e.preventDefault();
-    if (!message.trim()) return;
-    window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
-    setMessage("");
-  }
-
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+    <div className="section py-8 sm:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <ScrollReveal>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Contact Us
         </h1>
         <p className="mt-2 max-w-lg text-sm text-muted">
           Have a question about a product or an order? Reach us directly — we
-          typically reply within minutes on WhatsApp.
+          typically reply within minutes on WhatsApp, {STORE_HOURS}.
         </p>
       </ScrollReveal>
 
-      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <ScrollReveal delay={0.1} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <InfoCard
-              icon={<MapPin className="h-5 w-5" />}
-              label="Location"
-              value="Bihi Towers, G7 Ground Floor, Nairobi CBD"
-            />
-            <InfoCard
-              icon={<Phone className="h-5 w-5" />}
-              label="Phone"
-              value="+254 721 966663"
-              href="tel:+254721966663"
-            />
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <ScrollReveal delay={0.1} className="flex flex-col gap-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <InfoCard
               icon={<MessageCircle className="h-5 w-5" />}
               label="WhatsApp"
               value="Chat with us"
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              sub="Fastest — usually replies in minutes"
+              href={whatsappLink()}
+            />
+            <InfoCard
+              icon={<Phone className="h-5 w-5" />}
+              label="Call / SMS"
+              value={SUPPORT_PHONE_DISPLAY}
+              href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/\s/g, "")}`}
+            />
+            <InfoCard
+              icon={<Mail className="h-5 w-5" />}
+              label="Email"
+              value={SUPPORT_EMAIL}
+              href={`mailto:${SUPPORT_EMAIL}`}
             />
             <InfoCard
               icon={<Clock className="h-5 w-5" />}
               label="Hours"
-              value="Mon – Sat, 9am – 6pm"
+              value={STORE_HOURS}
+              sub={STORE_HOURS_NOTE}
             />
+            <InfoCard
+              className="sm:col-span-2"
+              icon={<MapPin className="h-5 w-5" />}
+              label="Visit the shop"
+              value={STORE_ADDRESS}
+              sub="G7, ground floor — walk-ins welcome"
+              href={STORE_DIRECTIONS_URL}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-medium text-muted">Follow us</span>
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:border-brand/40 hover:text-brand"
+            >
+              Facebook
+            </a>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:border-brand/40 hover:text-brand"
+            >
+              Instagram
+            </a>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border">
             <iframe
               src={mapSrc}
               width="100%"
-              height="280"
+              height="260"
               style={{ border: 0 }}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="PriceHub location"
+              title="PriceHub location — Bihi Towers, Nairobi CBD"
             />
           </div>
+
+          <a
+            href={STORE_DIRECTIONS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary w-fit"
+          >
+            <Navigation className="h-4 w-4" /> Get directions
+          </a>
         </ScrollReveal>
 
-        <ScrollReveal delay={0.15}>
-          <form
-            onSubmit={handleSend}
-            className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-surface p-6"
-          >
-            <h2 className="text-base font-semibold text-ink">Send us a message</h2>
-            <textarea
-              required
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={6}
-              placeholder="Tell us what you're looking for…"
-              className="flex-1 rounded-xl border border-border bg-surface-muted/50 px-4 py-3 text-sm outline-none focus:border-brand/50"
-            />
-            <AnimatedButton type="submit" variant="primary" className="w-full">
-              <MessageCircle className="h-4 w-4" /> Send via WhatsApp
-            </AnimatedButton>
-          </form>
+        <ScrollReveal delay={0.15} className="flex flex-col gap-5">
+          {/* Wholesale / bulk */}
+          <div className="rounded-2xl border border-brand/25 bg-brand-050/60 p-5">
+            <p className="flex items-center gap-2 text-sm font-semibold text-brand">
+              <Truck className="h-4 w-4" /> Buying for a business or in bulk?
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              We supply schools, offices and resellers at wholesale rates. Send
+              your list on WhatsApp for a same-day quote.
+            </p>
+            <a
+              href={whatsappLink(
+                "Hi PriceHub, I'd like a wholesale / bulk quote. Here's my list:"
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-strong"
+            >
+              Request a wholesale quote →
+            </a>
+          </div>
+
+          <ContactForm />
+
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-muted/50 p-4 text-sm text-muted">
+            <HelpCircle className="h-4 w-4 shrink-0 text-brand" />
+            <span>
+              Quick question? Our{" "}
+              <Link href="/faqs" className="font-semibold text-brand hover:underline">
+                FAQs
+              </Link>{" "}
+              cover delivery, payment, warranty and returns.
+            </span>
+          </div>
         </ScrollReveal>
       </div>
     </div>
@@ -104,16 +218,20 @@ function InfoCard({
   icon,
   label,
   value,
+  sub,
   href,
+  className,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
+  sub?: string;
   href?: string;
+  className?: string;
 }) {
   const content = (
     <div className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-muted text-ink">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-050 text-brand">
         {icon}
       </div>
       <div>
@@ -121,6 +239,7 @@ function InfoCard({
           {label}
         </p>
         <p className="mt-0.5 text-sm font-semibold text-ink">{value}</p>
+        {sub && <p className="mt-0.5 text-xs text-muted">{sub}</p>}
       </div>
     </div>
   );
@@ -131,11 +250,11 @@ function InfoCard({
         href={href}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel="noopener noreferrer"
-        className="block transition-transform hover:-translate-y-0.5"
+        className={`block transition-transform hover:-translate-y-0.5 ${className ?? ""}`}
       >
         {content}
       </a>
     );
   }
-  return content;
+  return <div className={className}>{content}</div>;
 }

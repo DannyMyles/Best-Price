@@ -12,12 +12,21 @@ export const MPESA_PAYBILL_NUMBER = "0721 966663";
 export const MPESA_ACCOUNT_NAME = "PriceHub";
 
 export const SUPPORT_PHONE_DISPLAY = "+254 721 966663";
-export const SUPPORT_EMAIL = "sales@pricehub.co.ke";
+export const SUPPORT_EMAIL = "ballyudin@outlook.com";
 
 export const STORE_ADDRESS = "Bihi Towers, G7 Ground Floor, Nairobi CBD, Kenya";
 export const STORE_MAPS_URL =
   "https://www.google.com/maps?q=Bihi+Towers,+Nairobi+CBD,+Kenya";
+export const STORE_DIRECTIONS_URL =
+  "https://www.google.com/maps/dir/?api=1&destination=" +
+  encodeURIComponent("Bihi Towers, Moi Avenue, Nairobi CBD, Kenya");
 export const STORE_HOURS = "Mon–Sat, 9am – 6pm";
+export const STORE_HOURS_NOTE = "Closed Sundays & public holidays";
+/** Approximate — update to the exact pin before launch. */
+export const STORE_GEO = { lat: -1.2841, lng: 36.8256 };
+
+export const FACEBOOK_URL = "https://www.facebook.com/BallytechElectronicsKe/";
+export const INSTAGRAM_URL = "https://www.instagram.com/ballytechelectronics/";
 
 export function whatsappLink(message?: string): string {
   const base = `https://wa.me/${WHATSAPP_NUMBER}`;

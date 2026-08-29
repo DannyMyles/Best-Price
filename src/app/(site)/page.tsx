@@ -7,6 +7,16 @@ import { PromoBanners } from "@/components/home/PromoBanners";
 import { VisitStrip } from "@/components/home/VisitStrip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "PriceHub — Genuine electronics at honest prices in Kenya",
+  },
+  description:
+    "PriceHub is a multi-brand electronics shop in Nairobi — laptops, phones, tablets, cameras, TVs, audio and accessories. Genuine stock, honest prices, secure M-Pesa payment and countrywide delivery.",
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (

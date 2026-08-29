@@ -15,6 +15,8 @@ import {
   getColorVariants,
 } from "@/services/productService";
 import { getCategory } from "@/lib/data/categories";
+import { getCategoryImages } from "@/lib/data/categoryImages";
+import { formatKES } from "@/lib/format";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -43,9 +45,21 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
+  const image =
+    product.images?.[0] ?? getCategoryImages(product.category)[0];
+  const priceLine =
+    product.price !== null ? ` — ${formatKES(product.price)}` : "";
   return {
     title: product.name,
-    description: product.description,
+    description: `${product.description}${priceLine}. Genuine, warrantied, delivered countrywide with M-Pesa payment.`,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: {
+      title: `${product.name} · PriceHub`,
+      description: product.description,
+      url: `/products/${product.slug}`,
+      type: "website",
+      images: image ? [{ url: image }] : undefined,
+    },
   };
 }
 
@@ -63,8 +77,51 @@ export default async function ProductPage({
   const related = getRelatedProducts(all, product);
   const variants = getColorVariants(all, product);
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://pricehub.co.ke";
+  const productImages = product.images?.length
+    ? product.images
+    : getCategoryImages(product.category).slice(0, 1);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    sku: product.sku,
+    image: productImages,
+    category: category?.name,
+    ...(product.rating != null
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: Math.max(1, product.reviewCount ?? 1),
+          },
+        }
+      : {}),
+    ...(product.price !== null
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "KES",
+            price: product.price,
+            availability:
+              product.inStock && product.stockCount !== 0
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+            url: `${siteUrl}/products/${product.slug}`,
+            seller: { "@type": "Organization", name: "PriceHub" },
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="section py-8 sm:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav
         aria-label="Breadcrumb"
         className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted"

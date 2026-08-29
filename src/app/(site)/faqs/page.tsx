@@ -1,7 +1,12 @@
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "FAQs",
+  description:
+    "Answers to common questions about PriceHub — genuine stock, delivery times, M-Pesa payment, warranty and returns.",
+  alternates: { canonical: "/faqs" },
 };
 
 const faqs = [

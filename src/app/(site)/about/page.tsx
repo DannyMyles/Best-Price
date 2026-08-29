@@ -1,8 +1,13 @@
 import { ShieldCheck, MapPin, MessageCircle } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "About Us",
+  description:
+    "PriceHub (formerly BallyTech Electronics) is a multi-brand electronics shop at Bihi Towers, Nairobi CBD — genuine products, honest prices, countrywide delivery.",
+  alternates: { canonical: "/about" },
 };
 
 const points = [
