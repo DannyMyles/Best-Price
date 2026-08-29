@@ -1,13 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShieldCheck, Truck, Smartphone } from "lucide-react";
-import { SearchAutocomplete } from "@/components/search/SearchAutocomplete";
+import { ArrowRight } from "lucide-react";
 import { CategoryChips } from "./CategoryChips";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border bg-surface">
+    <section className="relative overflow-hidden bg-surface">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -32,21 +32,13 @@ export function Hero() {
             countrywide, and paid for with M-Pesa.
           </p>
 
-          <div className="mx-auto mt-7 max-w-xl">
-            <SearchAutocomplete size="lg" />
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-success" /> Genuine &amp;
-              warrantied
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Smartphone className="h-4 w-4 text-success" /> Secure M-Pesa
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Truck className="h-4 w-4 text-success" /> 2–5 day delivery
-            </span>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/products" className="btn-primary px-6 py-3">
+              Shop all products <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="#categories" className="btn-secondary px-6 py-3">
+              Browse categories
+            </Link>
           </div>
         </motion.div>
 

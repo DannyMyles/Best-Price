@@ -20,7 +20,6 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [heroPassed, setHeroPassed] = useState(false);
   const { itemCount, openCart, subtotal } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
@@ -28,18 +27,11 @@ export function Navbar() {
   const menuRef = useFocusTrap<HTMLDivElement>(mobileOpen, () => setMobileOpen(false));
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 8);
-      setHeroPassed(window.scrollY > 360);
-    };
+    const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // On the homepage the hero owns the search bar; the nav search fades in
-  // once you scroll past the hero. Everywhere else it is always shown.
-  const showNavSearch = pathname !== "/" || heroPassed;
 
   useEffect(() => {
     // Close overlays after a route change.
@@ -69,11 +61,9 @@ export function Navbar() {
             <LogoFull className="text-[1.15rem] sm:text-[1.35rem]" />
           </Link>
 
-          {/* Desktop search — the hero owns it on the homepage until scrolled */}
+          {/* Desktop search — always visible, the single search on the site */}
           <div className="hidden min-w-0 flex-1 lg:block">
-            {showNavSearch && (
-              <SearchAutocomplete className="mx-auto max-w-xl" />
-            )}
+            <SearchAutocomplete className="mx-auto max-w-xl" />
           </div>
 
           <nav className="hidden items-center gap-6 lg:flex">

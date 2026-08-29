@@ -275,6 +275,55 @@ textarea:focus-visible,
   animation: pop 0.32s ease-out;
 }
 
+/* Infinite marquee — the track holds two identical copies of the content
+   so a -50% translate loops seamlessly. Pauses on hover. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Slowly panning gradient wash (for the trust marquee band). */
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.animate-gradient-pan {
+  background-size: 200% 100%;
+  animation: gradient-pan 14s linear infinite;
+}
+
+/* Diagonal light sheen that sweeps across a band. */
+@keyframes band-sheen {
+  0% { transform: translateX(-150%) skewX(-16deg); }
+  60%, 100% { transform: translateX(360%) skewX(-16deg); }
+}
+.band-sheen {
+  position: relative;
+}
+.band-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 16%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sheen-color, rgba(255, 255, 255, 0.16)),
+    transparent
+  );
+  animation: band-sheen 7s ease-in-out infinite;
+}
+
 /* ---- Reduced motion ---------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -288,7 +337,17 @@ textarea:focus-visible,
     transition-duration: 0.001ms !important;
   }
   .animate-float-slow,
-  .animate-float-slower {
+  .animate-float-slower,
+  .marquee-track,
+  .animate-gradient-pan,
+  .band-sheen::after {
     animation: none !important;
+  }
+  .band-sheen::after {
+    display: none;
+  }
+  .marquee-track {
+    /* keep the strip readable when animation is off */
+    width: auto !important;
   }
 }
