@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="PriceHub">
+  <rect width="32" height="32" rx="7" fill="#1d4ed8" />
+  <path
+    d="M11 8V24 M11 16c0-2.9 2-4.8 5-4.8s5 1.9 5 4.8V24"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="2.9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="22" cy="10.2" r="2.1" fill="#ffffff" />
+</svg>
