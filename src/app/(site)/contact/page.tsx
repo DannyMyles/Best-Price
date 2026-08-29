@@ -71,7 +71,7 @@ export default function ContactPage() {
               style={{ border: 0 }}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="BestPrice Technologies location"
+              title="PriceHub location"
             />
           </div>
         </ScrollReveal>

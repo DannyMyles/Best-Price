@@ -2,29 +2,48 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Check, Heart } from "lucide-react";
+import { Plus, Check, Heart, Eye, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Product } from "@/lib/types";
-import { formatKES } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
-import { TiltCard } from "@/components/ui/TiltCard";
+import { useToast } from "@/context/ToastContext";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { Badge } from "@/components/ui/Badge";
+import { Price } from "@/components/ui/Price";
+import { Rating } from "@/components/ui/Rating";
 import { cn } from "@/lib/cn";
-import { badgeStyles } from "@/lib/badges";
+import { getProductBadges, isOutOfStock } from "@/lib/badges";
+import { whatsappLink } from "@/lib/contact";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  onQuickView,
+  priority = false,
+}: {
+  product: Product;
+  onQuickView?: (product: Product) => void;
+  priority?: boolean;
+}) {
   const { addItem } = useCart();
   const { toggle, isSaved } = useWishlist();
+  const { push } = useToast();
   const [added, setAdded] = useState(false);
+  const [pop, setPop] = useState(false);
   const saved = isSaved(product.slug);
+  const badges = getProductBadges(product);
+  const soldOut = isOutOfStock(product);
 
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, 1);
     setAdded(true);
+    push({
+      type: "success",
+      message: `${product.name} added to cart`,
+      action: { label: "View cart", href: "/cart" },
+    });
     setTimeout(() => setAdded(false), 1500);
   }
 
@@ -32,76 +51,123 @@ export function ProductCard({ product }: { product: Product }) {
     e.preventDefault();
     e.stopPropagation();
     toggle(product.slug);
+    setPop(true);
+    setTimeout(() => setPop(false), 320);
+    push({
+      type: saved ? "info" : "success",
+      message: saved ? "Removed from wishlist" : "Saved to wishlist",
+    });
+  }
+
+  function handleQuickView(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    onQuickView?.(product);
   }
 
   return (
-    <SpotlightCard className="flex h-full flex-col">
+    <div className="card card-hover group relative flex h-full flex-col overflow-hidden">
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
-        <div className="relative">
-          {product.badge && (
-            <span
-              className={cn(
-                "absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                badgeStyles[product.badge]
-              )}
-            >
-              {product.badge}
-            </span>
-          )}
+        <div className="relative overflow-hidden bg-surface-muted">
+          <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+            {badges.map((b) => (
+              <Badge key={b} variant={b} />
+            ))}
+          </div>
+
           <button
             onClick={handleToggleWishlist}
             aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
+            aria-pressed={saved}
             className={cn(
-              "absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur-sm transition-colors",
-              saved ? "bg-brand text-white" : "bg-white/80 text-ink/60 hover:text-brand"
+              "absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors",
+              saved
+                ? "bg-brand text-white"
+                : "bg-white/85 text-ink/60 hover:text-brand",
+              pop && "animate-pop"
             )}
           >
-            <Heart className="h-4 w-4" fill={saved ? "currentColor" : "none"} strokeWidth={1.8} />
+            <Heart
+              className="h-4 w-4"
+              fill={saved ? "currentColor" : "none"}
+              strokeWidth={1.8}
+            />
           </button>
-          <TiltCard maxTilt={5} className="aspect-square">
+
+          <div className="aspect-square">
             <ProductImage
               src={product.images?.[0]}
               category={product.category}
               alt={product.name}
-              className="h-full w-full rounded-t-2xl"
+              priority={priority}
+              className={cn(
+                "h-full w-full transition-transform duration-500 group-hover:scale-105",
+                soldOut && "opacity-70"
+              )}
               iconClassName="h-16 w-16 sm:h-20 sm:w-20"
             />
-          </TiltCard>
+          </div>
+
+          {onQuickView && (
+            <button
+              onClick={handleQuickView}
+              className="absolute inset-x-3 bottom-3 z-10 flex translate-y-2 items-center justify-center gap-1.5 rounded-full bg-white/95 py-2 text-xs font-semibold text-ink opacity-0 shadow-md backdrop-blur transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100"
+            >
+              <Eye className="h-3.5 w-3.5" /> Quick view
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-1.5 p-4">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted">
-            {product.category.replace("-", " ")}
+            {product.category.replace(/-/g, " ")}
           </p>
-          <h3 className="text-sm font-semibold leading-snug text-ink line-clamp-2">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink">
             {product.name}
           </h3>
-          <p className="mt-auto text-base font-semibold text-ink">
-            {formatKES(product.price)}
-          </p>
+          {product.rating != null && (
+            <Rating value={product.rating} count={product.reviewCount} />
+          )}
+          <div className="mt-auto pt-1">
+            <Price price={product.price} compareAtPrice={product.compareAtPrice} />
+          </div>
 
-          <motion.button
-            onClick={handleAdd}
-            whileTap={{ scale: 0.96 }}
-            className={cn(
-              "mt-1 flex w-full items-center justify-center gap-1.5 rounded-full py-2.5 text-sm font-medium transition-colors",
-              added
-                ? "bg-success text-white"
-                : "bg-brand text-white hover:bg-brand/90"
-            )}
-          >
-            {added ? (
-              <>
-                <Check className="h-4 w-4" /> Added
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" /> Add to Cart
-              </>
-            )}
-          </motion.button>
+          {soldOut ? (
+            <a
+              href={whatsappLink(
+                `Hi PriceHub, is "${product.name}" back in stock?`
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border border-border py-2.5 text-sm font-semibold text-ink/70 transition-colors hover:border-brand/50 hover:text-brand"
+            >
+              <MessageCircle className="h-4 w-4" /> Notify me
+            </a>
+          ) : (
+            <motion.button
+              onClick={handleAdd}
+              whileTap={{ scale: 0.96 }}
+              className={cn(
+                "mt-2 flex w-full items-center justify-center gap-1.5 rounded-full py-2.5 text-sm font-semibold transition-colors",
+                added
+                  ? "bg-success text-white"
+                  : "bg-brand text-white hover:bg-brand-strong"
+              )}
+            >
+              {added ? (
+                <>
+                  <Check className="h-4 w-4" /> Added
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" /> Add to Cart
+                </>
+              )}
+            </motion.button>
+          )}
         </div>
       </Link>
-    </SpotlightCard>
+    </div>
   );
 }

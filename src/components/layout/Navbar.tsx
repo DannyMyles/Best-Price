@@ -1,342 +1,287 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Search, ShoppingCart, ChevronDown, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCategories } from "@/hooks/useCategories";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { LogoFull } from "@/components/ui/Logo";
+import { SearchAutocomplete } from "@/components/search/SearchAutocomplete";
+import { SearchOverlay } from "@/components/search/SearchOverlay";
+import { formatKES } from "@/lib/format";
 import { cn } from "@/lib/cn";
-
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Products" },
-];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const { itemCount, openCart } = useCart();
+  const [scrolled, setScrolled] = useState(false);
+  const { itemCount, openCart, subtotal } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
-  const router = useRouter();
   const pathname = usePathname();
+  const menuRef = useFocusTrap<HTMLDivElement>(mobileOpen, () => setMobileOpen(false));
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    // Close overlays after a route change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileOpen(false);
+    setSearchOpen(false);
+  }, [pathname]);
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
   }
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/products?q=${encodeURIComponent(query.trim())}`);
-    setSearchOpen(false);
-    setMobileOpen(false);
-  }
-
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface-muted/95 backdrop-blur-lg">
-      <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center">
-          <LogoFull className="h-14 w-auto sm:h-16" />
-        </Link>
-
-        {/* Home -> Products -> Categories -> Contact -> Cart */}
-        <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "relative text-sm font-medium transition-colors",
-                isActive(link.href)
-                  ? "text-brand after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand"
-                  : "text-ink/70 hover:text-ink"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <div
-            className="relative py-4"
-            onMouseEnter={() => setCategoriesOpen(true)}
-            onMouseLeave={() => setCategoriesOpen(false)}
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 border-b bg-surface/95 backdrop-blur-lg transition-shadow",
+          scrolled ? "border-border shadow-sm" : "border-transparent"
+        )}
+      >
+        <div className="section flex h-16 items-center gap-4 lg:h-[72px]">
+          <Link
+            href="/"
+            aria-label="PriceHub home"
+            className="shrink-0 text-panel-dark"
           >
-            <button
-              className={cn(
-                "flex items-center gap-1 text-sm font-medium transition-colors",
-                categoriesOpen ? "text-ink" : "text-ink/70 hover:text-ink"
-              )}
+            <LogoFull className="text-[1.15rem] sm:text-[1.35rem]" />
+          </Link>
+
+          {/* Desktop search — always visible, prominent */}
+          <div className="hidden min-w-0 flex-1 lg:block">
+            <SearchAutocomplete className="mx-auto max-w-xl" />
+          </div>
+
+          <nav className="hidden items-center gap-6 lg:flex">
+            <div
+              className="relative py-4"
+              onMouseEnter={() => setCategoriesOpen(true)}
+              onMouseLeave={() => setCategoriesOpen(false)}
             >
-              Categories
-              <ChevronDown
+              <button
                 className={cn(
-                  "h-3.5 w-3.5 transition-transform duration-200",
-                  categoriesOpen && "rotate-180"
+                  "flex items-center gap-1 text-sm font-semibold transition-colors",
+                  categoriesOpen ? "text-brand" : "text-ink/75 hover:text-ink"
                 )}
-              />
-            </button>
-            <AnimatePresence>
-              {categoriesOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2"
-                >
-                  <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-xl shadow-black/10">
-                    <p className="px-4 pt-3.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                      Shop by category
-                    </p>
-                    <div className="grid grid-cols-2 gap-1 p-3">
+                aria-expanded={categoriesOpen}
+              >
+                Categories
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform",
+                    categoriesOpen && "rotate-180"
+                  )}
+                />
+              </button>
+              <AnimatePresence>
+                {categoriesOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full w-72 pt-2"
+                  >
+                    <div className="overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-xl">
                       {categories.map((c) => (
                         <Link
                           key={c.slug}
                           href={`/products?category=${c.slug}`}
-                          onClick={() => setCategoriesOpen(false)}
-                          className="rounded-lg px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-surface-muted hover:text-brand"
+                          className="block rounded-lg px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-surface-muted hover:text-brand"
                         >
-                          {c.shortName}
+                          {c.name}
                         </Link>
                       ))}
+                      <Link
+                        href="/products"
+                        className="mt-1 block rounded-lg border-t border-border px-3 py-2 pt-3 text-sm font-semibold text-brand hover:bg-surface-muted"
+                      >
+                        View all products →
+                      </Link>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <Link
+              href="/contact"
+              className={cn(
+                "text-sm font-semibold transition-colors",
+                isActive("/contact") ? "text-brand" : "text-ink/75 hover:text-ink"
               )}
-            </AnimatePresence>
-          </div>
+            >
+              Contact
+            </Link>
 
-          <Link
-            href="/contact"
-            className={cn(
-              "relative text-sm font-medium transition-colors",
-              isActive("/contact")
-                ? "text-brand after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand"
-                : "text-ink/70 hover:text-ink"
-            )}
-          >
-            Contact
-          </Link>
-
-          <button
-            onClick={openCart}
-            className="relative flex items-center gap-1.5 text-sm font-medium text-ink/70 transition-colors hover:text-ink"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Cart
-            <AnimatePresence>
-              {itemCount > 0 && (
-                <motion.span
-                  key={itemCount}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white"
-                >
-                  {itemCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        </nav>
-
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link
-            href="/wishlist"
-            aria-label="Wishlist"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-white hover:text-ink"
-          >
-            <Heart className="h-5 w-5" />
-            <AnimatePresence>
+            <Link
+              href="/wishlist"
+              aria-label={`Wishlist${wishlistCount ? `, ${wishlistCount} items` : ""}`}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-surface-muted hover:text-ink"
+            >
+              <Heart className="h-5 w-5" />
               {wishlistCount > 0 && (
-                <motion.span
-                  key={wishlistCount}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white"
-                >
+                <span className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-white">
                   {wishlistCount}
-                </motion.span>
+                </span>
               )}
-            </AnimatePresence>
-          </Link>
+            </Link>
 
-          <div className="hidden items-center sm:flex">
-            <AnimatePresence mode="wait" initial={false}>
-              {searchOpen ? (
-                <motion.form
-                  key="search"
-                  onSubmit={handleSearch}
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 220, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <input
-                    autoFocus
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onBlur={() => !query && setSearchOpen(false)}
-                    placeholder="Search products…"
-                    className="w-full rounded-full border border-border bg-white px-4 py-2 text-sm outline-none focus:border-brand/60"
-                  />
-                </motion.form>
-              ) : null}
-            </AnimatePresence>
+            <button
+              onClick={openCart}
+              className="flex items-center gap-2 rounded-full border border-border py-2 pl-3 pr-3.5 text-sm font-semibold text-ink transition-colors hover:border-brand/40"
+            >
+              <span className="relative">
+                <ShoppingCart className="h-4.5 w-4.5" />
+                <AnimatePresence>
+                  {itemCount > 0 && (
+                    <motion.span
+                      key={itemCount}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -right-2 -top-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-white"
+                    >
+                      {itemCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
+              <span className="tabular-nums">
+                {itemCount > 0 ? formatKES(subtotal) : "Cart"}
+              </span>
+            </button>
+          </nav>
+
+          {/* Mobile actions */}
+          <div className="ml-auto flex items-center gap-1 lg:hidden">
             <button
               aria-label="Search"
-              onClick={() => setSearchOpen((s) => !s)}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-white hover:text-ink"
+              onClick={() => setSearchOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-ink/70 hover:bg-surface-muted"
             >
               <Search className="h-5 w-5" />
             </button>
-          </div>
-
-          <button
-            aria-label="Open cart"
-            onClick={openCart}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-white hover:text-ink md:hidden"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <AnimatePresence>
+            <button
+              aria-label="Open cart"
+              onClick={openCart}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink/70 hover:bg-surface-muted"
+            >
+              <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
-                <motion.span
-                  key={itemCount}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white"
-                >
+                <span className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-white">
                   {itemCount}
-                </motion.span>
+                </span>
               )}
-            </AnimatePresence>
-          </button>
-
-          <button
-            aria-label="Toggle menu"
-            onClick={() => setMobileOpen((s) => !s)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-white md:hidden"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+            </button>
+            <button
+              aria-label="Open menu"
+              onClick={() => setMobileOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-ink/70 hover:bg-surface-muted"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Mobile slide-over menu */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden border-t border-border bg-surface-muted md:hidden"
-          >
-            <div className="flex flex-col gap-1 px-4 py-4">
-              <form onSubmit={handleSearch} className="mb-2">
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search products…"
-                  className="w-full rounded-full border border-border bg-white px-4 py-2.5 text-sm outline-none focus:border-brand/60"
-                />
-              </form>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                    isActive(link.href)
-                      ? "bg-brand/10 text-brand"
-                      : "text-ink/80 hover:bg-white hover:text-ink"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="mt-1 border-t border-border pt-1">
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden"
+            />
+            <motion.div
+              ref={menuRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              className="fixed right-0 top-0 z-[60] flex h-full w-[86%] max-w-sm flex-col bg-surface shadow-2xl lg:hidden"
+            >
+              <div className="flex items-center justify-between border-b border-border px-4 py-4">
+                <span className="text-panel-dark">
+                  <LogoFull className="text-[1.2rem]" />
+                </span>
                 <button
-                  onClick={() => setMobileCategoriesOpen((s) => !s)}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-white hover:text-ink"
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close menu"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-ink/60 hover:bg-surface-muted"
                 >
-                  Categories
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 text-muted transition-transform duration-200",
-                      mobileCategoriesOpen && "rotate-180"
-                    )}
-                  />
+                  <X className="h-5 w-5" />
                 </button>
-                <AnimatePresence initial={false}>
-                  {mobileCategoriesOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="grid grid-cols-2 gap-1 pb-1 pt-1">
-                        {categories.map((c) => (
-                          <Link
-                            key={c.slug}
-                            href={`/products?category=${c.slug}`}
-                            onClick={() => {
-                              setMobileOpen(false);
-                              setMobileCategoriesOpen(false);
-                            }}
-                            className="rounded-lg px-3 py-2 text-sm text-ink/80 hover:bg-white hover:text-ink"
-                          >
-                            {c.shortName}
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
-              <Link
-                href="/contact"
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "mt-1 rounded-lg border-t border-border px-3 py-2.5 pt-3.5 text-sm font-medium transition-colors",
-                  isActive("/contact")
-                    ? "text-brand"
-                    : "text-ink/80 hover:bg-white hover:text-ink"
-                )}
-              >
-                Contact
-              </Link>
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  openCart();
-                }}
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink/80 hover:bg-white hover:text-ink"
-              >
-                <ShoppingCart className="h-4 w-4" /> Cart
-                {itemCount > 0 && (
-                  <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">
-                    {itemCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </motion.div>
+
+              <div className="flex-1 overflow-y-auto p-4">
+                <Link
+                  href="/products"
+                  className="block rounded-xl bg-brand-050 px-4 py-3 text-sm font-semibold text-brand"
+                >
+                  Shop all products
+                </Link>
+                <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                  Categories
+                </p>
+                <div className="flex flex-col">
+                  {categories.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/products?category=${c.slug}`}
+                      className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted hover:text-brand"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+                <div className="mt-5 border-t border-border pt-4">
+                  <Link
+                    href="/contact"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted"
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    href="/wishlist"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted"
+                  >
+                    Wishlist{wishlistCount > 0 && ` (${wishlistCount})`}
+                  </Link>
+                  <Link
+                    href="/faqs"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-surface-muted"
+                  >
+                    Help &amp; FAQs
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

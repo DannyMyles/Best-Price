@@ -1,35 +1,34 @@
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
+import { HomeRails } from "@/components/home/HomeRails";
 import { TrustBadges } from "@/components/home/TrustBadges";
 import { PromoBanners } from "@/components/home/PromoBanners";
 import { VisitStrip } from "@/components/home/VisitStrip";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <div className="pb-16 sm:pb-20">
-        <TrustBadges />
-      </div>
+      <TrustBadges />
 
-      <section id="categories" className="mx-auto max-w-[1600px] px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+      <section id="categories" className="section pt-12 sm:pt-16">
         <ScrollReveal>
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-              Shop by Category
-            </h2>
-            <p className="mt-1.5 text-sm text-muted">
-              Find exactly what you&apos;re looking for
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Browse"
+            title="Shop by Category"
+            description="Find exactly what you're looking for"
+            viewAll={{ href: "/products", label: "All products" }}
+          />
         </ScrollReveal>
         <CategoryGrid />
       </section>
 
+      <HomeRails />
+
       <PromoBanners />
-      <FeaturedProducts />
+
       <VisitStrip />
     </>
   );

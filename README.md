@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PriceHub
 
-## Getting Started
+A modern storefront for selling electronics in Kenya — MacBooks, iPads, iMacs,
+Surface devices and accessories. Built with Next.js 16 (App Router), React 19,
+Tailwind CSS v4 and Firebase.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+With no `.env.local` the storefront runs entirely on the bundled seed catalogue
+(`src/lib/data/`). Add Firebase credentials (see `.env.local.example`) to switch
+the catalogue, orders and reviews to Firestore, then `npm run seed` to push the
+seed data up.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Payments
 
-## Learn More
+There is **no Daraja/STK Push integration**. Checkout collects the order, records
+it to Firestore (when configured), and opens WhatsApp with a formatted summary so
+the team can confirm. The M-Pesa step tells the customer to **Send Money** to the
+number in `src/lib/contact.ts` (`MPESA_PAYBILL_NUMBER`) and optionally capture the
+confirmation code. Cash on delivery and bank transfer are also offered.
 
-To learn more about Next.js, take a look at the following resources:
+## Where things live
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Area | Path |
+| --- | --- |
+| Design tokens & component classes | `src/app/globals.css` |
+| Contact / M-Pesa / store details | `src/lib/contact.ts` |
+| Seed catalogue, counties, delivery pricing | `src/lib/data/` |
+| Storefront routes | `src/app/(site)/` |
+| Admin dashboard | `src/app/admin/` |
+| Firestore access | `src/lib/firebase/`, `src/services/` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` — dev server
+- `npm run build` / `npm run start` — production build
+- `npm run lint` — ESLint
+- `npm run seed` — push seed catalogue to Firestore (needs a service account)

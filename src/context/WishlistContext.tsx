@@ -10,7 +10,8 @@ interface WishlistContextValue {
 }
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
-const STORAGE_KEY = "bestprice-wishlist";
+const STORAGE_KEY = "pricehub-wishlist";
+const LEGACY_KEY = "bestprice-wishlist";
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [slugs, setSlugs] = useState<string[]>([]);
@@ -20,9 +21,12 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     // localStorage isn't available during SSR, so the wishlist can only be
     // hydrated after mount — an effect is the correct tool here.
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const raw =
+        window.localStorage.getItem(STORAGE_KEY) ??
+        window.localStorage.getItem(LEGACY_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setSlugs(JSON.parse(raw));
+      window.localStorage.removeItem(LEGACY_KEY);
     } catch {
       // ignore corrupt storage
     }

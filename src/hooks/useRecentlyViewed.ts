@@ -1,6 +1,7 @@
 "use client";
 
-const STORAGE_KEY = "bestprice-recently-viewed";
+const STORAGE_KEY = "pricehub-recently-viewed";
+const LEGACY_KEY = "bestprice-recently-viewed";
 const MAX_ITEMS = 8;
 
 export function recordView(slug: string) {
@@ -16,7 +17,9 @@ export function recordView(slug: string) {
 
 export function readViewed(): string[] {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw =
+      window.localStorage.getItem(STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];

@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const WHATSAPP_NUMBER = "254721966663";
+import { WHATSAPP_NUMBER, whatsappLink } from "@/lib/contact";
 
 export function WhatsAppIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -13,15 +12,13 @@ export function WhatsAppIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function WhatsAppButton({
-  message = "Hi BestPrice Technologies, I'd like to enquire about a product.",
+  message = "Hi PriceHub, I'd like to enquire about a product.",
 }: {
   message?: string;
 }) {
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
   return (
     <motion.a
-      href={href}
+      href={whatsappLink(message)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
@@ -30,10 +27,11 @@ export function WhatsAppButton({
       transition={{ delay: 0.8, type: "spring", stiffness: 260, damping: 20 }}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-black/20 sm:bottom-6 sm:right-6"
+      className="fixed bottom-20 right-4 z-40 flex h-13 w-13 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-black/20 lg:bottom-6 lg:right-6"
+      style={{ height: "3.25rem", width: "3.25rem" }}
     >
       <span className="absolute inset-0 animate-ping rounded-full bg-[#25D366] opacity-40" />
-      <WhatsAppIcon className="relative h-7 w-7" />
+      <WhatsAppIcon className="relative h-6 w-6" />
     </motion.a>
   );
 }

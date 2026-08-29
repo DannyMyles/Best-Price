@@ -1,22 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  /* BestPrice Technologies palette — 70% light / 20% navy / 10% electric blue */
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* ---- PriceHub design tokens ------------------------------------------ */
+  /* Neutrals */
+  --background: #f6f7f9;
+  --foreground: #101828;
   --surface: #ffffff;
-  --surface-muted: #eef2f6;
-  --border: #e2e8f0;
-  --muted: #64748b;
-  --brand: #2563eb;
-  --brand-2: #38bdf8;
-  --brand-foreground: #ffffff;
-  --accent: #38bdf8;
-  --success: #16a34a;
-  --ink: #0f172a;
+  --surface-muted: #eef1f5;
+  --border: #e4e7ec;
+  --border-strong: #d0d5dd;
+  --muted: #667085;
+  --ink: #101828;
   --ink-inverse: #ffffff;
-  --panel-dark: #142a52;
-  --panel-dark-2: #1d3a6e;
+
+  /* Brand — accessible: brand on white passes AA for UI + large text,
+     brand-strong for hover/press, brand-050 for tinted fills. */
+  --brand: #1d4ed8;
+  --brand-strong: #1a45be;
+  --brand-050: #eef3ff;
+  --brand-foreground: #ffffff;
+
+  /* Accent — deals / price drops only, used sparingly */
+  --accent: #f97316;
+  --accent-050: #fff3e9;
+  --accent-foreground: #ffffff;
+
+  /* Status */
+  --success: #16a34a;
+  --success-050: #ecfdf3;
+  --mpesa: #16a34a;
+  --danger: #dc2626;
+  --danger-050: #fef3f2;
+  --warning: #b45309;
+  --warning-050: #fffaeb;
+
+  /* Dark panels (hero / footer / callouts) */
+  --panel-dark: #0e1b33;
+  --panel-dark-2: #17284c;
+
+  /* Radius scale */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* Shadow scale — soft, low-spread */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.1);
+  --shadow-xl: 0 24px 56px rgba(16, 24, 40, 0.14);
+
+  /* Z-index scale */
+  --z-nav: 50;
+  --z-tabbar: 45;
+  --z-drawer: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+
+  /* legacy alias */
+  --brand-2: var(--accent);
 }
 
 @theme inline {
@@ -25,33 +68,56 @@
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-muted: var(--muted);
-  --color-brand: var(--brand);
-  --color-brand-2: var(--brand-2);
-  --color-brand-foreground: var(--brand-foreground);
-  --color-accent: var(--accent);
-  --color-success: var(--success);
   --color-ink: var(--ink);
+  --color-ink-inverse: var(--ink-inverse);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-050: var(--brand-050);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-2: var(--accent);
+
+  --color-accent: var(--accent);
+  --color-accent-050: var(--accent-050);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-success: var(--success);
+  --color-success-050: var(--success-050);
+  --color-mpesa: var(--mpesa);
+  --color-danger: var(--danger);
+  --color-danger-050: var(--danger-050);
+  --color-warning: var(--warning);
+  --color-warning-050: var(--warning-050);
+
   --color-panel-dark: var(--panel-dark);
   --color-panel-dark-2: var(--panel-dark-2);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-* {
+html {
   scroll-behavior: smooth;
-}
-
-@layer components {
-  .input {
-    @apply w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-ink outline-none transition-colors focus:border-brand/60;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
@@ -67,9 +133,83 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
+/* ---- Component layer -------------------------------------------------- */
+@layer components {
+  .section {
+    @apply mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-border bg-surface shadow-sm;
+  }
+
+  .field,
+  .input {
+    @apply w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-ink outline-none transition-colors;
+    @apply placeholder:text-muted/70 focus:border-brand focus:ring-4 focus:ring-brand/10;
+  }
+  .field:disabled,
+  .input:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .btn-dark,
+  .btn-mpesa {
+    @apply inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors;
+    @apply disabled:pointer-events-none disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply bg-brand text-white shadow-sm hover:bg-brand-strong;
+  }
+  .btn-secondary {
+    @apply border border-border bg-surface text-ink hover:border-brand/50 hover:text-brand;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-ink hover:bg-black/5;
+  }
+  .btn-dark {
+    @apply bg-panel-dark text-white hover:bg-panel-dark-2;
+  }
+  .btn-mpesa {
+    @apply bg-mpesa text-white shadow-sm hover:brightness-95;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink/80 transition-colors;
+  }
+  .chip-active {
+    @apply border-brand bg-brand text-white;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none;
+  }
+
+  .card-hover {
+    @apply transition-[transform,box-shadow] duration-200 will-change-transform hover:-translate-y-1 hover:shadow-lg;
+  }
+}
+
+.skeleton {
+  border-radius: 0.5rem;
+  background-image: linear-gradient(
+    90deg,
+    var(--surface-muted) 0%,
+    #e2e8f0 50%,
+    var(--surface-muted) 100%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ---- Utilities ------------------------------------------------------- */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -82,6 +222,19 @@ textarea:focus-visible,
   text-wrap: balance;
 }
 
+.pretty {
+  text-wrap: pretty;
+}
+
+/* iOS safe-area helpers for sticky bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottom-safe {
+  bottom: env(safe-area-inset-bottom);
+}
+
+/* ---- Animations ---------------------------------------------------- */
 @keyframes float-slow {
   0%, 100% { transform: translateY(0) translateX(0); }
   50% { transform: translateY(-18px) translateX(10px); }
@@ -111,4 +264,31 @@ textarea:focus-visible,
   );
   background-size: 800px 100%;
   animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.32s ease-out;
+}
+
+/* ---- Reduced motion ---------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .animate-float-slow,
+  .animate-float-slower {
+    animation: none !important;
+  }
 }

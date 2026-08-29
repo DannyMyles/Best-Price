@@ -19,6 +19,16 @@ export function ProductForm({ initial }: { initial?: Product }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [category, setCategory] = useState<CategorySlug>(initial?.category ?? categories[0].slug);
   const [price, setPrice] = useState(initial?.price?.toString() ?? "");
+  const [compareAtPrice, setCompareAtPrice] = useState(
+    initial?.compareAtPrice?.toString() ?? ""
+  );
+  const [stockCount, setStockCount] = useState(
+    initial?.stockCount?.toString() ?? ""
+  );
+  const [rating, setRating] = useState(initial?.rating?.toString() ?? "");
+  const [reviewCount, setReviewCount] = useState(
+    initial?.reviewCount?.toString() ?? ""
+  );
   const [color, setColor] = useState(initial?.color ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [inStock, setInStock] = useState(initial?.inStock ?? true);
@@ -64,11 +74,15 @@ export function ProductForm({ initial }: { initial?: Product }) {
         name: name.trim(),
         category,
         price: price.trim() === "" ? null : Number(price),
+        compareAtPrice: compareAtPrice.trim() === "" ? null : Number(compareAtPrice),
         description: description.trim(),
         specs: specs.filter((s) => s.label.trim() && s.value.trim()),
         color: color.trim() || undefined,
         images,
         inStock,
+        stockCount: stockCount.trim() === "" ? null : Number(stockCount),
+        rating: rating.trim() === "" ? null : Number(rating),
+        reviewCount: reviewCount.trim() === "" ? null : Number(reviewCount),
         featured,
       });
       router.push("/admin/products");
@@ -116,8 +130,46 @@ export function ProductForm({ initial }: { initial?: Product }) {
             className="input"
           />
         </Field>
+        <Field label="Compare-at price (KES, optional — shows a Sale badge)">
+          <input
+            type="number"
+            min={0}
+            value={compareAtPrice}
+            onChange={(e) => setCompareAtPrice(e.target.value)}
+            className="input"
+          />
+        </Field>
         <Field label="Color (optional)">
           <input value={color} onChange={(e) => setColor(e.target.value)} className="input" />
+        </Field>
+        <Field label="Stock count (optional — 1–3 shows Low stock)">
+          <input
+            type="number"
+            min={0}
+            value={stockCount}
+            onChange={(e) => setStockCount(e.target.value)}
+            className="input"
+          />
+        </Field>
+        <Field label="Rating (0–5, optional)">
+          <input
+            type="number"
+            min={0}
+            max={5}
+            step={0.1}
+            value={rating}
+            onChange={(e) => setRating(e.target.value)}
+            className="input"
+          />
+        </Field>
+        <Field label="Review count (optional)">
+          <input
+            type="number"
+            min={0}
+            value={reviewCount}
+            onChange={(e) => setReviewCount(e.target.value)}
+            className="input"
+          />
         </Field>
         <Field label="Description" className="sm:col-span-2">
           <textarea

@@ -2,7 +2,7 @@ import { ShieldCheck, MapPin, MessageCircle } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const metadata = {
-  title: "About Us — BestPrice Technologies",
+  title: "About Us",
 };
 
 const points = [
@@ -28,10 +28,10 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <ScrollReveal>
         <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          About BestPrice Technologies
+          About PriceHub
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-          We sell quality technology at the best prices in Nairobi — MacBooks, iPads,
+          We sell quality technology at honest prices across Kenya — MacBooks, iPads,
           iMacs, Surface devices and the accessories that go with them. Simple as that.
         </p>
       </ScrollReveal>

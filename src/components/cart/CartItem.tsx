@@ -1,17 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Minus, Plus, Trash2, Bookmark } from "lucide-react";
 import { CartLine, useCart } from "@/context/CartContext";
 import { formatKES } from "@/lib/format";
 import { ProductImage } from "@/components/ui/ProductImage";
 
-export function CartItem({ line, compact = false }: { line: CartLine; compact?: boolean }) {
-  const { updateQuantity, removeItem } = useCart();
+export function CartItem({
+  line,
+  compact = false,
+}: {
+  line: CartLine;
+  compact?: boolean;
+}) {
+  const { updateQuantity, removeItem, saveForLater } = useCart();
   const lineTotal = (line.price ?? 0) * line.quantity;
 
   return (
-    <div className="flex gap-3 py-4">
+    <motion.div
+      layout
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2 }}
+      className="flex gap-3 overflow-hidden py-4"
+    >
       <Link
         href={`/products/${line.slug}`}
         className="shrink-0 overflow-hidden rounded-lg"
@@ -26,15 +40,25 @@ export function CartItem({ line, compact = false }: { line: CartLine; compact?: 
         />
       </Link>
 
-      <div className="flex flex-1 flex-col justify-between">
-        <div>
-          <Link
-            href={`/products/${line.slug}`}
-            className="text-sm font-medium text-ink hover:underline"
-          >
-            {line.name}
-          </Link>
-          {line.color && <p className="mt-0.5 text-xs text-muted">{line.color}</p>}
+      <div className="flex flex-1 flex-col justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <Link
+              href={`/products/${line.slug}`}
+              className="line-clamp-2 text-sm font-medium text-ink hover:underline"
+            >
+              {line.name}
+            </Link>
+            {line.color && (
+              <p className="mt-0.5 text-xs text-muted">{line.color}</p>
+            )}
+            <p className="mt-0.5 text-xs text-muted">
+              {line.price === null ? "Price on request" : formatKES(line.price)} each
+            </p>
+          </div>
+          <span className="shrink-0 text-sm font-semibold text-ink">
+            {line.price === null ? "POA" : formatKES(lineTotal)}
+          </span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -46,7 +70,9 @@ export function CartItem({ line, compact = false }: { line: CartLine; compact?: 
             >
               <Minus className="h-3.5 w-3.5" />
             </button>
-            <span className="w-6 text-center text-xs font-medium">{line.quantity}</span>
+            <span className="w-7 text-center text-xs font-semibold tabular-nums">
+              {line.quantity}
+            </span>
             <button
               aria-label="Increase quantity"
               onClick={() => updateQuantity(line.sku, line.quantity + 1)}
@@ -55,19 +81,26 @@ export function CartItem({ line, compact = false }: { line: CartLine; compact?: 
               <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
-          <span className="text-sm font-semibold text-ink">
-            {line.price === null ? "POA" : formatKES(lineTotal)}
-          </span>
+
+          <div className="flex items-center gap-1">
+            {!compact && (
+              <button
+                onClick={() => saveForLater(line.sku)}
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted transition-colors hover:text-brand"
+              >
+                <Bookmark className="h-3.5 w-3.5" /> Save
+              </button>
+            )}
+            <button
+              aria-label="Remove item"
+              onClick={() => removeItem(line.sku)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted transition-colors hover:bg-danger-050 hover:text-danger"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
-
-      <button
-        aria-label="Remove item"
-        onClick={() => removeItem(line.sku)}
-        className="self-start text-muted transition-colors hover:text-red-500"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-    </div>
+    </motion.div>
   );
 }

@@ -1,7 +1,7 @@
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const metadata = {
-  title: "FAQs — BestPrice Technologies",
+  title: "FAQs",
 };
 
 const faqs = [

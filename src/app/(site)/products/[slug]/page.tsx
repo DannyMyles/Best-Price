@@ -1,15 +1,30 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, CheckCircle2 } from "lucide-react";
-import { getProducts, getProductBySlug, getRelatedProducts } from "@/services/productService";
+import {
+  ChevronRight,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+  Store,
+  Star,
+} from "lucide-react";
+import {
+  getProducts,
+  getProductBySlug,
+  getRelatedProducts,
+  getColorVariants,
+} from "@/services/productService";
 import { getCategory } from "@/lib/data/categories";
-import { formatKES } from "@/lib/format";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { Price } from "@/components/ui/Price";
+import { Rating } from "@/components/ui/Rating";
+import { StockPill } from "@/components/ui/StockPill";
 import { ProductActions } from "./ProductActions";
-import { WishlistButton } from "@/components/product/WishlistButton";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
+import { MPESA_PAYBILL_NUMBER, STORE_ADDRESS } from "@/lib/contact";
 
 // Regenerate periodically so products added/edited via the admin dashboard
 // show up without a full rebuild; new slugs still render on-demand.
@@ -29,7 +44,7 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug);
   if (!product) return {};
   return {
-    title: `${product.name} — BestPrice Technologies`,
+    title: product.name,
     description: product.description,
   };
 }
@@ -46,10 +61,14 @@ export default async function ProductPage({
   const category = getCategory(product.category);
   const all = await getProducts();
   const related = getRelatedProducts(all, product);
+  const variants = getColorVariants(all, product);
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <nav className="mb-8 flex items-center gap-1.5 text-sm text-muted">
+    <div className="section py-8 sm:py-12">
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted"
+      >
         <Link href="/" className="hover:text-ink">
           Home
         </Link>
@@ -58,44 +77,85 @@ export default async function ProductPage({
           Products
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link href={`/products?category=${product.category}`} className="hover:text-ink">
+        <Link
+          href={`/products?category=${product.category}`}
+          className="hover:text-ink"
+        >
           {category?.name}
         </Link>
       </nav>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-14">
         <ScrollReveal y={16}>
           <ProductGallery product={product} />
         </ScrollReveal>
 
         <ScrollReveal y={16} delay={0.1}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                {category?.name}
-              </p>
-              <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-                {product.name}
-              </h1>
-            </div>
-            <WishlistButton slug={product.slug} />
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            {category?.name}
+          </p>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            {product.name}
+          </h1>
+
+          {product.rating != null && (
+            <a
+              href="#reviews"
+              className="mt-2 inline-flex items-center gap-2 text-sm text-muted hover:text-ink"
+            >
+              <Rating value={product.rating} showNumber />
+              <span className="underline-offset-2 hover:underline">
+                {product.reviewCount ?? 0} reviews
+              </span>
+            </a>
+          )}
+
+          <div className="mt-4">
+            <Price
+              price={product.price}
+              compareAtPrice={product.compareAtPrice}
+              size="lg"
+            />
           </div>
-          <p className="mt-3 text-2xl font-semibold text-ink">
-            {formatKES(product.price)}
-          </p>
 
-          <p className="mt-4 flex items-center gap-1.5 text-sm text-success">
-            <CheckCircle2 className="h-4 w-4" />
-            {product.inStock ? "In stock — Nairobi CBD" : "Contact for availability"}
-          </p>
+          <div className="mt-3">
+            <StockPill product={product} />
+          </div>
 
-          <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted">
+          <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted">
             {product.description}
           </p>
 
-          <div className="mt-6 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
+          {variants.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-medium text-ink/70">
+                Colour: <span className="text-ink">{product.color}</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {variants.map((v) => (
+                  <Link
+                    key={v.slug}
+                    href={`/products/${v.slug}`}
+                    aria-current={v.slug === product.slug ? "true" : undefined}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                      v.slug === product.slug
+                        ? "border-brand bg-brand-050 text-brand"
+                        : "border-border text-ink/70 hover:border-brand/40"
+                    }`}
+                  >
+                    {v.color}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/50 p-4 sm:grid-cols-2">
             {product.specs.map((spec) => (
-              <div key={spec.label} className="flex justify-between gap-2 text-sm">
+              <div
+                key={spec.label}
+                className="flex justify-between gap-2 text-sm"
+              >
                 <span className="text-muted">{spec.label}</span>
                 <span className="font-medium text-ink">{spec.value}</span>
               </div>
@@ -110,16 +170,73 @@ export default async function ProductPage({
         </ScrollReveal>
       </div>
 
+      {/* Reassurance cards */}
+      <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <InfoCard
+          icon={Truck}
+          title="Delivery"
+          body={`Free pickup at ${STORE_ADDRESS.split(",")[0]}, or courier countrywide in 2–5 days.`}
+        />
+        <InfoCard
+          icon={Store}
+          title="Payment"
+          body={`Pay on M-Pesa (Send Money to ${MPESA_PAYBILL_NUMBER}), cash on delivery, or bank transfer.`}
+        />
+        <InfoCard
+          icon={ShieldCheck}
+          title="Warranty"
+          body="Genuine product with standard manufacturer warranty. Keep your order reference."
+        />
+        <InfoCard
+          icon={RotateCcw}
+          title="Returns"
+          body="7-day returns on unopened items. See our returns policy for details."
+        />
+      </div>
+
+      <div className="mt-10 rounded-2xl border border-border bg-surface p-6">
+        <h2 className="text-base font-semibold text-ink">Description</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">
+          {product.description}
+        </p>
+      </div>
+
+      <ProductReviews
+        sku={product.sku}
+        fallbackRating={product.rating}
+        fallbackCount={product.reviewCount}
+      />
+
       {related.length > 0 && (
-        <section className="mt-20">
-          <h2 className="mb-6 text-xl font-semibold tracking-tight text-ink">
-            You may also like
+        <section className="mt-16">
+          <h2 className="mb-6 flex items-center gap-2 text-xl font-bold tracking-tight text-ink">
+            <Star className="h-5 w-5 text-brand" /> You may also like
           </h2>
           <ProductGrid products={related} />
         </section>
       )}
 
       <RecentlyViewed currentSlug={product.slug} />
+    </div>
+  );
+}
+
+function InfoCard({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: typeof Truck;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-4">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-050 text-brand">
+        <Icon className="h-4.5 w-4.5" strokeWidth={1.7} />
+      </span>
+      <p className="mt-3 text-sm font-semibold text-ink">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">{body}</p>
     </div>
   );
 }

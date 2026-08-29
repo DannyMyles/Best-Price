@@ -1,32 +1,50 @@
-import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 /**
- * bally.png is a wide icon+wordmark lockup (2172x724) designed for light
- * backgrounds — the wordmark itself is dark navy. LogoMark crops just the
- * leading icon glyph (a clean square, no text) for use on dark surfaces
- * like the navy navbar/footer; LogoFull shows the whole lockup for light
- * backgrounds such as the admin login card.
+ * PriceHub wordmark, drawn inline so it recolours with the surrounding text
+ * ("Price" uses `currentColor`, "Hub" + the mark use the brand colour) and
+ * needs no image request. Works on both light and dark surfaces.
  */
-export function LogoMark({ className }: { className?: string }) {
+
+export function PriceHubMark({ className }: { className?: string }) {
   return (
-    <span
+    <svg
+      viewBox="0 0 40 40"
       role="img"
-      aria-label="BestPrice Technologies"
-      className={cn("inline-block bg-no-repeat", className)}
-      style={{
-        backgroundImage: "url(/bally.png)",
-        backgroundSize: "300% 100%",
-        backgroundPosition: "left center",
-      }}
-    />
+      aria-label="PriceHub"
+      className={cn("shrink-0", className)}
+    >
+      <rect x="1" y="1" width="38" height="38" rx="11" fill="var(--brand)" />
+      {/* stylised "h" / price-tag hybrid */}
+      <path
+        d="M14 10v20M14 20c0-3.6 2.5-6 6-6s6 2.4 6 6v10"
+        stroke="#fff"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <circle cx="27.5" cy="12.5" r="2.6" fill="#fff" />
+    </svg>
   );
+}
+
+export function LogoMark({ className }: { className?: string }) {
+  return <PriceHubMark className={className} />;
 }
 
 export function LogoFull({ className }: { className?: string }) {
   return (
-    <div className={cn("relative aspect-[2172/724]", className)}>
-      <Image src="/bally.png" alt="BestPrice Technologies" fill className="object-contain" priority />
-    </div>
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 font-sans text-[1.35rem] font-bold leading-none tracking-tight",
+        className
+      )}
+    >
+      <PriceHubMark className="h-[1.5em] w-[1.5em]" />
+      <span className="text-current">
+        Price<span className="text-brand">Hub</span>
+      </span>
+    </span>
   );
 }

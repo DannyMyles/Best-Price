@@ -1,18 +1,11 @@
 import { ImageResponse } from "next/og";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "BestPrice Technologies — Quality Technology, Best Prices";
+export const alt = "PriceHub — The best price on the tech you want";
 
 export default function OpengraphImage() {
-  const logoBase64 = readFileSync(join(process.cwd(), "public", "bally.png")).toString(
-    "base64"
-  );
-  const logoSrc = `data:image/png;base64,${logoBase64}`;
-
   return new ImageResponse(
     (
       <div
@@ -23,27 +16,44 @@ export default function OpengraphImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0b1220 0%, #142a52 55%, #1d3a6e 100%)",
+          background:
+            "linear-gradient(135deg, #0e1b33 0%, #17284c 55%, #1d4ed8 140%)",
+          color: "#fff",
         }}
       >
-        <img src={logoSrc} width={560} height={186} alt="" />
-        <div
-          style={{
-            marginTop: 44,
-            fontSize: 34,
-            color: "rgba(255,255,255,0.8)",
-          }}
-        >
-          Quality Technology. Best Prices.
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <div
+            style={{
+              width: 84,
+              height: 84,
+              borderRadius: 24,
+              background: "#1d4ed8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 52,
+              fontWeight: 800,
+            }}
+          >
+            P
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 72,
+              fontWeight: 800,
+              letterSpacing: -1,
+            }}
+          >
+            <span>Price</span>
+            <span style={{ color: "#7ea8ff" }}>Hub</span>
+          </div>
         </div>
-        <div
-          style={{
-            marginTop: 18,
-            fontSize: 24,
-            color: "#38bdf8",
-          }}
-        >
-          Nairobi CBD · Genuine Devices
+        <div style={{ marginTop: 36, fontSize: 32, color: "rgba(255,255,255,0.82)" }}>
+          The best price on the tech you want
+        </div>
+        <div style={{ marginTop: 14, fontSize: 22, color: "#7ea8ff" }}>
+          Secure M-Pesa payment · Countrywide delivery in Kenya
         </div>
       </div>
     ),

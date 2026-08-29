@@ -1,5 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
-import type { CategorySlug, ProductSpec } from "@/lib/types";
+import type { CategorySlug, ProductSpec, ProductBadge } from "@/lib/types";
 
 /** products/{id} — the document id doubles as the product slug. */
 export interface ProductDoc {
@@ -7,13 +7,17 @@ export interface ProductDoc {
   name: string;
   category: CategorySlug;
   price: number | null;
+  compareAtPrice?: number | null;
   description: string;
   specs: ProductSpec[];
   color?: string;
   images: string[];
   inStock: boolean;
+  stockCount?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
   featured: boolean;
-  badge?: "New" | "Best Seller" | "Limited";
+  badge?: ProductBadge;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -51,12 +55,20 @@ export interface OrderDoc {
     phone: string;
     email?: string;
     address: string;
+    county?: string;
+    town?: string;
   };
   items: OrderItem[];
   subtotal: number;
+  deliveryMethod?: "pickup" | "courier";
+  deliveryFee?: number;
+  total?: number;
   notes?: string;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  /** M-Pesa "Send Money" confirmation, captured at checkout when provided. */
+  mpesaCode?: string;
+  mpesaName?: string;
   status: OrderStatus;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;

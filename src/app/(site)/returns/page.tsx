@@ -1,7 +1,7 @@
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const metadata = {
-  title: "Return & Refund Policy — BestPrice Technologies",
+  title: "Returns & Refunds",
 };
 
 const sections = [
@@ -35,7 +35,7 @@ export default function ReturnsPage() {
           Return &amp; Refund Policy
         </h1>
         <p className="mt-3 text-sm text-muted">
-          We want you to be confident buying from BestPrice Technologies. Here&apos;s
+          We want you to be confident buying from PriceHub. Here&apos;s
           how returns work.
         </p>
       </ScrollReveal>

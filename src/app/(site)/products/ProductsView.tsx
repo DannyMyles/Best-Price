@@ -2,81 +2,227 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { SlidersHorizontal, X } from "lucide-react";
+import type { Product } from "@/lib/types";
 import { useProducts } from "@/hooks/useProducts";
-import { filterAndSortProducts } from "@/services/productService";
+import { useCategories } from "@/hooks/useCategories";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useMounted } from "@/hooks/useMounted";
+import { filterAndSortProducts, priceBounds } from "@/services/productService";
 import { getCategory } from "@/lib/data/categories";
+import {
+  parseFilters,
+  filtersToParams,
+  activeFilterCount,
+  emptyFilters,
+  type ProductFilterState,
+} from "@/lib/productFilters";
 import { SearchBar } from "@/components/product/SearchBar";
-import { FilterPanel, SortOption } from "@/components/product/FilterPanel";
-import { CategorySidebar } from "@/components/product/CategorySidebar";
+import {
+  ProductFilters,
+  SortSelect,
+  ActiveFilterChips,
+} from "@/components/product/FilterPanel";
 import { ProductGrid } from "@/components/product/ProductGrid";
+import { QuickViewModal } from "@/components/product/QuickViewModal";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export function ProductsView() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { products, loading } = useProducts();
+  const { products: allProducts, loading: rawLoading, error, retry } = useProducts();
+  const { categories } = useCategories();
+  const mounted = useMounted();
 
-  const category = searchParams.get("category");
-  const urlQuery = searchParams.get("q") ?? "";
+  // Until the client has mounted and data has arrived, treat the catalogue as
+  // empty + loading so the server render and the first client render match
+  // (avoids hydration mismatches on counts / price bounds / result totals).
+  const dataReady = mounted && !rawLoading;
+  const products = useMemo(
+    () => (dataReady ? allProducts : []),
+    [dataReady, allProducts]
+  );
+  const loading = !dataReady;
 
-  const [query, setQuery] = useState(urlQuery);
-  // Re-sync the search box when navigation (e.g. the navbar search) changes
-  // ?q= on this same route — the React-recommended alternative to an effect
-  // for "adjust state when a prop changes".
-  const [syncedQuery, setSyncedQuery] = useState(urlQuery);
-  if (urlQuery !== syncedQuery) {
-    setSyncedQuery(urlQuery);
-    setQuery(urlQuery);
+  const urlFilters = parseFilters(searchParams);
+  // Local mirror so typing in the search box feels instant; committed to the
+  // URL on the next tick.
+  const [filters, setFilters] = useState<ProductFilterState>(urlFilters);
+  const [urlKey, setUrlKey] = useState(searchParams.toString());
+  const currentKey = searchParams.toString();
+  if (currentKey !== urlKey) {
+    setUrlKey(currentKey);
+    setFilters(urlFilters);
   }
 
-  const [sort, setSort] = useState<SortOption>("featured");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [quickView, setQuickView] = useState<Product | null>(null);
+  const sheetRef = useFocusTrap<HTMLDivElement>(sheetOpen, () => setSheetOpen(false));
 
-  function updateCategory(slug: string | null) {
-    const params = new URLSearchParams();
-    if (slug) params.set("category", slug);
-    if (query.trim()) params.set("q", query.trim());
-    router.replace(`/products?${params.toString()}`, { scroll: false });
+  function commit(next: ProductFilterState) {
+    setFilters(next);
+    const qs = filtersToParams(next).toString();
+    router.replace(qs ? `/products?${qs}` : "/products", { scroll: false });
   }
+
+  function patch(p: Partial<ProductFilterState>) {
+    commit({ ...filters, ...p });
+  }
+
+  const bounds = useMemo(() => priceBounds(products), [products]);
 
   const filtered = useMemo(
-    () => filterAndSortProducts(products, { category, query, sort }),
-    [products, category, query, sort]
+    () =>
+      filterAndSortProducts(products, {
+        category: filters.category,
+        query: filters.query,
+        sort: filters.sort,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        inStockOnly: filters.inStockOnly,
+        minRating: filters.minRating,
+      }),
+    [products, filters]
   );
 
-  const activeCategoryName = category ? getCategory(category)?.name : null;
+  const activeCategoryName = filters.category
+    ? getCategory(filters.category)?.name
+    : null;
+  const count = activeFilterCount(filters);
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          {activeCategoryName ?? "All Products"}
+    <div className="section py-8 sm:py-12">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          {activeCategoryName ?? (filters.query ? `Results for “${filters.query}”` : "All Products")}
         </h1>
-        <p className="mt-1.5 text-sm text-muted">
+        <p className="mt-1.5 text-sm text-muted" aria-live="polite">
           {loading
             ? "Loading products…"
-            : `${filtered.length} ${filtered.length === 1 ? "product" : "products"} available`}
+            : `${filtered.length} ${filtered.length === 1 ? "product" : "products"}`}
         </p>
       </div>
 
-      <div className="flex gap-8">
-        <CategorySidebar activeCategory={category} onCategoryChange={updateCategory} />
-
-        <div className="min-w-0 flex-1">
-          <div className="mb-6 max-w-lg">
-            <SearchBar value={query} onChange={setQuery} />
+      <div className="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-10">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 rounded-2xl border border-border bg-surface p-5">
+            <ProductFilters
+              filters={filters}
+              onChange={patch}
+              products={products}
+              categories={categories}
+              bounds={bounds}
+            />
           </div>
+        </aside>
 
-          <div className="mb-8">
-            <FilterPanel
-              activeCategory={category}
-              onCategoryChange={updateCategory}
-              sort={sort}
-              onSortChange={setSort}
+        <div className="min-w-0">
+          <div className="mb-4 flex flex-col gap-3">
+            <SearchBar
+              value={filters.query}
+              onChange={(q) => patch({ query: q })}
+            />
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={() => setSheetOpen(true)}
+                className="btn-secondary lg:hidden"
+              >
+                <SlidersHorizontal className="h-4 w-4" /> Filters
+                {count > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-bold text-white">
+                    {count}
+                  </span>
+                )}
+              </button>
+              <SortSelect
+                sort={filters.sort}
+                onSortChange={(s) => patch({ sort: s })}
+                className="ml-auto"
+              />
+            </div>
+            <ActiveFilterChips
+              filters={filters}
+              categoryName={activeCategoryName}
+              onChange={patch}
+              onClearAll={() => commit({ ...emptyFilters, query: filters.query })}
             />
           </div>
 
-          <ProductGrid products={filtered} loading={loading} />
+          {error ? (
+            <ErrorState onRetry={retry} />
+          ) : (
+            <ProductGrid
+              products={filtered}
+              loading={loading}
+              onQuickView={setQuickView}
+              emptyHint="No products match these filters. Try widening your price range or clearing filters."
+            />
+          )}
         </div>
       </div>
+
+      {/* Mobile filter sheet */}
+      <AnimatePresence>
+        {sheetOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSheetOpen(false)}
+              className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm lg:hidden"
+            />
+            <motion.div
+              ref={sheetRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filter products"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              className="fixed inset-x-0 bottom-0 z-[80] flex max-h-[85vh] flex-col rounded-t-3xl bg-surface lg:hidden"
+            >
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <h2 className="text-base font-semibold text-ink">Filters</h2>
+                <button
+                  onClick={() => setSheetOpen(false)}
+                  aria-label="Close filters"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-ink/60 hover:bg-surface-muted"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-2">
+                <ProductFilters
+                  filters={filters}
+                  onChange={patch}
+                  products={products}
+                  categories={categories}
+                  bounds={bounds}
+                />
+              </div>
+              <div className="flex gap-3 border-t border-border p-4">
+                <button
+                  onClick={() => commit({ ...emptyFilters, query: filters.query })}
+                  className="btn-secondary flex-1"
+                >
+                  Clear all
+                </button>
+                <button
+                  onClick={() => setSheetOpen(false)}
+                  className="btn-primary flex-1"
+                >
+                  Show {filtered.length} results
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <QuickViewModal product={quickView} onClose={() => setQuickView(null)} />
     </div>
   );
 }

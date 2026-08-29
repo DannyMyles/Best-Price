@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-border bg-white px-4 py-3 sm:hidden">
-          <span className="text-sm font-semibold text-ink">BestPrice Admin</span>
+          <span className="text-sm font-semibold text-ink">PriceHub Admin</span>
           <button
             onClick={async () => {
               if (auth) await signOut(auth);

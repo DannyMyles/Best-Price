@@ -1,14 +1,18 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag, X, ShieldCheck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { formatKES } from "@/lib/format";
 import { CartItem } from "./CartItem";
 import { AnimatedLinkButton } from "@/components/ui/AnimatedButton";
 
 export function CartDrawer() {
-  const { lines, isOpen, closeCart, subtotal, hasPOAItems } = useCart();
+  const { lines, isOpen, closeCart, subtotal, hasPOAItems, itemCount } = useCart();
+  const reduced = useReducedMotion();
+  const ref = useFocusTrap<HTMLDivElement>(isOpen, closeCart);
 
   return (
     <AnimatePresence>
@@ -19,18 +23,22 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeCart}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
           />
           <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            ref={ref}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Shopping cart"
+            initial={reduced ? { opacity: 0 } : { x: "100%" }}
+            animate={reduced ? { opacity: 1 } : { x: 0 }}
+            exit={reduced ? { opacity: 0 } : { x: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 300 }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
+            className="fixed right-0 top-0 z-[60] flex h-full w-full max-w-md flex-col bg-surface shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h2 className="text-base font-semibold text-ink">
-                Your Cart {lines.length > 0 && `(${lines.length})`}
+                Your Cart{itemCount > 0 && ` (${itemCount})`}
               </h2>
               <button
                 aria-label="Close cart"
@@ -61,22 +69,30 @@ export function CartDrawer() {
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-5 divide-y divide-border">
-                  {lines.map((line) => (
-                    <CartItem key={line.sku} line={line} compact />
-                  ))}
+                <div className="flex-1 divide-y divide-border overflow-y-auto px-5">
+                  <AnimatePresence initial={false}>
+                    {lines.map((line) => (
+                      <CartItem key={line.sku} line={line} compact />
+                    ))}
+                  </AnimatePresence>
                 </div>
 
                 <div className="border-t border-border px-5 py-5">
-                  <div className="mb-1 flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">Subtotal</span>
-                    <span className="font-semibold text-ink">{formatKES(subtotal)}</span>
+                    <span className="font-semibold text-ink">
+                      {formatKES(subtotal)}
+                    </span>
                   </div>
                   {hasPOAItems && (
-                    <p className="mb-3 text-xs text-muted">
-                      Some items require a quote — final total confirmed via WhatsApp.
+                    <p className="mt-1.5 text-xs text-muted">
+                      Some items need a quote — confirmed before you pay.
                     </p>
                   )}
+                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted">
+                    <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                    Secure M-Pesa checkout · delivery calculated next
+                  </p>
                   <div className="mt-4 flex flex-col gap-2">
                     <AnimatedLinkButton
                       variant="primary"
@@ -84,7 +100,7 @@ export function CartDrawer() {
                       onClick={closeCart}
                       className="w-full"
                     >
-                      Checkout
+                      Checkout · {formatKES(subtotal)}
                     </AnimatedLinkButton>
                     <AnimatedLinkButton
                       variant="secondary"
@@ -92,7 +108,7 @@ export function CartDrawer() {
                       onClick={closeCart}
                       className="w-full"
                     >
-                      View Cart
+                      View full cart
                     </AnimatedLinkButton>
                   </div>
                 </div>
