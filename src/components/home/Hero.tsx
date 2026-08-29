@@ -22,8 +22,8 @@ export function Hero() {
             The best way to buy the tech you love.
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted">
-            Laptops, tablets, desktops and everyday electronics — genuine,
-            warrantied, delivered countrywide, and paid for with M-Pesa.
+            Laptops, phones, cameras, TVs, audio and more — genuine, warrantied,
+            delivered countrywide, and paid for with M-Pesa.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">

@@ -3,19 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Tablet, Laptop, Monitor, Puzzle, Cpu, LucideIcon, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { getCategoryImages } from "@/lib/data/categoryImages";
+import { categoryIconMap, DEFAULT_CATEGORY_ICON } from "@/lib/categoryIcons";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-
-const iconMap: Record<string, LucideIcon> = {
-  tablet: Tablet,
-  laptop: Laptop,
-  monitor: Monitor,
-  puzzle: Puzzle,
-  cpu: Cpu,
-};
 
 export function CategoryGrid() {
   const { categories } = useCategories();
@@ -24,7 +17,11 @@ export function CategoryGrid() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
       {categories.map((category, i) => {
-        const Icon = iconMap[category.icon];
+        const iconKey = (category.icon || category.slug).toLowerCase();
+        const Icon =
+          categoryIconMap[iconKey] ??
+          categoryIconMap[iconKey.replace(/s$/, "")] ??
+          DEFAULT_CATEGORY_ICON;
         const count = products.filter((p) => p.category === category.slug).length;
         const image = getCategoryImages(category.slug)[0];
 

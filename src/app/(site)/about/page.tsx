@@ -9,7 +9,7 @@ const points = [
   {
     icon: ShieldCheck,
     title: "Genuine devices",
-    body: "Every MacBook, iPad, iMac and Surface we sell is genuine, with pricing that stays competitive.",
+    body: "Every laptop, phone, camera, TV and accessory we sell is genuine, with pricing that stays competitive.",
   },
   {
     icon: MapPin,
@@ -31,8 +31,9 @@ export default function AboutPage() {
           About PriceHub
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
-          We sell quality technology at honest prices across Kenya — MacBooks, iPads,
-          iMacs, Surface devices and the accessories that go with them. Simple as that.
+          We sell quality electronics at honest prices across Kenya — laptops, phones,
+          tablets, desktops, cameras and lenses, TVs, audio and the accessories that go
+          with them. Simple as that.
         </p>
       </ScrollReveal>
 

@@ -141,7 +141,18 @@ export default function AdminCategoriesPage() {
             onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
             className="input"
           >
-            {["tablet", "laptop", "monitor", "puzzle", "cpu"].map((icon) => (
+            {[
+              "laptop",
+              "smartphone",
+              "tablet",
+              "monitor",
+              "camera",
+              "aperture",
+              "tv",
+              "speaker",
+              "puzzle",
+              "cpu",
+            ].map((icon) => (
               <option key={icon} value={icon}>
                 {icon}
               </option>

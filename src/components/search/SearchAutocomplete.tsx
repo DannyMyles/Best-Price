@@ -200,7 +200,7 @@ export function SearchAutocomplete({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search MacBook, iPad, Surface…"
+          placeholder="Search laptops, phones, cameras, TVs…"
           aria-label="Search products"
           role="combobox"
           aria-expanded={showPanel}

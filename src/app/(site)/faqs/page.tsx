@@ -7,7 +7,7 @@ export const metadata = {
 const faqs = [
   {
     q: "Are your devices genuine?",
-    a: "Yes — every MacBook, iPad, iMac and Surface device we sell is genuine. Nothing refurbished or grey-market unless clearly stated.",
+    a: "Yes — every laptop, phone, camera, TV and accessory we sell is genuine, brand-new stock. Nothing refurbished or grey-market unless clearly stated.",
   },
   {
     q: "How do I pay?",

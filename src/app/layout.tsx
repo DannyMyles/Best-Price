@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const title = "PriceHub — The best price on the tech you want";
 const description =
-  "Shop MacBooks, iPads, iMacs, Surface devices and accessories at honest prices in Kenya. Secure M-Pesa payment, countrywide delivery.";
+  "Shop laptops, phones, tablets, cameras, TVs, audio and accessories at honest prices in Kenya. Secure M-Pesa payment, countrywide delivery.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

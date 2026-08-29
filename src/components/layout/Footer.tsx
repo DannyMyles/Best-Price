@@ -64,7 +64,7 @@ export function Footer() {
               <LogoFull className="text-[1.3rem]" />
             </span>
             <p className="mt-3 max-w-xs text-sm text-muted">
-              Honest prices on MacBooks, iPads, iMacs and Surface devices —
+              Honest prices on laptops, phones, cameras, TVs, audio and accessories —
               delivered across Kenya, paid securely with M-Pesa.
             </p>
             <div className="mt-4 flex items-center gap-2">

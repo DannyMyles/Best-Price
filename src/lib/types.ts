@@ -1,18 +1,17 @@
-export type CategorySlug =
-  | "ipad"
-  | "macbook-air"
-  | "macbook"
-  | "macbook-pro"
-  | "imac"
-  | "accessories"
-  | "surface";
+/** Categories are data-driven (Firestore `categories` collection / seed list),
+ *  so a slug is just a string. Icons/colours/fallback images are resolved by
+ *  lookup with sensible defaults — see `categoryIcon`, `categoryImages`,
+ *  `ProductGlyph`. */
+export type CategorySlug = string;
 
 export interface Category {
   slug: CategorySlug;
   name: string;
   shortName: string;
   description: string;
-  icon: "tablet" | "laptop" | "monitor" | "puzzle" | "cpu";
+  /** A key understood by `categoryIcon()` — an icon name ("camera") or the
+   *  slug itself. Unknown values fall back to a generic package icon. */
+  icon: string;
 }
 
 export interface ProductSpec {

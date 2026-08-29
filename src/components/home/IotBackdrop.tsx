@@ -5,7 +5,6 @@ import { Wifi } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { getCategoryImages } from "@/lib/data/categoryImages";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import type { CategorySlug } from "@/lib/types";
 
 /** A node is a small floating product thumbnail wired into a network — the
  *  "internet of things" PriceHub sells. Positions are % of the hero box. */
@@ -13,34 +12,34 @@ interface Node {
   id: string;
   x: number;
   y: number;
-  category?: CategorySlug;
+  category?: string;
   label: string;
   hub?: boolean;
 }
 
 const nodes: Node[] = [
   { id: "hub", x: 50, y: 7, label: "PriceHub", hub: true },
-  { id: "ipad", x: 8, y: 22, category: "ipad", label: "Tablets" },
-  { id: "air", x: 92, y: 14, category: "macbook-air", label: "Ultrabooks" },
-  { id: "imac", x: 4, y: 50, category: "imac", label: "Desktops" },
-  { id: "surface", x: 96, y: 42, category: "surface", label: "2-in-1s" },
-  { id: "acc", x: 5, y: 78, category: "accessories", label: "Accessories" },
-  { id: "pro", x: 96, y: 72, category: "macbook-pro", label: "Pro laptops" },
+  { id: "laptop", x: 8, y: 22, category: "laptops", label: "Laptops" },
+  { id: "phone", x: 92, y: 14, category: "phones", label: "Phones" },
+  { id: "camera", x: 4, y: 50, category: "cameras", label: "Cameras" },
+  { id: "tv", x: 96, y: 42, category: "tvs", label: "TVs" },
+  { id: "audio", x: 5, y: 78, category: "audio", label: "Audio" },
+  { id: "acc", x: 96, y: 72, category: "accessories", label: "Accessories" },
 ];
 
 const edgePairs: [string, string][] = [
-  ["hub", "ipad"],
-  ["hub", "air"],
-  ["hub", "imac"],
-  ["hub", "surface"],
+  ["hub", "laptop"],
+  ["hub", "phone"],
+  ["hub", "camera"],
+  ["hub", "tv"],
+  ["hub", "audio"],
   ["hub", "acc"],
-  ["hub", "pro"],
-  ["ipad", "imac"],
-  ["imac", "acc"],
-  ["acc", "pro"],
-  ["pro", "surface"],
-  ["surface", "air"],
-  ["air", "ipad"],
+  ["laptop", "camera"],
+  ["camera", "audio"],
+  ["audio", "acc"],
+  ["acc", "tv"],
+  ["tv", "phone"],
+  ["phone", "laptop"],
 ];
 
 export function IotBackdrop() {
