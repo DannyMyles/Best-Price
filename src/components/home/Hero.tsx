@@ -4,18 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { CategoryChips } from "./CategoryChips";
+import { InteractiveBackdrop } from "./InteractiveBackdrop";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-surface">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(55rem 32rem at 50% -20%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 70%)",
-        }}
-      />
+      <InteractiveBackdrop />
 
       <div className="section relative py-14 sm:py-20">
         <motion.div
