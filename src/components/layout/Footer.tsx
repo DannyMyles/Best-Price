@@ -13,6 +13,9 @@ import {
   STORE_MAPS_URL,
   STORE_HOURS,
   MPESA_PAYBILL_NUMBER,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+  TIKTOK_URL,
 } from "@/lib/contact";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -29,6 +32,14 @@ function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
       <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TikTokIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M16.5 3c.3 2.1 1.5 3.6 3.5 3.9v2.6c-1.3.1-2.5-.3-3.6-1v5.9c0 3.5-2.4 6.1-5.8 6.1C7 22.5 4.7 20 4.9 16.6c.2-2.9 2.4-5.2 5.6-5.2.3 0 .6 0 .9.1v2.9c-.3-.1-.6-.2-1-.2-1.5 0-2.7 1.3-2.5 2.9.1 1.4 1.3 2.5 2.7 2.5 1.6 0 2.7-1.2 2.7-2.9V3h3.2Z" />
     </svg>
   );
 }
@@ -73,18 +84,31 @@ export async function Footer() {
             </p>
             <div className="mt-4 flex items-center gap-2">
               <a
-                href="#"
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
               >
                 <FacebookIcon className="h-4 w-4" />
               </a>
               <a
-                href="#"
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Instagram"
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
               >
                 <InstagramIcon className="h-4 w-4" />
+              </a>
+              <a
+                href={TIKTOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
+              >
+                <TikTokIcon className="h-4 w-4" />
               </a>
               <a
                 href={`https://wa.me/${WHATSAPP_NUMBER}`}

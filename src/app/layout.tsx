@@ -10,8 +10,7 @@ import {
   SUPPORT_PHONE_DISPLAY,
   SUPPORT_EMAIL,
   STORE_ADDRESS,
-  FACEBOOK_URL,
-  INSTAGRAM_URL,
+  SOCIAL_LINKS,
 } from "@/lib/contact";
 
 const geistSans = Geist({
@@ -78,7 +77,7 @@ const orgJsonLd = {
     areaServed: "KE",
     availableLanguage: ["en", "sw"],
   },
-  sameAs: [FACEBOOK_URL, INSTAGRAM_URL],
+  sameAs: SOCIAL_LINKS.map((s) => s.href),
 };
 
 const siteJsonLd = {

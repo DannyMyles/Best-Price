@@ -26,7 +26,15 @@ export const STORE_HOURS_NOTE = "Closed Sundays & public holidays";
 export const STORE_GEO = { lat: -1.2841, lng: 36.8256 };
 
 export const FACEBOOK_URL = "https://www.facebook.com/BallytechElectronicsKe/";
-export const INSTAGRAM_URL = "https://www.instagram.com/ballytechelectronics/";
+export const INSTAGRAM_URL = "https://www.instagram.com/ballytechelectronics";
+export const TIKTOK_URL = "https://www.tiktok.com/@ballytechelectronics";
+
+/** All public social profiles, for footer icons + JSON-LD `sameAs`. */
+export const SOCIAL_LINKS = [
+  { name: "Facebook", href: FACEBOOK_URL },
+  { name: "Instagram", href: INSTAGRAM_URL },
+  { name: "TikTok", href: TIKTOK_URL },
+] as const;
 
 export function whatsappLink(message?: string): string {
   const base = `https://wa.me/${WHATSAPP_NUMBER}`;

@@ -21,8 +21,7 @@ import {
   STORE_HOURS_NOTE,
   STORE_GEO,
   STORE_DIRECTIONS_URL,
-  FACEBOOK_URL,
-  INSTAGRAM_URL,
+  SOCIAL_LINKS,
   whatsappLink,
 } from "@/lib/contact";
 
@@ -74,7 +73,7 @@ const jsonLd = {
   },
   currenciesAccepted: "KES",
   paymentAccepted: "M-Pesa, Cash, Bank transfer",
-  sameAs: [FACEBOOK_URL, INSTAGRAM_URL],
+  sameAs: SOCIAL_LINKS.map((s) => s.href),
 };
 
 export default function ContactPage() {
@@ -143,22 +142,17 @@ export default function ContactPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-medium text-muted">Follow us</span>
-            <a
-              href={FACEBOOK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:border-brand/40 hover:text-brand"
-            >
-              Facebook
-            </a>
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:border-brand/40 hover:text-brand"
-            >
-              Instagram
-            </a>
+            {SOCIAL_LINKS.map((s) => (
+              <a
+                key={s.name}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink/80 transition-colors hover:border-brand/40 hover:text-brand"
+              >
+                {s.name}
+              </a>
+            ))}
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border">
