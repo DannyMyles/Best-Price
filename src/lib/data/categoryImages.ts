@@ -16,7 +16,7 @@ export const categoryImages: Record<string, string[]> = {
   ],
   phones: [
     "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1592286927505-1def25e5c0f6?q=80&w=1600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1598327105666-5b89351aff97?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1580910051074-3eb694886505?q=80&w=1600&auto=format&fit=crop",
   ],
@@ -36,7 +36,7 @@ export const categoryImages: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1606980625114-40300a2e5b2e?q=80&w=1600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1519638831568-d9897f54ed69?q=80&w=1600&auto=format&fit=crop",
   ],
   lenses: [
     "https://images.unsplash.com/photo-1495707902641-75cac588d2e9?q=80&w=1600&auto=format&fit=crop",

@@ -491,7 +491,7 @@ export const products: Product[] = [
     color: "Black",
     inStock: true,
     featured: true,
-    images: ["https://images.unsplash.com/photo-1592286927505-1def25e5c0f6?q=80&w=1600&auto=format&fit=crop"],
+    images: ["https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=1600&auto=format&fit=crop"],
     description:
       "The A16 Bionic chip, a 48MP main camera with 2x Telephoto, and USB-C — in a durable colour-infused glass design.",
     specs: [
@@ -616,7 +616,7 @@ export const products: Product[] = [
     category: "cameras",
     price: 39999,
     inStock: true,
-    images: ["https://images.unsplash.com/photo-1606980625114-40300a2e5b2e?q=80&w=1600&auto=format&fit=crop"],
+    images: ["https://images.unsplash.com/photo-1519638831568-d9897f54ed69?q=80&w=1600&auto=format&fit=crop"],
     description:
       "40x optical zoom (80x Dynamic Fine), tilting screen and Snapbridge Bluetooth — runs on AA batteries.",
     specs: [
