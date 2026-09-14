@@ -37,7 +37,7 @@ export function DealsView() {
   return (
     <div className="section py-8 sm:py-12">
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-wide text-accent">
+        <p className="font-mono text-xs uppercase tracking-wide text-accent">
           Save now
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
@@ -57,7 +57,7 @@ export function DealsView() {
       {error ? (
         <ErrorState onRetry={retry} />
       ) : !loading && deals.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface py-16 text-center">
+        <div className="chamfer flex flex-col items-center gap-3 border border-dashed border-border bg-surface py-16 text-center">
           <p className="text-sm font-medium text-ink">Nothing on offer today</p>
           <p className="max-w-xs text-sm text-muted">
             New deals and clearance stock land regularly. Browse the full range

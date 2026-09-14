@@ -28,7 +28,7 @@ export default function WishlistPage() {
       </div>
 
       {!busy && saved.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-surface py-24 text-center">
+        <div className="chamfer flex flex-col items-center justify-center gap-3 border border-dashed border-border bg-surface py-24 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-muted">
             <Heart className="h-7 w-7 text-muted" />
           </div>

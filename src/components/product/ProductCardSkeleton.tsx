@@ -1,6 +1,6 @@
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface">
+    <div className="chamfer flex h-full flex-col overflow-hidden border border-border bg-surface">
       <div className="aspect-square animate-shimmer" />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="h-3 w-16 animate-shimmer rounded" />

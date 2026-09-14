@@ -54,7 +54,7 @@ export function ProductReviews({
             <Skeleton className="h-16 w-full" />
           </div>
         ) : list.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-6 py-12 text-center">
+          <div className="flex flex-col items-center gap-2 chamfer border border-dashed border-border bg-surface px-6 py-12 text-center">
             <MessageSquare className="h-8 w-8 text-muted" />
             <p className="text-sm font-medium text-ink">
               {average != null ? "No written reviews yet" : "No reviews yet"}
@@ -70,7 +70,7 @@ export function ProductReviews({
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
+            <div className="flex items-center gap-3 chamfer-sm border border-border bg-surface p-4">
               <span className="text-3xl font-bold text-ink">
                 {average?.toFixed(1)}
               </span>
@@ -85,7 +85,7 @@ export function ProductReviews({
               {list.map((r) => (
                 <li
                   key={r.id}
-                  className="rounded-2xl border border-border bg-surface p-4"
+                  className="chamfer-sm border border-border bg-surface p-4"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-ink">

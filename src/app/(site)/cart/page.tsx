@@ -59,7 +59,7 @@ export default function CartPage() {
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_22rem]">
         <div>
           {lines.length > 0 ? (
-            <div className="divide-y divide-border rounded-2xl border border-border bg-surface px-5">
+            <div className="chamfer divide-y divide-border border border-border bg-surface px-5">
               <AnimatePresence initial={false}>
                 {lines.map((line) => (
                   <CartItem key={line.sku} line={line} />
@@ -67,7 +67,7 @@ export default function CartPage() {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted">
+            <div className="chamfer border border-dashed border-border bg-surface p-6 text-center text-sm text-muted">
               Your cart is empty — move a saved item back to get started.
             </div>
           )}
@@ -86,7 +86,7 @@ export default function CartPage() {
               <h2 className="mb-3 text-base font-semibold text-ink">
                 Saved for later ({saved.length})
               </h2>
-              <div className="divide-y divide-border rounded-2xl border border-border bg-surface">
+              <div className="chamfer divide-y divide-border border border-border bg-surface">
                 {saved.map((line) => (
                   <div key={line.sku} className="flex items-center gap-3 p-4">
                     <Link
@@ -135,7 +135,8 @@ export default function CartPage() {
         </div>
 
         <div className="h-fit lg:sticky lg:top-24">
-          <div className="rounded-2xl border border-border bg-surface p-6">
+          <div className="chamfer relative border border-border bg-surface p-6">
+            <span className="circuit-tick right-3 top-3 rotate-90 text-accent/50" />
             <h2 className="text-base font-semibold text-ink">Order Summary</h2>
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">

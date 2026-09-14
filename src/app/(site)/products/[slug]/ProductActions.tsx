@@ -67,7 +67,7 @@ export function ProductActions({ product }: { product: Product }) {
   if (soldOut) {
     return (
       <div ref={anchorRef} className="flex flex-col gap-3">
-        <div className="rounded-xl border border-border bg-surface-muted/50 p-4 text-sm text-muted">
+        <div className="chamfer-sm border border-border bg-surface-muted/50 p-4 text-sm text-muted">
           This item is currently out of stock. Message us and we&apos;ll let you
           know as soon as it&apos;s back.
         </div>

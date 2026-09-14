@@ -249,7 +249,8 @@ export default function CheckoutPage() {
     const trackMsg = `Hi PriceHub, I'd like to track my order ${orderRef}.`;
     return (
       <div className="section max-w-2xl py-12 sm:py-16">
-        <div className="rounded-2xl border border-border bg-surface p-6 text-center sm:p-8">
+        <div className="chamfer relative border border-border bg-surface p-6 text-center sm:p-8">
+          <span className="circuit-tick left-3 top-3 text-accent/50" />
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success-050">
             <CheckCircle2 className="h-8 w-8 text-success" />
           </div>
@@ -258,11 +259,11 @@ export default function CheckoutPage() {
             We&apos;ve opened WhatsApp with your order — send the message so our
             team can confirm payment and delivery.
           </p>
-          <p className="mt-3 inline-block rounded-full bg-surface-muted px-4 py-1.5 text-sm font-semibold text-ink">
+          <p className="chamfer-sm mt-3 inline-block bg-surface-muted px-4 py-1.5 font-mono text-sm font-semibold text-ink">
             Order {orderRef}
           </p>
 
-          <div className="mt-6 space-y-2 rounded-xl border border-border bg-surface-muted/40 p-4 text-left text-sm">
+          <div className="chamfer-sm mt-6 space-y-2 border border-border bg-surface-muted/40 p-4 text-left text-sm">
             {placedSnapshot.items.map((l) => (
               <div key={l.sku} className="flex justify-between">
                 <span className="text-ink/80">
@@ -283,7 +284,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 rounded-xl border border-border p-4 text-left text-sm sm:grid-cols-2">
+          <dl className="chamfer-sm mt-4 grid grid-cols-1 gap-x-6 gap-y-2 border border-border p-4 text-left text-sm sm:grid-cols-2">
             <div>
               <dt className="text-xs text-muted">Payment</dt>
               <dd className="font-medium text-ink">
@@ -664,7 +665,8 @@ export default function CheckoutPage() {
 
         {/* Summary */}
         <aside className="h-fit lg:sticky lg:top-24">
-          <div className="rounded-2xl border border-border bg-surface p-6">
+          <div className="chamfer relative border border-border bg-surface p-6">
+            <span className="circuit-tick right-3 top-3 rotate-90 text-accent/50" />
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-ink">Order Summary</h2>
               <Link
@@ -742,7 +744,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="chamfer border border-border bg-surface p-5 sm:p-6">
       <h2 className="mb-4 text-base font-semibold text-ink">{title}</h2>
       {children}
     </div>
@@ -787,7 +789,7 @@ function ReviewRow({
   return (
     <div className="flex items-start justify-between gap-3 border-b border-border py-3 first:pt-0 last:border-0 last:pb-0">
       <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">
+        <p className="font-mono text-xs uppercase tracking-wide text-muted">
           {label}
         </p>
         <p className="mt-0.5 text-sm text-ink">{value}</p>

@@ -95,9 +95,10 @@ export function ProductCard({
   }
 
   return (
-    <div className="card card-hover group relative flex h-full flex-col overflow-hidden">
+    <div className="chamfer card-hover group relative flex h-full flex-col overflow-hidden border border-border bg-surface transition-colors hover:border-accent/40">
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
         <div className="relative overflow-hidden bg-surface-muted">
+          <span className="circuit-tick bottom-2 left-2 z-10 text-accent/50" />
           <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
             {badges.map((b) => (
               <Badge key={b} variant={b} />
@@ -162,7 +163,7 @@ export function ProductCard({
         </div>
 
         <div className="flex flex-1 flex-col gap-1.5 p-4">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted">
+          <p className="font-mono text-[11px] uppercase tracking-wide text-muted">
             {product.category.replace(/-/g, " ")}
           </p>
           <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink">

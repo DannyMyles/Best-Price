@@ -186,7 +186,7 @@ export default async function ProductPage({
         </ScrollReveal>
 
         <ScrollReveal y={16} delay={0.1}>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+          <p className="font-mono text-xs uppercase tracking-wide text-muted">
             {category?.name}
           </p>
           <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
@@ -245,7 +245,7 @@ export default async function ProductPage({
             </div>
           )}
 
-          <div className="mt-6 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/50 p-4 sm:grid-cols-2">
+          <div className="chamfer-sm mt-6 grid grid-cols-1 gap-2 border border-border bg-surface-muted/50 p-4 sm:grid-cols-2">
             {product.specs.map((spec) => (
               <div
                 key={spec.label}
@@ -305,7 +305,7 @@ export default async function ProductPage({
         />
       </div>
 
-      <div className="mt-10 rounded-2xl border border-border bg-surface p-6">
+      <div className="chamfer mt-10 border border-border bg-surface p-6">
         <h2 className="text-base font-semibold text-ink">Description</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
           {product.description}
@@ -347,7 +347,8 @@ function InfoCard({
   body: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
+    <div className="chamfer-sm relative border border-border bg-surface p-4">
+      <span className="circuit-tick right-2 top-2 rotate-90 text-accent/40" />
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-050 text-brand">
         <Icon className="h-4.5 w-4.5" strokeWidth={1.7} />
       </span>

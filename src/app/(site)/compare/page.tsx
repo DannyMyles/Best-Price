@@ -33,7 +33,7 @@ export default function ComparePage() {
     return (
       <div className="section py-10 sm:py-14">
         <Skeleton className="h-8 w-56" />
-        <Skeleton className="mt-6 h-72 w-full rounded-2xl" />
+        <Skeleton className="chamfer mt-6 h-72 w-full" />
       </div>
     );
   }
@@ -70,7 +70,7 @@ export default function ComparePage() {
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-border">
+      <div className="chamfer overflow-x-auto border border-border">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <tbody>
             {/* image + name */}
@@ -90,7 +90,7 @@ export default function ComparePage() {
                       <X className="h-3.5 w-3.5" />
                     </button>
                     <Link href={`/products/${p.slug}`}>
-                      <div className="aspect-square w-full overflow-hidden rounded-xl bg-surface-muted">
+                      <div className="chamfer-sm aspect-square w-full overflow-hidden bg-surface-muted">
                         <ProductImage
                           src={p.images?.[0]}
                           category={p.category}
@@ -179,7 +179,7 @@ export default function ComparePage() {
 
 function Th() {
   return (
-    <th className="sticky left-0 z-10 w-32 bg-surface p-4 text-left align-top text-xs font-semibold uppercase tracking-wide text-muted" />
+    <th className="sticky left-0 z-10 w-32 bg-surface p-4 text-left align-top font-mono text-xs uppercase tracking-wide text-muted" />
   );
 }
 
@@ -192,7 +192,7 @@ function Row({
 }) {
   return (
     <tr className="border-b border-border last:border-0">
-      <th className="sticky left-0 z-10 bg-surface p-4 text-left align-top text-xs font-semibold uppercase tracking-wide text-muted">
+      <th className="sticky left-0 z-10 bg-surface p-4 text-left align-top font-mono text-xs uppercase tracking-wide text-muted">
         {label}
       </th>
       {children}

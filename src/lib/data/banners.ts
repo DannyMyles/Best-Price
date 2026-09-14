@@ -1,6 +1,13 @@
 import type { Banner } from "@/lib/types";
 import { categoryImages, heroImages } from "@/lib/data/categoryImages";
 
+/** A live countdown for the seed data's flash-deal slide, so the carousel
+ *  always shows a plausible "ends in" window during local dev — real deals
+ *  get a fixed date from /admin/banners once Firestore is configured. */
+function hoursFromNow(hours: number): string {
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
 /** Seed / fallback banner list for the homepage carousel. Firestore's
  *  `banners` collection overrides this once configured (managed from
  *  /admin/banners). */
@@ -51,6 +58,53 @@ export const banners: Banner[] = [
     ctaHref: "/products?category=tvs",
     active: true,
     order: 3,
+  },
+  {
+    id: "phones-flash",
+    eyebrow: "Everyday essentials",
+    headline: "Flagship phones, unlocked and genuine.",
+    subcopy: "The latest iPhones and Android flagships — verified stock, full warranty.",
+    image: categoryImages.phones[0],
+    badge: "Flash Deal",
+    dealEndsAt: hoursFromNow(9),
+    ctaLabel: "Shop phones",
+    ctaHref: "/products?category=phones",
+    active: true,
+    order: 4,
+  },
+  {
+    id: "audio-week",
+    eyebrow: "Hear the difference",
+    headline: "Soundbars and headphones, this week only.",
+    subcopy: "Studio-grade audio from brands you already trust.",
+    image: categoryImages.audio[0],
+    ctaLabel: "Shop audio",
+    ctaHref: "/products?category=audio",
+    active: true,
+    order: 5,
+  },
+  {
+    id: "accessories-restock",
+    eyebrow: "Just restocked",
+    headline: "The small stuff that makes the big stuff work.",
+    subcopy: "Keyboards, mice, storage and cables — genuine, in stock, ready today.",
+    image: categoryImages.accessories[0],
+    badge: "New",
+    ctaLabel: "Shop accessories",
+    ctaHref: "/products?category=accessories",
+    active: true,
+    order: 6,
+  },
+  {
+    id: "tablets-creative",
+    eyebrow: "Creativity on the go",
+    headline: "iPad and Android tablets for work and play.",
+    subcopy: "Sketch, stream, study — genuine tablets with real Kenyan warranty support.",
+    image: categoryImages.tablets[0],
+    ctaLabel: "Shop tablets",
+    ctaHref: "/products?category=tablets",
+    active: true,
+    order: 7,
   },
 ];
 

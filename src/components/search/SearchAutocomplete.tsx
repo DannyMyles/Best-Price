@@ -254,7 +254,7 @@ export function SearchAutocomplete({
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
             className={cn(
-              "z-30 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl",
+              "chamfer z-30 overflow-hidden border border-border bg-surface shadow-xl",
               variant === "overlay"
                 ? "mt-3"
                 : "absolute left-0 right-0 top-full mt-2"
@@ -265,7 +265,7 @@ export function SearchAutocomplete({
                 {recent.length > 0 && (
                   <div className="mb-1">
                     <div className="flex items-center justify-between px-3 py-2">
-                      <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                      <span className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-muted">
                         <Clock className="h-3.5 w-3.5" /> Recent
                       </span>
                       <button
@@ -287,7 +287,7 @@ export function SearchAutocomplete({
                     ))}
                   </div>
                 )}
-                <span className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <span className="flex items-center gap-1.5 px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-muted">
                   <TrendingUp className="h-3.5 w-3.5" /> Popular
                 </span>
                 <div className="flex flex-wrap gap-1.5 px-3 pb-3 pt-1">

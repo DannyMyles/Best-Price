@@ -33,7 +33,7 @@ export function DeliveryEstimator() {
   const fee = county ? deliveryFeeFor("courier", county) : null;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
+    <div className="chamfer-sm border border-border bg-surface p-4">
       <p className="flex items-center gap-2 text-sm font-semibold text-ink">
         <MapPin className="h-4 w-4 text-brand" /> Delivery to your area
       </p>

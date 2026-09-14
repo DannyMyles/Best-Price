@@ -55,7 +55,7 @@ export function FrequentlyBoughtTogether({
         Frequently bought together
       </h2>
 
-      <div className="mt-4 rounded-2xl border border-border bg-surface p-5">
+      <div className="mt-4 chamfer border border-border bg-surface p-5">
         {/* visual row */}
         <div className="flex flex-wrap items-center gap-3">
           {[main, ...addons].map((p, i) => (

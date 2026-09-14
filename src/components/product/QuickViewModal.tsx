@@ -58,7 +58,7 @@ export function QuickViewModal({
             </button>
 
             <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2 sm:p-6">
-              <div className="overflow-hidden rounded-2xl bg-surface-muted">
+              <div className="chamfer-sm overflow-hidden bg-surface-muted">
                 <ProductImage
                   src={product.images?.[0]}
                   category={product.category}
@@ -102,7 +102,7 @@ function QuickViewBody({
 
   return (
     <div className="flex flex-col">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
+      <p className="font-mono text-xs uppercase tracking-wide text-muted">
         {product.category.replace(/-/g, " ")}
       </p>
       <h2 className="mt-1 text-lg font-bold text-ink">{product.name}</h2>

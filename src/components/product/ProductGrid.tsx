@@ -45,7 +45,7 @@ export function ProductGrid({
 
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-surface py-20 text-center">
+      <div className="chamfer flex flex-col items-center justify-center gap-3 border border-dashed border-border bg-surface py-20 text-center">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-muted text-muted">
           <PackageSearch className="h-6 w-6" />
         </span>

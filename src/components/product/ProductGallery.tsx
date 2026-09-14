@@ -56,7 +56,7 @@ export function ProductGallery({ product }: { product: Product }) {
               src={images[active]}
               category={product.category}
               alt={product.name}
-              className="h-full w-full rounded-3xl"
+              className="chamfer h-full w-full"
               iconClassName="h-28 w-28 sm:h-36 sm:w-36"
               sizes="(min-width: 1024px) 45vw, 90vw"
               priority

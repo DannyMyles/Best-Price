@@ -15,7 +15,7 @@ export function MpesaInstructions({ amount }: { amount: number }) {
   const amountDigits = String(Math.round(amount));
 
   return (
-    <div className="rounded-2xl border border-mpesa/30 bg-success-050/60 p-5">
+    <div className="chamfer border border-mpesa/30 bg-success-050/60 p-5">
       <div className="flex items-center gap-2">
         <span className="flex h-7 items-center rounded-md bg-mpesa px-2 text-xs font-bold text-white">
           M-PESA
@@ -24,7 +24,7 @@ export function MpesaInstructions({ amount }: { amount: number }) {
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-3.5">
+        <div className="chamfer-sm border border-border bg-surface p-3.5">
           <p className="text-xs text-muted">Send to</p>
           <p className="mt-0.5 text-lg font-bold tracking-tight text-ink">
             {MPESA_PAYBILL_NUMBER}
@@ -36,7 +36,7 @@ export function MpesaInstructions({ amount }: { amount: number }) {
             className="mt-2"
           />
         </div>
-        <div className="rounded-xl border border-border bg-surface p-3.5">
+        <div className="chamfer-sm border border-border bg-surface p-3.5">
           <p className="text-xs text-muted">Exact amount</p>
           <p className="mt-0.5 text-lg font-bold tracking-tight text-ink">
             {formatKES(amount)}
