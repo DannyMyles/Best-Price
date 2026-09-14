@@ -17,7 +17,7 @@ export default function OpengraphImage() {
           alignItems: "center",
           justifyContent: "center",
           background:
-            "linear-gradient(135deg, #0e1b33 0%, #17284c 55%, #1d4ed8 140%)",
+            "linear-gradient(135deg, #0b0c0e 0%, #121212 55%, #17181b 140%)",
           color: "#fff",
         }}
       >
@@ -26,13 +26,13 @@ export default function OpengraphImage() {
             style={{
               width: 84,
               height: 84,
-              borderRadius: 24,
-              background: "#1d4ed8",
+              background: "#d7ff3d",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 52,
               fontWeight: 800,
+              color: "#0b0c0e",
             }}
           >
             P
@@ -46,13 +46,13 @@ export default function OpengraphImage() {
             }}
           >
             <span>Price</span>
-            <span style={{ color: "#7ea8ff" }}>Hub</span>
+            <span style={{ color: "#3ddc84" }}>Hub</span>
           </div>
         </div>
         <div style={{ marginTop: 36, fontSize: 32, color: "rgba(255,255,255,0.82)" }}>
           The best price on the tech you want
         </div>
-        <div style={{ marginTop: 14, fontSize: 22, color: "#7ea8ff" }}>
+        <div style={{ marginTop: 14, fontSize: 22, color: "#3ddc84" }}>
           Secure M-Pesa payment · Countrywide delivery in Kenya
         </div>
       </div>

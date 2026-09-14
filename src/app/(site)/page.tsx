@@ -1,4 +1,5 @@
-import { Hero } from "@/components/home/Hero";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { CategoryStrip } from "@/components/home/CategoryStrip";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FeatureTiles } from "@/components/home/FeatureTiles";
 import { HomeRails } from "@/components/home/HomeRails";
@@ -21,7 +22,8 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <Hero />
+      <HeroCarousel />
+      <CategoryStrip />
       <TrustBadges />
 
       <FeatureTiles />

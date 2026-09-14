@@ -9,12 +9,8 @@ interface Remaining {
   done: boolean;
 }
 
-function diffToMidnight(): Remaining {
-  const now = new Date();
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0);
-  let ms = midnight.getTime() - now.getTime();
-  if (ms < 0) ms = 0;
+function diffTo(target: number): Remaining {
+  const ms = Math.max(0, target - Date.now());
   const total = Math.floor(ms / 1000);
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
@@ -23,9 +19,18 @@ function diffToMidnight(): Remaining {
   return { hours: pad(h), minutes: pad(m), seconds: pad(s), done: ms === 0 };
 }
 
-/** Live ticking countdown to the next local midnight. Renders "--:--:--"
- *  on the server / first paint to avoid a hydration mismatch, then ticks. */
-export function useCountdownToMidnight(): Remaining {
+function nextMidnight(): number {
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return midnight.getTime();
+}
+
+/** Live ticking countdown to an arbitrary ISO datetime. Renders "--:--:--"
+ *  on the server / first paint to avoid a hydration mismatch, then ticks.
+ *  Pass `null`/`undefined` (or a past date) to get `done: true` immediately
+ *  without starting a timer. */
+export function useCountdownTo(targetIso: string | null | undefined): Remaining {
+  const target = targetIso ? new Date(targetIso).getTime() : null;
   const [remaining, setRemaining] = useState<Remaining>({
     hours: "--",
     minutes: "--",
@@ -34,11 +39,20 @@ export function useCountdownToMidnight(): Remaining {
   });
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRemaining(diffToMidnight());
-    const id = window.setInterval(() => setRemaining(diffToMidnight()), 1000);
+    if (!target || target <= Date.now()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRemaining({ hours: "00", minutes: "00", seconds: "00", done: true });
+      return;
+    }
+    setRemaining(diffTo(target));
+    const id = window.setInterval(() => setRemaining(diffTo(target)), 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [target]);
 
   return remaining;
+}
+
+/** Live ticking countdown to the next local midnight. */
+export function useCountdownToMidnight(): Remaining {
+  return useCountdownTo(new Date(nextMidnight()).toISOString());
 }

@@ -24,6 +24,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Homepage promo carousel — anyone can view, only admins can manage it.
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Guest checkout: anyone can place an order, nobody but an admin can
     // read the order list, change status, or edit someone else's order.
     match /orders/{orderId} {

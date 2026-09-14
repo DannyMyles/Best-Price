@@ -31,6 +31,24 @@ export type ProductBadge =
   | "Clearance"
   | "Limited";
 
+export interface Banner {
+  id: string;
+  eyebrow?: string;
+  headline: string;
+  subcopy?: string;
+  image: string;
+  badge?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** ISO datetime. When set and in the future, the slide shows a live
+   *  "Ends in HH:MM:SS" countdown chip (flash-deal urgency). */
+  dealEndsAt?: string | null;
+  /** Hidden from the storefront when `false`. Defaults to `true`. */
+  active?: boolean;
+  /** Ascending display order. Defaults to `0`. */
+  order?: number;
+}
+
 export interface Product {
   sku: string;
   slug: string;

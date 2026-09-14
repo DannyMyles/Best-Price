@@ -31,8 +31,9 @@ export function CategoryGrid() {
               <motion.div
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-muted shadow-sm"
+                className="chamfer group relative aspect-[4/5] overflow-hidden border border-border bg-surface-muted"
               >
+                <span className="circuit-tick bottom-3 right-3 z-10 rotate-180 text-white/50 sm:bottom-4 sm:right-4" />
                 {image && (
                   <Image
                     src={image}

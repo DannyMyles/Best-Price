@@ -14,7 +14,7 @@ export function PriceHubMark({ className }: { className?: string }) {
       aria-label="PriceHub"
       className={cn("shrink-0", className)}
     >
-      <rect x="1" y="1" width="38" height="38" rx="11" fill="var(--brand)" />
+      <path d="M1 1 L29 1 L39 11 L39 39 L1 39 Z" fill="var(--brand)" />
       {/* stylised "h" / price-tag hybrid */}
       <path
         d="M14 10v20M14 20c0-3.6 2.5-6 6-6s6 2.4 6 6v10"

@@ -3,8 +3,9 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-// iOS home-screen icon. Mirrors src/app/icon.svg (blue field + white "h"
-// mark) but as a 180×180 PNG, which Safari needs — it ignores SVG here.
+// iOS home-screen icon. Mirrors src/app/icon.svg (ink-black chamfered field
+// + white "h" mark) but as a 180×180 PNG, which Safari needs — it ignores
+// SVG here.
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -15,7 +16,7 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#1d4ed8",
+          background: "#121212",
         }}
       >
         <svg width="120" height="120" viewBox="0 0 40 40" fill="none">

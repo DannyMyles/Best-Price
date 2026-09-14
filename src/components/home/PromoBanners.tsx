@@ -37,7 +37,7 @@ export function PromoBanners() {
               href={`/products?category=${c.slug}`}
               className="group block"
             >
-              <div className="relative h-64 overflow-hidden rounded-3xl bg-surface-muted sm:h-72">
+              <div className="chamfer relative h-64 overflow-hidden border border-accent/25 bg-surface-muted sm:h-72">
                 <Image
                   src={getCategoryImages(c.slug)[0]}
                   alt={c.name}
@@ -47,15 +47,16 @@ export function PromoBanners() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-linear-to-r from-panel-dark/90 via-panel-dark/40 to-transparent" />
+                <span className="circuit-tick right-4 top-4 z-10 rotate-90 text-accent/70" />
                 <div className="absolute inset-y-0 left-0 flex max-w-xs flex-col justify-center gap-2 px-7 sm:px-9">
-                  <span className="text-xs font-medium text-brand-2">
+                  <span className="font-mono text-xs uppercase tracking-[0.1em] text-brand-2">
                     {EYEBROWS[c.slug] ?? "Shop the range"}
                   </span>
                   <h3 className="text-2xl font-semibold text-white sm:text-3xl">
                     {c.name}
                   </h3>
                   <p className="text-sm text-white/70">{c.description}</p>
-                  <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-ink transition-transform group-hover:translate-x-1">
+                  <span className="chamfer-sm mt-3 inline-flex w-fit items-center gap-1.5 bg-white px-4 py-2 text-sm font-medium text-ink transition-transform group-hover:translate-x-1">
                     Shop {c.shortName} <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>

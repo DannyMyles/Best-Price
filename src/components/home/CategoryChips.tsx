@@ -5,9 +5,10 @@ import Image from "next/image";
 import { useCategories } from "@/hooks/useCategories";
 import { getCategoryImages } from "@/lib/data/categoryImages";
 
-/** Apple-Store-style quick links: a light rounded tile per category with a
- *  representative image and a short label. Scrolls on mobile, centres on
- *  desktop. */
+/** Quick category links styled to the chamfered, hairline-bordered shape
+ *  language — a small registration-mark tick in the corner, a mono label
+ *  underneath, instead of a plain rounded photo tile. Scrolls on mobile,
+ *  centres on desktop. */
 export function CategoryChips() {
   const { categories } = useCategories();
 
@@ -21,7 +22,8 @@ export function CategoryChips() {
             href={`/products?category=${c.slug}`}
             className="group flex w-24 shrink-0 snap-start flex-col items-center gap-2.5 sm:w-28"
           >
-            <span className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl bg-surface-muted transition-transform duration-200 group-hover:-translate-y-1 group-hover:shadow-md sm:h-28 sm:w-28">
+            <span className="chamfer-sm relative flex h-24 w-24 items-center justify-center overflow-hidden border border-border bg-surface-muted transition-[transform,border-color] duration-200 group-hover:-translate-y-1 group-hover:border-accent sm:h-28 sm:w-28">
+              <span className="circuit-tick left-2 top-2 z-10 text-accent/70" />
               {img && (
                 <Image
                   src={img}
@@ -32,7 +34,7 @@ export function CategoryChips() {
                 />
               )}
             </span>
-            <span className="text-center text-xs font-medium text-ink/80 group-hover:text-brand">
+            <span className="text-center font-mono text-[11px] uppercase tracking-wide text-ink/70 group-hover:text-accent">
               {c.shortName}
             </span>
           </Link>

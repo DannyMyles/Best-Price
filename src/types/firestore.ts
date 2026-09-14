@@ -41,6 +41,23 @@ export interface CategoryDoc {
   updatedAt?: Timestamp;
 }
 
+/** banners/{id} — the top-of-page promo carousel, storefront reads only
+ *  `active` slides sorted by `order`. */
+export interface BannerDoc {
+  eyebrow?: string;
+  headline: string;
+  subcopy?: string;
+  image: string;
+  badge?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  dealEndsAt?: string | null;
+  active: boolean;
+  order?: number;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+}
+
 export type OrderStatus = "pending" | "confirmed" | "processing" | "completed" | "cancelled";
 export type PaymentStatus = "pending" | "paid" | "failed";
 export type PaymentMethod = "mpesa" | "cod" | "bank";

@@ -16,14 +16,14 @@ export default function GlobalError({
           alignItems: "center",
           justifyContent: "center",
           margin: 0,
-          background: "#f6f7f9",
-          color: "#101828",
+          background: "#f6f5f1",
+          color: "#121212",
         }}
       >
         <div style={{ maxWidth: 420, padding: 24, textAlign: "center" }}>
           <title>Something went wrong · PriceHub</title>
           <h1 style={{ fontSize: 20, fontWeight: 700 }}>Something went wrong</h1>
-          <p style={{ fontSize: 14, color: "#667085", marginTop: 8 }}>
+          <p style={{ fontSize: 14, color: "#6b6860", marginTop: 8 }}>
             An unexpected error occurred. Please try again.
           </p>
           <button
@@ -31,7 +31,7 @@ export default function GlobalError({
             style={{
               marginTop: 16,
               borderRadius: 9999,
-              background: "#1d4ed8",
+              background: "#121212",
               color: "#fff",
               border: 0,
               padding: "10px 20px",

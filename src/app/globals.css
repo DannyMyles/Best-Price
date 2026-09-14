@@ -1,44 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* ---- PriceHub design tokens ------------------------------------------ */
-  /* Neutrals */
-  --background: #f6f7f9;
-  --foreground: #101828;
+  /* ---- PriceHub design tokens — "Circuit Editorial" ---------------------
+     Ink black + structural M-Pesa green + electric lime, used sparingly.
+     Chamfered corners are a deliberate signature (see .chamfer / .chamfer-sm
+     below) and are opt-in on marketing-level surfaces, not on form
+     controls — inputs and small buttons stay pill/rounded for usability. */
+
+  /* Neutrals — warm, not cold-blue-gray */
+  --background: #f6f5f1;
+  --foreground: #121212;
   --surface: #ffffff;
-  --surface-muted: #eef1f5;
-  --border: #e4e7ec;
-  --border-strong: #d0d5dd;
-  --muted: #667085;
-  --ink: #101828;
-  --ink-inverse: #ffffff;
+  --surface-muted: #efede7;
+  --border: #e2dfd7;
+  --border-strong: #cbc7bb;
+  --muted: #6b6860;
+  --ink: #121212;
+  --ink-inverse: #f4f1ea;
 
-  /* Brand — accessible: brand on white passes AA for UI + large text,
-     brand-strong for hover/press, brand-050 for tinted fills. */
-  --brand: #1d4ed8;
-  --brand-strong: #1a45be;
-  --brand-050: #eef3ff;
-  --brand-foreground: #ffffff;
+  /* Brand — ink black is the primary interactive color on light surfaces
+     (links, primary buttons, focus). Reserve --electric for dark-surface
+     CTAs where it has real contrast. */
+  --brand: #121212;
+  --brand-strong: #2a2a28;
+  --brand-050: #ecebe6;
+  --brand-foreground: #f4f1ea;
 
-  /* Accent — deals / price drops only, used sparingly */
-  --accent: #f97316;
-  --accent-050: #fff3e9;
+  /* Accent — the structural M-Pesa green: hairlines, tags, secondary
+     buttons, success states. Works on both light and dark surfaces. */
+  --accent: #1fa35c;
+  --accent-strong: #178549;
+  --accent-050: #e7f6ec;
   --accent-foreground: #ffffff;
 
+  /* Electric — the one loud color, used sparingly: primary CTAs and price
+     callouts on dark panels only. Too low-contrast for body text. */
+  --electric: #d7ff3d;
+  --electric-foreground: #0b0c0e;
+
   /* Status */
-  --success: #16a34a;
-  --success-050: #ecfdf3;
+  --success: #1fa35c;
+  --success-050: #e7f6ec;
   --mpesa: #16a34a;
   --danger: #dc2626;
   --danger-050: #fef3f2;
   --warning: #b45309;
   --warning-050: #fffaeb;
 
-  /* Dark panels (hero / footer / callouts) */
-  --panel-dark: #0e1b33;
-  --panel-dark-2: #17284c;
+  /* Dark panels (hero / footer / callouts) — near-black ink, not navy */
+  --panel-dark: #0b0c0e;
+  --panel-dark-2: #17181b;
 
-  /* Radius scale */
+  /* Radius scale — for form controls and small UI; big marketing surfaces
+     use the chamfer utilities instead */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -58,7 +72,7 @@
   --z-modal: 80;
   --z-toast: 100;
 
-  /* legacy alias */
+  /* legacy alias — eyebrow/label color on dark photo overlays */
   --brand-2: var(--accent);
 }
 
@@ -77,11 +91,15 @@
   --color-brand-strong: var(--brand-strong);
   --color-brand-050: var(--brand-050);
   --color-brand-foreground: var(--brand-foreground);
-  --color-brand-2: var(--accent);
+  --color-brand-2: var(--brand-2);
 
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --color-accent-050: var(--accent-050);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-electric: var(--electric);
+  --color-electric-foreground: var(--electric-foreground);
 
   --color-success: var(--success);
   --color-success-050: var(--success-050);
@@ -104,8 +122,8 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-plex-mono);
 }
 
 html {
@@ -121,7 +139,7 @@ body {
 }
 
 ::selection {
-  background: var(--brand);
+  background: var(--accent);
   color: white;
 }
 
@@ -131,7 +149,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -161,7 +179,8 @@ textarea:focus-visible,
   .btn-secondary,
   .btn-ghost,
   .btn-dark,
-  .btn-mpesa {
+  .btn-mpesa,
+  .btn-electric {
     @apply inline-flex cursor-pointer select-none items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors;
     @apply disabled:pointer-events-none disabled:opacity-60;
   }
@@ -180,6 +199,11 @@ textarea:focus-visible,
   .btn-mpesa {
     @apply bg-mpesa text-white shadow-sm hover:brightness-95;
   }
+  /* For CTAs on dark/panel-dark surfaces only — .btn-primary's ink-black
+     fill disappears against a dark background. */
+  .btn-electric {
+    @apply bg-electric text-electric-foreground shadow-sm hover:brightness-95;
+  }
 
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink/80 transition-colors;
@@ -194,6 +218,42 @@ textarea:focus-visible,
 
   .card-hover {
     @apply transition-[transform,box-shadow] duration-200 will-change-transform hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  /* ---- Signature shape language ---------------------------------------
+     One chamfered corner (a PCB-connector cut), used on marketing-level
+     surfaces — hero panels, category tiles, promo cards — never on form
+     controls or small buttons, where rounded stays more usable. Pair with
+     .circuit-tick for the small registration-mark corner detail. */
+  .chamfer {
+    clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
+  }
+  .chamfer-sm {
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  }
+  .circuit-tick {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    pointer-events: none;
+  }
+  .circuit-tick::before,
+  .circuit-tick::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+  }
+  .circuit-tick::before {
+    width: 9px;
+    height: 1px;
+    top: 4px;
+    left: 0;
+  }
+  .circuit-tick::after {
+    width: 1px;
+    height: 9px;
+    left: 4px;
+    top: 0;
   }
 }
 
@@ -322,6 +382,12 @@ textarea:focus-visible,
     transparent
   );
   animation: band-sheen 7s ease-in-out infinite;
+}
+
+/* Autoplay progress bar on the homepage banner carousel. */
+@keyframes carousel-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 /* ---- IoT network backdrop (hero) --------------------------------- */

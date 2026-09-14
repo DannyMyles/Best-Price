@@ -13,7 +13,9 @@ export function VisitStrip() {
   return (
     <section className="section py-12 sm:py-16">
       <ScrollReveal>
-        <div className="grid grid-cols-1 gap-6 rounded-3xl bg-panel-dark p-6 text-white sm:p-10 lg:grid-cols-2">
+        <div className="chamfer relative grid grid-cols-1 gap-6 border border-accent/25 bg-panel-dark p-6 text-white sm:p-10 lg:grid-cols-2">
+          <span className="circuit-tick left-4 top-4 text-accent/60 sm:left-6 sm:top-6" />
+          <span className="circuit-tick bottom-4 right-4 rotate-180 text-accent/60 sm:bottom-6 sm:right-6" />
           <div>
             <h3 className="text-xl font-bold sm:text-2xl">
               Questions before you buy?
@@ -86,7 +88,7 @@ function Detail({
     <div className="flex gap-2.5">
       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-2" />
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
+        <p className="font-mono text-xs uppercase tracking-wide text-white/50">
           {label}
         </p>
         <p className="mt-0.5 text-sm text-white/85">{value}</p>

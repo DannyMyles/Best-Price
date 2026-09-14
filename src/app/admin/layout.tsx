@@ -7,6 +7,7 @@ import {
   LayoutGrid,
   Package,
   Tags,
+  GalleryHorizontal,
   ClipboardList,
   Star,
   LogOut,
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutGrid },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tags },
+  { href: "/admin/banners", label: "Banners", icon: GalleryHorizontal },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
 ];

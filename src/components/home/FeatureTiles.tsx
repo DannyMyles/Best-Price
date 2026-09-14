@@ -49,11 +49,11 @@ export function FeatureTiles() {
 function FeatureTile({ product }: { product: Product | null }) {
   if (!product) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-3xl bg-surface-muted p-8">
+      <div className="chamfer flex flex-col items-center gap-4 border border-border bg-surface-muted p-8">
         <Skeleton className="h-4 w-24" />
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-4 w-20" />
-        <Skeleton className="mt-4 h-48 w-48 rounded-2xl" />
+        <Skeleton className="chamfer-sm mt-4 h-48 w-48" />
       </div>
     );
   }
@@ -69,9 +69,10 @@ function FeatureTile({ product }: { product: Product | null }) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col items-center rounded-3xl bg-surface-muted p-8 text-center transition-colors hover:bg-brand-050"
+      className="chamfer group relative flex flex-col items-center border border-border bg-surface-muted p-8 text-center transition-colors hover:border-accent/40 hover:bg-brand-050"
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+      <span className="circuit-tick left-4 top-4 text-accent/60" />
+      <p className="font-mono text-xs uppercase tracking-wide text-brand">
         {eyebrow}
       </p>
       <h3 className="mt-1.5 text-xl font-semibold tracking-tight text-ink">
@@ -87,7 +88,7 @@ function FeatureTile({ product }: { product: Product | null }) {
           src={product.images?.[0]}
           category={product.category}
           alt={product.name}
-          className="mx-auto aspect-square w-full max-w-xs rounded-2xl transition-transform duration-300 group-hover:scale-[1.03]"
+          className="chamfer-sm mx-auto aspect-square w-full max-w-xs transition-transform duration-300 group-hover:scale-[1.03]"
           iconClassName="h-16 w-16"
           sizes="(min-width: 1024px) 30vw, 90vw"
         />
