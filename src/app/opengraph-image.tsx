@@ -46,13 +46,13 @@ export default function OpengraphImage() {
             }}
           >
             <span>Price</span>
-            <span style={{ color: "#3ddc84" }}>Hub</span>
+            <span style={{ color: "#1fa35c" }}>Hub</span>
           </div>
         </div>
         <div style={{ marginTop: 36, fontSize: 32, color: "rgba(255,255,255,0.82)" }}>
           The best price on the tech you want
         </div>
-        <div style={{ marginTop: 14, fontSize: 22, color: "#3ddc84" }}>
+        <div style={{ marginTop: 14, fontSize: 22, color: "#1fa35c" }}>
           Secure M-Pesa payment · Countrywide delivery in Kenya
         </div>
       </div>

@@ -55,7 +55,7 @@ export default function FAQsPage() {
         </h1>
       </ScrollReveal>
 
-      <div className="mt-8 divide-y divide-border rounded-2xl border border-border bg-surface px-5">
+      <div className="chamfer mt-8 divide-y divide-border border border-border bg-surface px-5">
         {faqs.map((item, i) => (
           <ScrollReveal key={item.q} delay={i * 0.05} className="py-5">
             <h3 className="text-sm font-semibold text-ink">{item.q}</h3>

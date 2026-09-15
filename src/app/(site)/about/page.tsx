@@ -45,7 +45,7 @@ export default function AboutPage() {
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {points.map((p, i) => (
           <ScrollReveal key={p.title} delay={i * 0.08}>
-            <div className="h-full rounded-2xl border border-border bg-surface p-5">
+            <div className="chamfer h-full border border-border bg-surface p-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-muted text-brand">
                 <p.icon className="h-5 w-5" strokeWidth={1.6} />
               </div>

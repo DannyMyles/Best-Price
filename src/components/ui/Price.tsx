@@ -35,7 +35,7 @@ export function Price({
           </span>
           <span
             className={cn(
-              "rounded-full bg-accent-050 px-1.5 py-0.5 font-semibold text-accent",
+              "rounded-full bg-accent-050 px-1.5 py-0.5 font-semibold text-accent-strong",
               size === "lg" ? "text-xs" : "text-[10px]"
             )}
           >

@@ -41,7 +41,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={handleSend}
-      className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-surface p-6"
+      className="chamfer flex h-full flex-col gap-4 border border-border bg-surface p-6"
     >
       <div>
         <h2 className="text-base font-semibold text-ink">Send us a message</h2>

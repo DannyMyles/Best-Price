@@ -155,7 +155,7 @@ export default function ContactPage() {
             ))}
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border">
+          <div className="chamfer overflow-hidden border border-border">
             <iframe
               src={mapSrc}
               width="100%"
@@ -179,7 +179,7 @@ export default function ContactPage() {
 
         <ScrollReveal delay={0.15} className="flex flex-col gap-5">
           {/* Wholesale / bulk */}
-          <div className="rounded-2xl border border-brand/25 bg-brand-050/60 p-5">
+          <div className="chamfer border border-brand/25 bg-brand-050/60 p-5">
             <p className="flex items-center gap-2 text-sm font-semibold text-brand">
               <Truck className="h-4 w-4" /> Buying for a business or in bulk?
             </p>
@@ -201,7 +201,7 @@ export default function ContactPage() {
 
           <ContactForm />
 
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-muted/50 p-4 text-sm text-muted">
+          <div className="chamfer-sm flex items-center gap-2 border border-border bg-surface-muted/50 p-4 text-sm text-muted">
             <HelpCircle className="h-4 w-4 shrink-0 text-brand" />
             <span>
               Quick question? Our{" "}
@@ -233,12 +233,12 @@ function InfoCard({
   className?: string;
 }) {
   const content = (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
+    <div className="chamfer flex h-full flex-col gap-3 border border-border bg-surface p-5">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-050 text-brand">
         {icon}
       </div>
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">
+        <p className="font-mono text-xs uppercase tracking-wide text-muted">
           {label}
         </p>
         <p className="mt-0.5 text-sm font-semibold text-ink">{value}</p>

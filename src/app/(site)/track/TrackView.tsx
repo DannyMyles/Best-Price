@@ -74,7 +74,7 @@ export function TrackView() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-6 grid grid-cols-1 gap-3 rounded-2xl border border-border bg-surface p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+        className="chamfer mt-6 grid grid-cols-1 gap-3 border border-border bg-surface p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
       >
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-ink/70">
@@ -123,9 +123,9 @@ export function TrackView() {
       )}
 
       {result && (
-        <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
+        <div className="chamfer mt-6 border border-border bg-surface p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-ink">Order {result.ref}</p>
+            <p className="font-mono text-sm font-semibold text-ink">Order {result.ref}</p>
             <span
               className={cn(
                 "rounded-full px-2.5 py-1 text-xs font-semibold",

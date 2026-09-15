@@ -37,7 +37,7 @@ export function DealsView() {
   return (
     <div className="section py-8 sm:py-12">
       <div className="mb-6">
-        <p className="font-mono text-xs uppercase tracking-wide text-accent">
+        <p className="font-mono text-xs uppercase tracking-wide text-accent-strong">
           Save now
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">

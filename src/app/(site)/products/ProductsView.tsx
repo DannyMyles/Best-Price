@@ -106,7 +106,7 @@ export function ProductsView() {
 
       <div className="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-10">
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl border border-border bg-surface p-5">
+          <div className="chamfer sticky top-24 border border-border bg-surface p-5">
             <ProductFilters
               filters={filters}
               onChange={patch}

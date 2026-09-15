@@ -128,7 +128,7 @@ export async function Footer() {
               <li>
                 <Link
                   href="/deals"
-                  className="font-semibold text-accent transition-colors hover:text-accent/80"
+                  className="font-semibold text-accent-strong transition-colors hover:text-accent-strong/80"
                 >
                   Deals &amp; Clearance
                 </Link>

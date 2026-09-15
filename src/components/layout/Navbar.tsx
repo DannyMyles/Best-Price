@@ -96,7 +96,7 @@ export function Navbar() {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-full w-72 pt-2"
                   >
-                    <div className="overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-xl">
+                    <div className="chamfer overflow-hidden border border-border bg-surface p-2 shadow-xl">
                       {categories.map((c) => (
                         <Link
                           key={c.slug}

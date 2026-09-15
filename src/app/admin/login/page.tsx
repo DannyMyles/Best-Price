@@ -81,10 +81,11 @@ function LoginCard() {
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-linear-to-br from-panel-dark/90 via-panel-dark/80 to-brand/40"
+        className="absolute inset-0 bg-linear-to-br from-panel-dark/90 via-panel-dark/80 to-accent/25"
       />
 
-      <div className="relative w-full max-w-sm rounded-2xl border border-white/15 bg-surface/95 p-8 shadow-xl backdrop-blur">
+      <div className="chamfer relative w-full max-w-sm border border-white/15 bg-surface/95 p-8 shadow-xl backdrop-blur">
+        <span className="circuit-tick right-4 top-4 rotate-90 text-accent/60" />
         <div className="mb-6">
           <LogoFull className="w-40" />
           <p className="mt-3 text-xs text-muted">Sign in to manage the store</p>
@@ -110,7 +111,7 @@ function LoginCard() {
               {googleBusy ? "Opening Google…" : "Continue with Google"}
             </button>
 
-            <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted">
+            <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-wide text-muted">
               <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
             </div>
 

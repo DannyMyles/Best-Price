@@ -94,7 +94,7 @@ export default function TermsPage() {
       <div className="mt-8 flex flex-col gap-4">
         {sections.map((s, i) => (
           <ScrollReveal key={s.title} delay={i * 0.04}>
-            <div className="rounded-2xl border border-border bg-surface p-5">
+            <div className="chamfer border border-border bg-surface p-5">
               <h2 className="text-sm font-semibold text-ink">{s.title}</h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted">
                 {s.body}

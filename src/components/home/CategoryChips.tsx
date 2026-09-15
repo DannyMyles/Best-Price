@@ -34,7 +34,7 @@ export function CategoryChips() {
                 />
               )}
             </span>
-            <span className="text-center font-mono text-[11px] uppercase tracking-wide text-ink/70 group-hover:text-accent">
+            <span className="text-center font-mono text-[11px] uppercase tracking-wide text-ink/70 group-hover:text-accent-strong">
               {c.shortName}
             </span>
           </Link>

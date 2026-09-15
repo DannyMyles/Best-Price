@@ -48,7 +48,7 @@ export default function ReturnsPage() {
       <div className="mt-8 flex flex-col gap-4">
         {sections.map((s, i) => (
           <ScrollReveal key={s.title} delay={i * 0.05}>
-            <div className="rounded-2xl border border-border bg-surface p-5">
+            <div className="chamfer border border-border bg-surface p-5">
               <h3 className="text-sm font-semibold text-ink">{s.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.body}</p>
             </div>

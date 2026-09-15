@@ -90,7 +90,7 @@ export function ReviewForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4"
+      className="chamfer mt-4 flex flex-col gap-3 border border-border bg-surface p-4"
     >
       <p className="text-sm font-semibold text-ink">
         Review {productName}

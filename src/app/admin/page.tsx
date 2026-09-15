@@ -121,7 +121,8 @@ export default function AdminOverviewPage() {
       )}
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <div className="col-span-2 rounded-2xl border border-border bg-panel-dark p-5 text-white lg:col-span-1">
+        <div className="chamfer relative col-span-2 border border-border bg-panel-dark p-5 text-white lg:col-span-1">
+          <span className="circuit-tick right-3 top-3 rotate-90 text-accent/60" />
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
             <Wallet className="h-4.5 w-4.5" />
           </div>
@@ -135,7 +136,7 @@ export default function AdminOverviewPage() {
           <Link
             key={c.label}
             href={c.href}
-            className={`rounded-2xl border bg-white p-5 transition-colors hover:border-brand/40 ${
+            className={`chamfer border bg-white p-5 transition-colors hover:border-brand/40 ${
               c.alert ? "border-warning/40" : "border-border"
             }`}
           >
@@ -157,7 +158,7 @@ export default function AdminOverviewPage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-white p-5">
+        <section className="chamfer border border-border bg-white p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-ink">Recent orders</h2>
             <Link
@@ -194,7 +195,7 @@ export default function AdminOverviewPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-border bg-white p-5">
+        <section className="chamfer border border-border bg-white p-5">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
               <AlertTriangle className="h-4 w-4 text-warning" /> Low stock
