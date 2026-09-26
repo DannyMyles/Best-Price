@@ -3,12 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Proxy gate for the admin area.
  *
- * This is NOT the security boundary — that's the Firestore security rules,
- * which reject every privileged read/write from a non-admin regardless of
- * what renders. This only stops the admin *shell* (and its layout flash)
+ * This is NOT the security boundary — the backend API rejects every
+ * privileged request without a valid session cookie regardless of what
+ * renders. This only stops the admin *shell* (and its layout flash)
  * from being served to visitors who have never signed in: the login page
- * sets a lightweight `ph_admin` cookie on success and clears it on sign
- * out. A forged cookie gets an empty, non-functional dashboard.
+ * sets a lightweight `ph_admin` marker cookie on success and clears it on
+ * sign out. A forged cookie gets an empty, non-functional dashboard.
  */
 const COOKIE = "ph_admin";
 

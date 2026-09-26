@@ -1,7 +1,7 @@
 import { Category } from "@/lib/types";
 
-/** Seed / fallback category list. Firestore's `categories` collection
- *  overrides this once configured (managed from /admin/categories). */
+/** Fallback category list, used only if the backend API is unreachable.
+ *  The live list comes from the API (managed from /admin/categories). */
 export const categories: Category[] = [
   {
     slug: "laptops",

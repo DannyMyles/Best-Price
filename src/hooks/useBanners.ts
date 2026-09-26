@@ -3,14 +3,11 @@
 import { useEffect, useState } from "react";
 import { getBanners } from "@/services/bannerService";
 import type { Banner } from "@/lib/types";
-import { banners as seedBanners, sortBanners } from "@/lib/data/banners";
 
 let cache: Banner[] | null = null;
 
 export function useBanners() {
-  const [banners, setBanners] = useState<Banner[]>(
-    cache ?? sortBanners(seedBanners)
-  );
+  const [banners, setBanners] = useState<Banner[]>(cache ?? []);
   const [loading, setLoading] = useState(!cache);
 
   useEffect(() => {

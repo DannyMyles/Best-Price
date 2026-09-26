@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { MessageSquare } from "lucide-react";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { fetchApprovedReviews, type ReviewWithId } from "@/lib/firebase/reviews";
+import { fetchApprovedReviews } from "@/lib/api/reviews";
+import type { Review } from "@/lib/types";
 import { Rating } from "@/components/ui/Rating";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ReviewForm } from "./ReviewForm";
@@ -19,11 +19,10 @@ export function ProductReviews({
   fallbackRating?: number | null;
   fallbackCount?: number | null;
 }) {
-  const [reviews, setReviews] = useState<ReviewWithId[] | null>(null);
-  const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [reviews, setReviews] = useState<Review[] | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
     let active = true;
     fetchApprovedReviews(sku)
       .then((r) => active && setReviews(r))

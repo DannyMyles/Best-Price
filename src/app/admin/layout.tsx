@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import {
   LayoutGrid,
   Package,
@@ -10,9 +9,10 @@ import {
   GalleryHorizontal,
   ClipboardList,
   Star,
+  UserCog,
   LogOut,
 } from "lucide-react";
-import { auth } from "@/lib/firebase/config";
+import { adminLogout } from "@/lib/api/auth";
 import { clearAdminSession } from "@/lib/adminSession";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { LogoMark } from "@/components/ui/Logo";
@@ -24,6 +24,7 @@ const navItems = [
   { href: "/admin/banners", label: "Banners", icon: GalleryHorizontal },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/account", label: "Account", icon: UserCog },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +33,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, status, retry } = useAdminAuth();
 
   async function handleSignOut() {
-    if (auth) await signOut(auth);
+    try {
+      await adminLogout();
+    } catch {
+      // Session may already be gone; clearing the marker is what matters.
+    }
     clearAdminSession();
     router.push("/admin/login");
   }
@@ -64,11 +69,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (status === "signed-out" || status === "not-admin") {
+  if (status === "signed-out") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-sm font-medium text-ink">
-          {status === "not-admin" ? "This account isn't an admin." : "Please sign in to continue."}
+          Please sign in to continue.
         </p>
         <Link
           href="/admin/login"
@@ -81,8 +86,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-surface-muted">
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-white sm:flex">
+    <div className="flex min-h-screen bg-surface-muted print:bg-white">
+      <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-white sm:flex print:hidden">
         <div className="flex items-center gap-2 border-b border-border px-5 py-4">
           <LogoMark className="h-8 w-8 rounded-lg" />
           <span className="text-sm font-semibold text-ink">Admin</span>
@@ -115,13 +120,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       <div className="flex-1">
-        <header className="flex items-center justify-between border-b border-border bg-white px-4 py-3 sm:hidden">
+        <header className="flex items-center justify-between border-b border-border bg-white px-4 py-3 sm:hidden print:hidden">
           <span className="text-sm font-semibold text-ink">PriceHub Admin</span>
           <button onClick={handleSignOut} className="text-sm text-muted">
             Sign out
           </button>
         </header>
-        <nav className="flex gap-1 overflow-x-auto border-b border-border bg-white px-3 py-2 sm:hidden">
+        <nav className="flex gap-1 overflow-x-auto border-b border-border bg-white px-3 py-2 sm:hidden print:hidden">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -136,7 +141,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           ))}
         </nav>
-        <main className="p-4 sm:p-8">{children}</main>
+        <main className="p-4 sm:p-8 print:p-0">{children}</main>
       </div>
     </div>
   );

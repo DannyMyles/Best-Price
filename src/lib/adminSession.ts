@@ -1,7 +1,7 @@
 /**
- * The `ph_admin` cookie read by `src/middleware.ts`. Purely a UX gate to
+ * The `ph_admin` cookie read by `src/proxy.ts`. Purely a UX gate to
  * keep the admin shell from rendering for people who never signed in —
- * real access control is the Firestore security rules.
+ * real access control is the backend's session cookie.
  */
 const COOKIE = "ph_admin";
 const MAX_AGE = 60 * 60 * 24 * 14; // 14 days

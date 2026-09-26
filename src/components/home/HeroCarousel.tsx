@@ -34,8 +34,8 @@ const slideVariants: Variants = {
  *  slide is pointer-reactive — the photo drifts and tilts toward the
  *  cursor like a physical object, the copy parallaxes against it, the CTA
  *  is magnetic, and the whole block recedes as you scroll past it. Slides
- *  come from the (admin-managed) `banners` collection, seeded with
- *  sensible defaults when Firebase isn't configured yet. */
+ *  come from the admin-managed banners API (or, until some exist, one per
+ *  department using photos from the server). */
 export function HeroCarousel() {
   const { banners, loading } = useBanners();
   const reduced = useReducedMotion();

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Upload, Download, Loader2, Check, AlertTriangle } from "lucide-react";
 import { parseCsv } from "@/lib/csv";
-import { PRODUCT_CSV_COLUMNS, csvRowToProductDoc } from "@/lib/productCsv";
-import { upsertProduct } from "@/lib/firebase/products";
+import { PRODUCT_CSV_COLUMNS, csvRowToProductInput } from "@/lib/productCsv";
+import { adminBulkUpsert, type ProductInput } from "@/lib/api/products";
+import { errorMessage } from "@/lib/api/client";
 import { invalidateAdminData } from "@/hooks/useAdminData";
 
 const COLUMNS = [...PRODUCT_CSV_COLUMNS];
@@ -18,6 +19,7 @@ const TEMPLATE =
     "phones",
     "55999",
     "",
+    "Samsung",
     '"6.6"" 120Hz AMOLED, 50MP camera, 5000mAh battery."',
     "Navy",
     "8",
@@ -28,9 +30,6 @@ const TEMPLATE =
     "false",
     "true",
     "true",
-    "https://example.com/a55-1.jpg",
-    "",
-    "",
   ].join(",") +
   "\n";
 
@@ -51,19 +50,22 @@ export function ImportCsv({ onDone }: { onDone: () => void }) {
       setBusy(false);
       return;
     }
-    let ok = 0;
     const errors: string[] = [];
+    const inputs: ProductInput[] = [];
     for (const r of rows) {
-      const parsed = csvRowToProductDoc(r);
-      if ("error" in parsed) {
-        errors.push(parsed.error);
-        continue;
-      }
+      const parsed = csvRowToProductInput(r);
+      if ("error" in parsed) errors.push(parsed.error);
+      else inputs.push(parsed.input);
+    }
+    let ok = 0;
+    // The API takes up to 500 rows per request.
+    for (let i = 0; i < inputs.length; i += 500) {
       try {
-        await upsertProduct(parsed.slug, parsed.doc);
-        ok++;
-      } catch {
-        errors.push(`${r.name || r.sku}: failed to save`);
+        const res = await adminBulkUpsert(inputs.slice(i, i + 500));
+        ok += res.created + res.updated;
+        for (const e of res.errors) errors.push(`Row ${i + e.row}${e.sku ? ` (${e.sku})` : ""}: ${e.message}`);
+      } catch (err) {
+        errors.push(errorMessage(err, "Import failed"));
       }
     }
     setResult({ ok, errors });

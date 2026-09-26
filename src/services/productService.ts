@@ -1,52 +1,14 @@
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import {
-  fetchAllProducts,
-  fetchProductBySlug,
-  fetchFeaturedProducts,
-} from "@/lib/firebase/products";
-import { products as seedProducts, getProduct as getSeedProduct } from "@/lib/data/products";
+import { fetchAllProducts, fetchProductBySlug } from "@/lib/api/products";
 import type { Product } from "@/lib/types";
 import type { SortOption } from "@/lib/productFilters";
 
-/**
- * Firestore is the source of truth once a project is configured; until
- * then (or if a read fails) we fall back to the bundled seed catalogue so
- * the storefront keeps working out of the box.
- */
-/** Hidden products (`active === false`) never reach the storefront. */
-const visible = (list: Product[]) => list.filter((p) => p.active !== false);
-
+/** The backend API is the source of truth; it only returns visible products. */
 export async function getProducts(): Promise<Product[]> {
-  if (!isFirebaseConfigured) return seedProducts;
-  try {
-    const remote = await fetchAllProducts();
-    return remote.length > 0 ? visible(remote) : seedProducts;
-  } catch {
-    return seedProducts;
-  }
+  return fetchAllProducts();
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  if (!isFirebaseConfigured) return getSeedProduct(slug) ?? null;
-  try {
-    const remote = await fetchProductBySlug(slug);
-    return remote ?? getSeedProduct(slug) ?? null;
-  } catch {
-    return getSeedProduct(slug) ?? null;
-  }
-}
-
-export async function getFeaturedProducts(max = 8): Promise<Product[]> {
-  const seedFeatured = seedProducts.filter((p) => p.badge).slice(0, max);
-  if (!isFirebaseConfigured) return seedFeatured;
-  try {
-    const remote = visible(await fetchFeaturedProducts(max)).sort(
-      (a, b) => (a.featureRank ?? 999) - (b.featureRank ?? 999)
-    );
-    return remote.length > 0 ? remote : seedFeatured;
-  } catch {
-    return seedFeatured;
-  }
+  return fetchProductBySlug(slug);
 }
 
 export function searchProducts(products: Product[], query: string): Product[] {

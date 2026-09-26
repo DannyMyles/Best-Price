@@ -12,11 +12,10 @@ import {
   EyeOff,
 } from "lucide-react";
 import {
-  fetchAllProducts,
-  removeProduct,
-  setProductActive,
-} from "@/lib/firebase/products";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+  adminAllProducts,
+  adminDeleteProduct,
+  adminUpdateProduct,
+} from "@/lib/api/products";
 import { useAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
 import { formatKES } from "@/lib/format";
@@ -37,12 +36,12 @@ export default function AdminProductsPage() {
     error,
     refresh,
     mutate,
-  } = useAdminData<Product[]>(KEY, fetchAllProducts, isFirebaseConfigured);
+  } = useAdminData<Product[]>(KEY, adminAllProducts);
   const products = useMemo(() => data ?? [], [data]);
 
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<number | null>(null);
 
   const reload = useCallback(() => {
     refresh();
@@ -52,8 +51,8 @@ export default function AdminProductsPage() {
     if (!pendingDelete) return;
     setDeleting(true);
     try {
-      await removeProduct(pendingDelete.slug);
-      mutate(products.filter((p) => p.slug !== pendingDelete.slug));
+      await adminDeleteProduct(pendingDelete.id!);
+      mutate(products.filter((p) => p.id !== pendingDelete.id));
       push({ type: "success", message: `Deleted “${pendingDelete.name}”` });
       setPendingDelete(null);
     } catch {
@@ -64,12 +63,12 @@ export default function AdminProductsPage() {
   }
 
   async function toggleActive(p: Product) {
-    setBusySlug(p.slug);
+    setBusyId(p.id ?? null);
     const next = p.active === false;
     try {
-      await setProductActive(p.slug, next);
+      await adminUpdateProduct(p.id!, { active: next });
       mutate(
-        products.map((x) => (x.slug === p.slug ? { ...x, active: next } : x))
+        products.map((x) => (x.id === p.id ? { ...x, active: next } : x))
       );
       push({
         type: "success",
@@ -78,7 +77,7 @@ export default function AdminProductsPage() {
     } catch {
       push({ type: "error", message: "Couldn't update visibility" });
     } finally {
-      setBusySlug(null);
+      setBusyId(null);
     }
   }
 
@@ -127,13 +126,11 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {!isFirebaseConfigured ? (
-        <EmptyState />
-      ) : loading ? (
+      {loading ? (
         <p className="text-sm text-muted">Loading…</p>
       ) : error ? (
         <div className="rounded-xl border border-danger/30 bg-danger-050 p-4 text-sm text-danger">
-          Couldn&apos;t load products.{" "}
+          Couldn&apos;t load products — is the backend running?{" "}
           <button onClick={reload} className="font-semibold underline">
             Retry
           </button>
@@ -148,11 +145,11 @@ export default function AdminProductsPage() {
               <ul className="mt-2 divide-y divide-warning/20">
                 {lowStock.map((p) => (
                   <li
-                    key={p.sku}
+                    key={p.id}
                     className="flex items-center justify-between gap-3 py-2 text-sm"
                   >
                     <Link
-                      href={`/admin/products/${p.slug}`}
+                      href={`/admin/products/${p.id}`}
                       className="font-medium text-ink hover:text-brand"
                     >
                       {p.name}
@@ -174,8 +171,7 @@ export default function AdminProductsPage() {
 
           {products.length === 0 ? (
             <p className="text-sm text-muted">
-              No products yet. Add your first one, import a CSV, or run the seed
-              script.
+              No products yet. Add your first one or import a CSV.
             </p>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-border bg-white">
@@ -193,7 +189,7 @@ export default function AdminProductsPage() {
                 <tbody className="divide-y divide-border">
                   {products.map((p) => (
                     <tr
-                      key={p.sku}
+                      key={p.id}
                       className={p.active === false ? "opacity-55" : undefined}
                     >
                       <td className="px-4 py-3 font-medium text-ink">
@@ -232,7 +228,7 @@ export default function AdminProductsPage() {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => toggleActive(p)}
-                          disabled={busySlug === p.slug}
+                          disabled={busyId === p.id}
                           aria-label={
                             p.active === false
                               ? "Show in storefront"
@@ -254,7 +250,7 @@ export default function AdminProductsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-3">
                           <Link
-                            href={`/admin/products/${p.slug}`}
+                            href={`/admin/products/${p.id}`}
                             className="text-muted hover:text-brand"
                             aria-label={`Edit ${p.name}`}
                           >
@@ -283,23 +279,11 @@ export default function AdminProductsPage() {
         danger
         busy={deleting}
         title={`Delete “${pendingDelete?.name ?? ""}”?`}
-        body="This permanently removes the product from Firestore. Hide it instead if you might sell it again."
+        body="This permanently removes the product from the store. Its photos are deleted with it. Hide it instead if you might sell it again."
         confirmLabel="Delete product"
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
     </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <p className="rounded-xl border border-border bg-white p-4 text-sm text-muted">
-      Firebase isn&apos;t configured — add your project credentials to{" "}
-      <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-        .env.local
-      </code>{" "}
-      to manage products.
-    </p>
   );
 }

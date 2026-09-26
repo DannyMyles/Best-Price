@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Plus, Trash2, Upload, Loader2, Link2, X } from "lucide-react";
-import { storage } from "@/lib/firebase/config";
-import { upsertProduct } from "@/lib/firebase/products";
+import { Plus, Trash2, Upload, X } from "lucide-react";
+import {
+  adminCreateProduct,
+  adminUpdateProduct,
+  type ProductInput,
+} from "@/lib/api/products";
+import { adminCategories } from "@/lib/api/categories";
+import { adminUploadImages } from "@/lib/api/images";
+import { errorMessage } from "@/lib/api/client";
 import { useAdminData, invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
-import { fetchAllCategoriesAdmin } from "@/lib/firebase/categories";
 import { categories as seedCategories } from "@/lib/data/categories";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { slugify } from "@/lib/format";
+import { ImageManager } from "./ImageManager";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import type {
   Product,
@@ -35,8 +38,7 @@ export function ProductForm({ initial }: { initial?: Product }) {
   const { push } = useToast();
   const { data: liveCategories } = useAdminData<Category[]>(
     "admin:categories",
-    fetchAllCategoriesAdmin,
-    isFirebaseConfigured
+    adminCategories
   );
   const categories =
     liveCategories && liveCategories.length > 0
@@ -69,43 +71,12 @@ export function ProductForm({ initial }: { initial?: Product }) {
   const [inStock, setInStock] = useState(initial?.inStock ?? true);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [active, setActive] = useState(initial?.active ?? true);
-  const [images, setImages] = useState<string[]>(initial?.images ?? []);
-  const [imageUrl, setImageUrl] = useState("");
+  const [brand, setBrand] = useState(initial?.brand ?? "");
+  // New products: photos are staged here and uploaded right after the product is created.
+  const [staged, setStaged] = useState<File[]>([]);
   const [specs, setSpecs] = useState<ProductSpec[]>(initial?.specs ?? []);
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  function addImageUrl() {
-    const url = imageUrl.trim();
-    if (!/^https?:\/\//i.test(url)) {
-      setError("Enter a full image URL starting with http(s)://");
-      return;
-    }
-    setImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
-    setImageUrl("");
-    setError(null);
-  }
-
-  async function handleUpload(files: FileList | null) {
-    if (!files || !storage) return;
-    setUploading(true);
-    try {
-      const slug = slugify(`${name || "product"}-${sku || Date.now()}`);
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        const path = `products/${slug}/${Date.now()}-${file.name}`;
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, file);
-        urls.push(await getDownloadURL(storageRef));
-      }
-      setImages((prev) => [...prev, ...urls]);
-    } catch {
-      setError("Image upload failed.");
-    } finally {
-      setUploading(false);
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,19 +85,18 @@ export function ProductForm({ initial }: { initial?: Product }) {
       setError("SKU and name are required.");
       return;
     }
-    const slug = initial?.slug ?? slugify(`${name}-${sku}`);
     setSaving(true);
     try {
-      await upsertProduct(slug, {
+      const payload: Omit<ProductInput, "slug"> = {
         sku: sku.trim(),
         name: name.trim(),
         category,
+        brand: brand.trim() || null,
         price: price.trim() === "" ? null : Number(price),
         compareAtPrice: compareAtPrice.trim() === "" ? null : Number(compareAtPrice),
         description: description.trim(),
         specs: specs.filter((s) => s.label.trim() && s.value.trim()),
-        color: color.trim() || undefined,
-        images,
+        color: color.trim() || null,
         inStock,
         stockCount: stockCount.trim() === "" ? null : Number(stockCount),
         rating: rating.trim() === "" ? null : Number(rating),
@@ -135,12 +105,29 @@ export function ProductForm({ initial }: { initial?: Product }) {
         featureRank: featureRank.trim() === "" ? null : Number(featureRank),
         featured,
         active,
-      });
+      };
+      if (initial?.id) {
+        await adminUpdateProduct(initial.id, payload);
+      } else {
+        const created = await adminCreateProduct(payload);
+        if (staged.length > 0) {
+          try {
+            await adminUploadImages(created.id!, staged);
+          } catch (e) {
+            invalidateAdminData("admin:products");
+            push({ type: "error", message: `Product saved, but photos failed: ${errorMessage(e, "upload error")}` });
+            router.push(`/admin/products/${created.id}`);
+            return;
+          }
+        }
+      }
       invalidateAdminData("admin:products");
+      invalidateAdminData("admin:stats");
       push({ type: "success", message: isEdit ? "Product updated" : "Product created" });
       router.push("/admin/products");
-    } catch {
-      setError("Couldn't save product. Check your connection and try again.");
+    } catch (err) {
+      const msg = errorMessage(err, "Couldn't save product. Check your connection and try again.");
+      setError(msg);
       push({ type: "error", message: "Couldn't save product" });
     } finally {
       setSaving(false);
@@ -179,6 +166,9 @@ export function ProductForm({ initial }: { initial?: Product }) {
         </Field>
         <Field label="Name" className="sm:col-span-2">
           <input required value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        </Field>
+        <Field label="Brand (optional)">
+          <input value={brand} onChange={(e) => setBrand(e.target.value)} className="input" />
         </Field>
         <Field label="Price (KES, blank = price on request)">
           <input
@@ -304,70 +294,51 @@ export function ProductForm({ initial }: { initial?: Product }) {
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-xs font-medium text-ink/70">Images</p>
-        <div className="flex flex-wrap gap-3">
-          {images.map((src) => (
-            <span key={src} className="group relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={src}
-                alt=""
-                className="h-20 w-20 rounded-lg border border-border object-cover"
+      {initial?.id ? (
+        <ImageManager productId={initial.id} />
+      ) : (
+        <div>
+          <p className="mb-2 text-xs font-medium text-ink/70">Photos (optional — uploaded when you create the product)</p>
+          <div className="flex flex-wrap gap-3">
+            {staged.map((file, i) => (
+              <span key={`${file.name}-${i}`} className="group relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  className="h-20 w-20 rounded-lg border border-border object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setStaged((prev) => prev.filter((_, j) => j !== i))}
+                  aria-label="Remove photo"
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+            <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted hover:border-brand/50">
+              <Upload className="h-5 w-5" />
+              <span className="text-[10px]">Add</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  setStaged((prev) => [...prev, ...files]);
+                  e.target.value = "";
+                }}
               />
-              <button
-                type="button"
-                onClick={() =>
-                  setImages((prev) => prev.filter((u) => u !== src))
-                }
-                aria-label="Remove image"
-                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-white opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
-          <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted hover:border-brand/50">
-            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-            <span className="text-[10px]">Upload</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => handleUpload(e.target.files)}
-            />
-          </label>
+            </label>
+          </div>
+          <p className="mt-1.5 text-xs text-muted">
+            JPG, PNG or WebP. The first photo is the main one; reorder later from the edit page.
+          </p>
         </div>
-        <div className="mt-2 flex gap-2">
-          <input
-            type="url"
-            inputMode="url"
-            placeholder="Paste an image URL (https://…)"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addImageUrl();
-              }
-            }}
-            className="input flex-1"
-          />
-          <button
-            type="button"
-            onClick={addImageUrl}
-            className="btn-secondary shrink-0"
-          >
-            <Link2 className="h-4 w-4" /> Add
-          </button>
-        </div>
-        <p className="mt-1.5 text-xs text-muted">
-          Upload needs Firebase Storage (Blaze plan). On the free plan, paste
-          hosted image URLs instead. Leave empty to use the category&apos;s
-          default photo.
-        </p>
-      </div>
+      )}
 
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 text-sm text-ink">

@@ -3,14 +3,12 @@
 import { useMemo, useState } from "react";
 import { Trash2, Pencil, Plus, Eye, EyeOff } from "lucide-react";
 import {
-  fetchAllCategoriesAdmin,
-  upsertCategory,
-  removeCategory,
-  setCategoryActive,
-  countProductsInCategory,
-  reassignProductsCategory,
-} from "@/lib/firebase/categories";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+  adminCategories,
+  adminCreateCategory,
+  adminUpdateCategory,
+  adminDeleteCategory,
+} from "@/lib/api/categories";
+import { errorMessage } from "@/lib/api/client";
 import { useAdminData, invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
 import { slugify } from "@/lib/format";
@@ -47,24 +45,22 @@ export default function AdminCategoriesPage() {
   const { push } = useToast();
   const { data, loading, error, refresh, mutate } = useAdminData<Category[]>(
     KEY,
-    fetchAllCategoriesAdmin,
-    isFirebaseConfigured
+    adminCategories
   );
   const categories = useMemo(() => data ?? [], [data]);
 
   const [form, setForm] = useState(emptyForm);
-  const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Category | null>(null);
   const [saving, setSaving] = useState(false);
-  const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<number | null>(null);
 
   // Delete flow (with product reassignment)
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null);
-  const [affected, setAffected] = useState<number | null>(null);
   const [reassignTo, setReassignTo] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   function startEdit(c: Category) {
-    setEditingSlug(c.slug);
+    setEditing(c);
     setForm({
       slug: c.slug,
       name: c.name,
@@ -78,7 +74,7 @@ export default function AdminCategoriesPage() {
   }
 
   function resetForm() {
-    setEditingSlug(null);
+    setEditing(null);
     setForm(emptyForm);
   }
 
@@ -86,38 +82,38 @@ export default function AdminCategoriesPage() {
     e.preventDefault();
     if (!form.name.trim()) return;
     setSaving(true);
-    const slug = editingSlug ?? (form.slug.trim() || slugify(form.name));
     try {
-      await upsertCategory(slug, {
-        slug,
+      const fields = {
         name: form.name.trim(),
         shortName: form.shortName.trim() || form.name.trim(),
         description: form.description.trim(),
         icon: form.icon,
-        order: Number(form.order) || 0,
+        sortOrder: Number(form.order) || 0,
         active: form.active,
-      });
+      };
+      if (editing?.id) await adminUpdateCategory(editing.id, fields);
+      else await adminCreateCategory({ ...fields, slug: form.slug.trim() || slugify(form.name) });
       invalidateAdminData(KEY);
       refresh();
       push({
         type: "success",
-        message: editingSlug ? "Category updated" : "Category added",
+        message: editing ? "Category updated" : "Category added",
       });
       resetForm();
-    } catch {
-      push({ type: "error", message: "Couldn't save category" });
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't save category") });
     } finally {
       setSaving(false);
     }
   }
 
   async function toggleActive(c: Category) {
-    setBusySlug(c.slug);
+    setBusyId(c.id ?? null);
     const next = c.active === false;
     try {
-      await setCategoryActive(c.slug, next);
+      await adminUpdateCategory(c.id!, { active: next });
       mutate(
-        categories.map((x) => (x.slug === c.slug ? { ...x, active: next } : x))
+        categories.map((x) => (x.id === c.id ? { ...x, active: next } : x))
       );
       push({
         type: "success",
@@ -126,58 +122,38 @@ export default function AdminCategoriesPage() {
     } catch {
       push({ type: "error", message: "Couldn't update visibility" });
     } finally {
-      setBusySlug(null);
+      setBusyId(null);
     }
   }
 
-  async function openDelete(c: Category) {
+  const affected = pendingDelete?.productCount ?? 0;
+
+  function openDelete(c: Category) {
     setPendingDelete(c);
-    setAffected(null);
     setReassignTo("");
-    try {
-      setAffected(await countProductsInCategory(c.slug));
-    } catch {
-      setAffected(-1); // couldn't count
-    }
   }
 
   async function confirmDelete() {
     if (!pendingDelete) return;
-    if (affected && affected > 0 && !reassignTo) {
+    if (affected > 0 && !reassignTo) {
       push({ type: "error", message: "Pick a category to move products to" });
       return;
     }
     setDeleting(true);
     try {
-      if (affected && affected > 0 && reassignTo) {
-        const moved = await reassignProductsCategory(
-          pendingDelete.slug,
-          reassignTo
-        );
+      await adminDeleteCategory(pendingDelete.id!, affected > 0 ? reassignTo : undefined);
+      if (affected > 0) {
         invalidateAdminData("admin:products");
-        push({ type: "info", message: `Moved ${moved} product(s) to ${reassignTo}` });
+        push({ type: "info", message: `Moved ${affected} product(s) to ${reassignTo}` });
       }
-      await removeCategory(pendingDelete.slug);
-      mutate(categories.filter((c) => c.slug !== pendingDelete.slug));
+      mutate(categories.filter((c) => c.id !== pendingDelete.id));
       push({ type: "success", message: `Deleted “${pendingDelete.name}”` });
       setPendingDelete(null);
-    } catch {
-      push({ type: "error", message: "Couldn't delete category" });
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't delete category") });
     } finally {
       setDeleting(false);
     }
-  }
-
-  if (!isFirebaseConfigured) {
-    return (
-      <p className="rounded-xl border border-border bg-white p-4 text-sm text-muted">
-        Firebase isn&apos;t configured — add your project credentials to{" "}
-        <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-          .env.local
-        </code>{" "}
-        to manage categories.
-      </p>
-    );
   }
 
   const reassignOptions = categories.filter(
@@ -212,7 +188,7 @@ export default function AdminCategoriesPage() {
               <tbody className="divide-y divide-border">
                 {categories.map((c) => (
                   <tr
-                    key={c.slug}
+                    key={c.id}
                     className={c.active === false ? "opacity-55" : undefined}
                   >
                     <td className="px-4 py-3 tabular-nums text-muted">
@@ -223,7 +199,7 @@ export default function AdminCategoriesPage() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => toggleActive(c)}
-                        disabled={busySlug === c.slug}
+                        disabled={busyId === c.id}
                         className="flex items-center gap-1.5 text-xs font-medium text-muted hover:text-brand disabled:opacity-50"
                         aria-label={
                           c.active === false ? "Show category" : "Hide category"
@@ -268,7 +244,7 @@ export default function AdminCategoriesPage() {
 
       <div>
         <h2 className="mb-6 text-sm font-semibold text-ink">
-          {editingSlug ? "Edit category" : "Add category"}
+          {editing ? "Edit category" : "Add category"}
         </h2>
         <form
           onSubmit={handleSubmit}
@@ -338,9 +314,9 @@ export default function AdminCategoriesPage() {
               isLoading={saving}
               className="flex-1"
             >
-              <Plus className="h-4 w-4" /> {editingSlug ? "Save" : "Add"}
+              <Plus className="h-4 w-4" /> {editing ? "Save" : "Add"}
             </AnimatedButton>
-            {editingSlug && (
+            {editing && (
               <AnimatedButton
                 type="button"
                 variant="secondary"
@@ -362,14 +338,7 @@ export default function AdminCategoriesPage() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
         body={
-          affected === null ? (
-            <span className="text-muted">Checking for products…</span>
-          ) : affected === -1 ? (
-            <span>
-              Couldn&apos;t check how many products use this category. Deleting
-              anyway may leave products uncategorised.
-            </span>
-          ) : affected === 0 ? (
+          affected === 0 ? (
             <span>No products use this category. Safe to remove.</span>
           ) : (
             <div className="flex flex-col gap-2">

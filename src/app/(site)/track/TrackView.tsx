@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Check, Loader2, Package, XCircle, MessageCircle } from "lucide-react";
+import { trackOrder } from "@/lib/api/orders";
+import { ApiError, errorMessage } from "@/lib/api/client";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import { formatKES } from "@/lib/format";
 import { whatsappLink } from "@/lib/contact";
@@ -39,19 +41,13 @@ export function TrackView() {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch("/api/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ref, phone }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
-      } else {
-        setResult(data as TrackResult);
-      }
-    } catch {
-      setError("Network error — please try again.");
+      setResult((await trackOrder(ref.trim(), phone.trim())) as TrackResult);
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 404
+          ? "We couldn't find an order matching that reference and phone number."
+          : errorMessage(err, "Something went wrong — please try again.")
+      );
     } finally {
       setBusy(false);
     }

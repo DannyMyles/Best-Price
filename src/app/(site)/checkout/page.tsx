@@ -29,7 +29,8 @@ import {
   deliveryEtaFor,
   type DeliveryMethod,
 } from "@/lib/data/delivery";
-import { placeOrder } from "@/services/orderService";
+import { placeOrder, type PlacedOrder } from "@/services/orderService";
+import { ApiError } from "@/lib/api/client";
 import { AnimatedButton, AnimatedLinkButton } from "@/components/ui/AnimatedButton";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { MpesaInstructions } from "@/components/checkout/MpesaInstructions";
@@ -150,7 +151,7 @@ export default function CheckoutPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function buildMessage(ref: string) {
+  function buildMessage(ref: string, totals: { subtotal: number; deliveryFee: number; total: number }) {
     const itemLines = lines
       .map(
         (l) =>
@@ -165,9 +166,9 @@ export default function CheckoutPage() {
       "",
       itemLines,
       "",
-      `Subtotal: ${formatKES(subtotal)}`,
-      `Delivery (${draft.deliveryMethod}): ${formatKES(deliveryFee)}`,
-      `Total: ${formatKES(total)}${hasPOAItems ? " (+ items on request)" : ""}`,
+      `Subtotal: ${formatKES(totals.subtotal)}`,
+      `Delivery (${draft.deliveryMethod}): ${formatKES(totals.deliveryFee)}`,
+      `Total: ${formatKES(totals.total)}${hasPOAItems ? " (+ items on request)" : ""}`,
       "",
       `Name: ${draft.name}`,
       `Phone: ${formatPhoneKE(draft.phone)}`,
@@ -184,53 +185,69 @@ export default function CheckoutPage() {
       .join("\n");
   }
 
-  async function handlePlace() {
-    setSubmitting(true);
-    // Generate the customer-facing reference up front and store it on the
-    // order so /track can look it up by ref + phone.
-    const ref = `PH-${Date.now().toString(36).toUpperCase().slice(-4)}${Math.random()
+  const newRef = () =>
+    `PH-${Date.now().toString(36).toUpperCase().slice(-4)}${Math.random()
       .toString(36)
       .toUpperCase()
       .slice(2, 4)}`;
-    try {
-      await placeOrder({
-        ref,
-        customer: {
-          name: draft.name.trim(),
-          phone: toMsisdn(draft.phone),
-          email: draft.email.trim() || undefined,
-          address: draft.address.trim(),
-          county: draft.county,
-          town: draft.town.trim(),
-        },
-        items: lines.map((l) => ({
-          sku: l.sku,
-          name: l.name,
-          slug: l.slug,
-          price: l.price,
-          color: l.color,
-          quantity: l.quantity,
-        })),
-        subtotal,
-        deliveryMethod: draft.deliveryMethod,
-        deliveryFee,
-        total,
-        paymentMethod: draft.payment,
-        mpesaCode: mpesaCode.trim().toUpperCase() || undefined,
-        mpesaName: draft.mpesaName.trim() || undefined,
-        notes: draft.notes.trim() || undefined,
-      });
-    } catch {
-      push({
-        type: "error",
-        message: "Couldn't save the order online — we'll take it over WhatsApp",
-      });
-    }
 
-    setPlacedSnapshot({ items: lines, total, deliveryFee });
+  async function handlePlace() {
+    setSubmitting(true);
+    // Generate the customer-facing reference up front so the WhatsApp message
+    // and the stored order share it (/track looks it up by ref + phone).
+    let ref = newRef();
+    let placed: PlacedOrder | null = null;
+    for (let attempt = 0; attempt < 3 && !placed; attempt++) {
+      try {
+        // Only SKU + quantity go up — the server prices the order itself.
+        placed = await placeOrder({
+          ref,
+          customer: {
+            name: draft.name.trim(),
+            phone: toMsisdn(draft.phone),
+            email: draft.email.trim() || undefined,
+            address: draft.address.trim(),
+            county: draft.county,
+            town: draft.town.trim(),
+          },
+          items: lines.map((l) => ({ sku: l.sku, quantity: l.quantity })),
+          deliveryMethod: draft.deliveryMethod,
+          deliveryFee,
+          paymentMethod: draft.payment,
+          mpesaCode: mpesaCode.trim().toUpperCase() || undefined,
+          mpesaName: draft.mpesaName.trim() || undefined,
+          notes: draft.notes.trim() || undefined,
+        });
+      } catch (err) {
+        if (err instanceof ApiError && err.code === "DUPLICATE") {
+          ref = newRef(); // reference collision — pick another and retry
+          continue;
+        }
+        if (err instanceof ApiError && err.isClientError) {
+          // The server rejected the order itself (item sold out, invalid
+          // details…). Don't pretend it went through.
+          push({ type: "error", message: err.message });
+          setSubmitting(false);
+          return;
+        }
+        // Backend unreachable / server error: never block the customer —
+        // the order still completes over WhatsApp.
+        push({
+          type: "error",
+          message: "Couldn't save the order online — we'll take it over WhatsApp",
+        });
+        break;
+      }
+    }
+    if (placed) ref = placed.ref;
+    const totals = placed
+      ? { subtotal: placed.subtotal, deliveryFee: placed.deliveryFee, total: placed.total }
+      : { subtotal, deliveryFee, total };
+
+    setPlacedSnapshot({ items: lines, total: totals.total, deliveryFee: totals.deliveryFee });
     try {
       window.open(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(ref))}`,
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(ref, totals))}`,
         "_blank"
       );
     } catch {

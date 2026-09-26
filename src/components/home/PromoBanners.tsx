@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { useCategories } from "@/hooks/useCategories";
-import { getCategoryImages } from "@/lib/data/categoryImages";
 
 /** Which departments to spotlight, in order of preference. The first two
  *  that actually exist in the (live) category list get rendered. */
@@ -22,8 +21,9 @@ const EYEBROWS: Record<string, string> = {
 export function PromoBanners() {
   const { categories } = useCategories();
 
+  // Only departments that have a real product photo to show.
   const picks = PREFERRED.map((slug) => categories.find((c) => c.slug === slug))
-    .filter((c): c is NonNullable<typeof c> => Boolean(c))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c?.image))
     .slice(0, 2);
 
   if (picks.length === 0) return null;
@@ -38,14 +38,16 @@ export function PromoBanners() {
               className="group block"
             >
               <div className="chamfer relative h-64 overflow-hidden border border-accent/25 bg-surface-muted sm:h-72">
-                <Image
-                  src={getCategoryImages(c.slug)[0]}
-                  alt={c.name}
-                  fill
-                  unoptimized
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                {c.image && (
+                  <Image
+                    src={c.image}
+                    alt={c.name}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-linear-to-r from-panel-dark/90 via-panel-dark/40 to-transparent" />
                 <span className="circuit-tick right-4 top-4 z-10 rotate-90 text-accent/70" />
                 <div className="absolute inset-y-0 left-0 flex max-w-xs flex-col justify-center gap-2 px-7 sm:px-9">

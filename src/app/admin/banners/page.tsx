@@ -4,13 +4,14 @@ import { useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
 import { Trash2, Pencil, Plus, Eye, EyeOff, GripVertical } from "lucide-react";
 import {
-  fetchAllBannersAdmin,
-  upsertBanner,
-  removeBanner,
-  setBannerActive,
-  reorderBanners,
-} from "@/lib/firebase/banners";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+  adminBanners,
+  adminCreateBanner,
+  adminUpdateBanner,
+  adminDeleteBanner,
+  adminReorderBanners,
+  adminUploadBannerImage,
+} from "@/lib/api/banners";
+import { errorMessage } from "@/lib/api/client";
 import { useAdminData, invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
@@ -47,15 +48,15 @@ export default function AdminBannersPage() {
   const { push } = useToast();
   const { data, loading, error, refresh, mutate } = useAdminData<Banner[]>(
     KEY,
-    fetchAllBannersAdmin,
-    isFirebaseConfigured
+    adminBanners
   );
   const banners = useMemo(() => data ?? [], [data]);
 
   const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | number | null>(null);
   const [saving, setSaving] = useState(false);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | number | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Banner | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -87,29 +88,28 @@ export default function AdminBannersPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.headline.trim()) return;
-    if (!/^https?:\/\//i.test(form.image.trim())) {
-      setFormError("Enter a full image URL starting with http(s)://");
+    if (!/^https?:\/\//i.test(form.image.trim()) && !form.image.trim().startsWith("/")) {
+      setFormError("Enter an image URL starting with http(s):// (or a /path on this site)");
       return;
     }
     setSaving(true);
     setFormError(null);
     try {
-      await upsertBanner(editingId, {
-        eyebrow: form.eyebrow.trim() || undefined,
+      const fields = {
+        eyebrow: form.eyebrow.trim() || null,
         headline: form.headline.trim(),
-        subcopy: form.subcopy.trim() || undefined,
+        subcopy: form.subcopy.trim() || null,
         image: form.image.trim(),
-        badge: form.badge.trim() || undefined,
-        ctaLabel: form.ctaLabel.trim() || undefined,
-        ctaHref: form.ctaHref.trim() || undefined,
+        badge: form.badge.trim() || null,
+        ctaLabel: form.ctaLabel.trim() || null,
+        ctaHref: form.ctaHref.trim() || null,
         dealEndsAt: form.dealEndsAt
           ? new Date(form.dealEndsAt).toISOString()
           : null,
         active: form.active,
-        order: editingId
-          ? banners.find((b) => b.id === editingId)?.order ?? 0
-          : banners.length,
-      });
+      };
+      if (typeof editingId === "number") await adminUpdateBanner(editingId, fields);
+      else await adminCreateBanner(fields);
       invalidateAdminData(KEY);
       refresh();
       push({
@@ -117,8 +117,8 @@ export default function AdminBannersPage() {
         message: editingId ? "Slide updated" : "Slide added",
       });
       resetForm();
-    } catch {
-      push({ type: "error", message: "Couldn't save slide" });
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't save slide") });
     } finally {
       setSaving(false);
     }
@@ -128,7 +128,7 @@ export default function AdminBannersPage() {
     setBusyId(b.id);
     const next = b.active === false;
     try {
-      await setBannerActive(b.id, next);
+      await adminUpdateBanner(b.id as number, { active: next });
       mutate(banners.map((x) => (x.id === b.id ? { ...x, active: next } : x)));
       push({
         type: "success",
@@ -141,12 +141,26 @@ export default function AdminBannersPage() {
     }
   }
 
+  async function handleUpload(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    setFormError(null);
+    try {
+      const url = await adminUploadBannerImage(file);
+      setForm((f) => ({ ...f, image: url }));
+    } catch (err) {
+      setFormError(errorMessage(err, "Couldn't upload the picture"));
+    } finally {
+      setUploading(false);
+    }
+  }
+
   function handleReorder(next: Banner[]) {
     mutate(next);
     if (reorderTimer.current) window.clearTimeout(reorderTimer.current);
     reorderTimer.current = window.setTimeout(async () => {
       try {
-        await reorderBanners(next.map((b) => b.id));
+        await adminReorderBanners(next.map((b) => b.id as number));
         invalidateAdminData(KEY);
       } catch {
         push({ type: "error", message: "Couldn't save new order" });
@@ -159,7 +173,7 @@ export default function AdminBannersPage() {
     if (!pendingDelete) return;
     setDeleting(true);
     try {
-      await removeBanner(pendingDelete.id);
+      await adminDeleteBanner(pendingDelete.id as number);
       mutate(banners.filter((b) => b.id !== pendingDelete.id));
       push({ type: "success", message: `Deleted “${pendingDelete.headline}”` });
       setPendingDelete(null);
@@ -168,18 +182,6 @@ export default function AdminBannersPage() {
     } finally {
       setDeleting(false);
     }
-  }
-
-  if (!isFirebaseConfigured) {
-    return (
-      <p className="rounded-xl border border-border bg-white p-4 text-sm text-muted">
-        Firebase isn&apos;t configured — add your project credentials to{" "}
-        <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-          .env.local
-        </code>{" "}
-        to manage homepage banners.
-      </p>
-    );
   }
 
   return (
@@ -298,13 +300,32 @@ export default function AdminBannersPage() {
             onChange={(e) => setForm((f) => ({ ...f, subcopy: e.target.value }))}
             className="input"
           />
-          <input
-            required
-            placeholder="Image URL (https://…)"
-            value={form.image}
-            onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-            className="input"
-          />
+          <div className="flex flex-col gap-2">
+            {form.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={form.image} alt="" className="h-28 w-full rounded-lg border border-border object-cover" />
+            )}
+            <label className="btn-secondary cursor-pointer justify-center">
+              {uploading ? "Uploading…" : form.image ? "Replace picture" : "Upload picture"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={uploading}
+                onChange={(e) => {
+                  void handleUpload(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <input
+              required
+              placeholder="…or paste an image URL (https://… or /path)"
+              value={form.image}
+              onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+              className="input"
+            />
+          </div>
           <div className="flex gap-3">
             <input
               placeholder="Badge (e.g. New, Deal)"

@@ -1,66 +1,67 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Star, Check, Trash2, Undo2 } from "lucide-react";
 import {
-  fetchAllReviews,
-  setReviewApproved,
-  deleteReview,
-  type ReviewWithId,
-} from "@/lib/firebase/reviews";
-import { fetchAllProducts } from "@/lib/firebase/products";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { useAdminData } from "@/hooks/useAdminData";
+  adminReviews,
+  adminSetReviewApproved,
+  adminDeleteReview,
+} from "@/lib/api/reviews";
+import { errorMessage } from "@/lib/api/client";
+import { invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import type { Product } from "@/lib/types";
+import type { AdminReview } from "@/lib/types";
 
-const KEY = "admin:reviews";
 type Tab = "pending" | "published";
 
 export default function AdminReviewsPage() {
   const { push } = useToast();
-  const { data, loading, error, refresh, mutate } = useAdminData<ReviewWithId[]>(
-    KEY,
-    fetchAllReviews,
-    isFirebaseConfigured
-  );
-  const { data: productData } = useAdminData<Product[]>(
-    "admin:products",
-    fetchAllProducts,
-    isFirebaseConfigured
-  );
-
-  const reviews = useMemo(() => data ?? [], [data]);
-  const productBySku = useMemo(() => {
-    const m = new Map<string, Product>();
-    for (const p of productData ?? []) m.set(p.sku, p);
-    return m;
-  }, [productData]);
-
   const [tab, setTab] = useState<Tab>("pending");
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<ReviewWithId | null>(null);
+  const [shown, setShown] = useState<AdminReview[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [nonce, setNonce] = useState(0);
+  const refresh = useCallback(() => setNonce((n) => n + 1), []);
+
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminReview | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const pending = reviews.filter((r) => !r.approved);
-  const published = reviews.filter((r) => r.approved);
-  const shown = tab === "pending" ? pending : published;
+  useEffect(() => {
+    let live = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(false);
+    adminReviews({ approved: tab === "published", limit: 200 })
+      .then((res) => {
+        if (!live) return;
+        setShown(res.items);
+        setPendingCount(res.pendingCount);
+      })
+      .catch(() => live && setError(true))
+      .finally(() => live && setLoading(false));
+    return () => {
+      live = false;
+    };
+  }, [tab, nonce]);
 
-  async function setApproved(r: ReviewWithId, approved: boolean) {
+  async function setApproved(r: AdminReview, approved: boolean) {
     setBusyId(r.id);
     try {
-      await setReviewApproved(r.id, approved);
-      mutate(
-        reviews.map((x) => (x.id === r.id ? { ...x, approved } : x))
-      );
+      await adminSetReviewApproved(r.id, approved);
+      // It moves to the other tab, so drop it from this one.
+      setShown((prev) => prev.filter((x) => x.id !== r.id));
+      setPendingCount((n) => Math.max(0, n + (approved ? -1 : 1)));
+      invalidateAdminData("admin:stats");
       push({
         type: "success",
         message: approved ? "Review published" : "Review unpublished",
       });
-    } catch {
-      push({ type: "error", message: "Couldn't update review" });
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't update review") });
     } finally {
       setBusyId(null);
     }
@@ -70,27 +71,17 @@ export default function AdminReviewsPage() {
     if (!pendingDelete) return;
     setDeleting(true);
     try {
-      await deleteReview(pendingDelete.id);
-      mutate(reviews.filter((x) => x.id !== pendingDelete.id));
+      await adminDeleteReview(pendingDelete.id);
+      setShown((prev) => prev.filter((x) => x.id !== pendingDelete.id));
+      if (!pendingDelete.approved) setPendingCount((n) => Math.max(0, n - 1));
+      invalidateAdminData("admin:stats");
       push({ type: "success", message: "Review deleted" });
       setPendingDelete(null);
-    } catch {
-      push({ type: "error", message: "Couldn't delete review" });
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't delete review") });
     } finally {
       setDeleting(false);
     }
-  }
-
-  if (!isFirebaseConfigured) {
-    return (
-      <p className="rounded-xl border border-border bg-white p-4 text-sm text-muted">
-        Firebase isn&apos;t configured — add your project credentials to{" "}
-        <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-          .env.local
-        </code>{" "}
-        to moderate reviews.
-      </p>
-    );
   }
 
   return (
@@ -98,7 +89,7 @@ export default function AdminReviewsPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-ink">Reviews</h1>
         <button
-          onClick={() => refresh()}
+          onClick={refresh}
           className="text-sm font-medium text-muted hover:text-brand"
         >
           Refresh
@@ -114,17 +105,17 @@ export default function AdminReviewsPage() {
               tab === t ? "bg-brand text-white" : "text-muted hover:text-ink"
             }`}
           >
-            {t} ({t === "pending" ? pending.length : published.length})
+            {t}{t === "pending" ? ` (${pendingCount})` : ""}
           </button>
         ))}
       </div>
 
-      {loading ? (
+      {loading && shown.length === 0 ? (
         <p className="text-sm text-muted">Loading…</p>
       ) : error ? (
         <div className="rounded-xl border border-danger/30 bg-danger-050 p-4 text-sm text-danger">
-          Couldn&apos;t load reviews.{" "}
-          <button onClick={() => refresh()} className="font-semibold underline">
+          Couldn&apos;t load reviews — is the backend running?{" "}
+          <button onClick={refresh} className="font-semibold underline">
             Retry
           </button>
         </div>
@@ -137,7 +128,6 @@ export default function AdminReviewsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {shown.map((r) => {
-            const product = productBySku.get(r.productSku);
             return (
               <div
                 key={r.id}
@@ -161,19 +151,13 @@ export default function AdminReviewsPage() {
                       </span>
                     </div>
                     <p className="mt-0.5 text-xs text-muted">
-                      {product ? (
-                        <Link
-                          href={`/products/${product.slug}`}
-                          className="hover:text-brand"
-                        >
-                          {product.name}
-                        </Link>
-                      ) : (
-                        <>SKU {r.productSku}</>
-                      )}
-                      {r.createdAt?.toDate
-                        ? ` · ${r.createdAt.toDate().toLocaleDateString("en-KE")}`
-                        : ""}
+                      <Link
+                        href={`/products/${r.productSlug}`}
+                        className="hover:text-brand"
+                      >
+                        {r.productName}
+                      </Link>
+                      {` · ${new Date(r.createdAt).toLocaleDateString("en-KE")}`}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">

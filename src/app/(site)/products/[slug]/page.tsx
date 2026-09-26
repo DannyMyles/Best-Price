@@ -16,7 +16,6 @@ import {
   selectBundle,
 } from "@/services/productService";
 import { getCategories } from "@/services/categoryService";
-import { getCategoryImages } from "@/lib/data/categoryImages";
 import { formatKES } from "@/lib/format";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -37,8 +36,13 @@ import { MPESA_PAYBILL_NUMBER, STORE_ADDRESS } from "@/lib/contact";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((p) => ({ slug: p.slug }));
+  // If the backend is down at build time, render every page on demand instead.
+  try {
+    const products = await getProducts();
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -49,8 +53,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
-  const image =
-    product.images?.[0] ?? getCategoryImages(product.category)[0];
+  const image = product.images?.[0];
   const priceLine =
     product.price !== null ? ` — ${formatKES(product.price)}` : "";
   return {
@@ -76,7 +79,7 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const all = await getProducts();
+  const all = await getProducts().catch(() => [product]);
   const categories = await getCategories();
   const category = categories.find((c) => c.slug === product.category);
   const related = getRelatedProducts(all, product);
@@ -85,9 +88,7 @@ export default async function ProductPage({
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://pricehub.co.ke";
-  const productImages = product.images?.length
-    ? product.images
-    : getCategoryImages(product.category).slice(0, 1);
+  const productImages = product.images ?? [];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",

@@ -1,10 +1,11 @@
-/** Categories are data-driven (Firestore `categories` collection / seed list),
+/** Categories are data-driven (managed in /admin/categories),
  *  so a slug is just a string. Icons/colours/fallback images are resolved by
- *  lookup with sensible defaults — see `categoryIcon`, `categoryImages`,
+ *  lookup with sensible defaults — see `categoryIcon`,
  *  `ProductGlyph`. */
 export type CategorySlug = string;
 
 export interface Category {
+  id?: number;
   slug: CategorySlug;
   name: string;
   shortName: string;
@@ -16,6 +17,10 @@ export interface Category {
   active?: boolean;
   /** Ascending sort key for nav / department order. Defaults to `0`. */
   order?: number;
+  /** Number of (active) products in the department. */
+  productCount?: number;
+  /** Photo of one of the department's products, from the server (null when none). */
+  image?: string | null;
 }
 
 export interface ProductSpec {
@@ -32,7 +37,8 @@ export type ProductBadge =
   | "Limited";
 
 export interface Banner {
-  id: string;
+  /** Numeric for saved banners, a string for the built-in fallback slides. */
+  id: string | number;
   eyebrow?: string;
   headline: string;
   subcopy?: string;
@@ -50,10 +56,13 @@ export interface Banner {
 }
 
 export interface Product {
+  /** Database id (used by the admin API). */
+  id?: number;
   sku: string;
   slug: string;
   name: string;
   category: CategorySlug;
+  brand?: string | null;
   price: number | null;
   /** Optional "was" price — when higher than `price`, a Sale badge and a
    *  discount percentage are shown. */
@@ -69,12 +78,70 @@ export interface Product {
   rating?: number | null;
   reviewCount?: number | null;
   badge?: ProductBadge;
-  /** Explicit image URLs (e.g. from Firebase Storage). Falls back to a
-   *  category stock photo when empty. */
+  /** Photo URLs, primary image first (served from the pricehub image
+   *  library). Falls back to a category stock photo when empty. */
   images?: string[];
   featured?: boolean;
   /** Hidden from the storefront when `false`. Defaults to `true`. */
   active?: boolean;
   /** Lower ranks surface first in "featured" / homepage rails. */
   featureRank?: number | null;
+  adminNotes?: string | null;
+}
+
+// --- orders / reviews -------------------------------------------------------
+export type OrderStatus = "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "failed";
+export type PaymentMethod = "mpesa" | "cod" | "bank";
+
+export interface OrderItem {
+  sku: string;
+  name: string;
+  slug: string;
+  price: number | null;
+  color?: string | null;
+  quantity: number;
+}
+
+export interface Order {
+  id: number;
+  /** Customer-facing reference, e.g. "PH-K7Q2XM" — used by /track. */
+  ref: string;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string | null;
+    address: string;
+    county?: string | null;
+    town?: string | null;
+  };
+  items: OrderItem[];
+  subtotal: number;
+  deliveryMethod: "pickup" | "courier";
+  deliveryFee: number;
+  total: number;
+  notes?: string | null;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  mpesaCode?: string | null;
+  mpesaName?: string | null;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Review {
+  id: number;
+  customerName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface AdminReview extends Review {
+  productId: number;
+  productSku: string;
+  productName: string;
+  productSlug: string;
+  approved: boolean;
 }

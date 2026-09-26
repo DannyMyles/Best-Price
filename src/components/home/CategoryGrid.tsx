@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
-import { getCategoryImages } from "@/lib/data/categoryImages";
 import { categoryIconMap, DEFAULT_CATEGORY_ICON } from "@/lib/categoryIcons";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -23,7 +22,7 @@ export function CategoryGrid() {
           categoryIconMap[iconKey.replace(/s$/, "")] ??
           DEFAULT_CATEGORY_ICON;
         const count = products.filter((p) => p.category === category.slug).length;
-        const image = getCategoryImages(category.slug)[0];
+        const image = category.image;
 
         return (
           <ScrollReveal key={category.slug} delay={i * 0.05}>

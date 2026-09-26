@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
 import {
   Package,
@@ -11,97 +10,46 @@ import {
   AlertTriangle,
   ArrowRight,
 } from "lucide-react";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { fetchAllProducts } from "@/lib/firebase/products";
-import { fetchAllCategoriesAdmin } from "@/lib/firebase/categories";
-import { fetchAllOrders, type OrderWithId } from "@/lib/firebase/orders";
-import { fetchAllReviews, type ReviewWithId } from "@/lib/firebase/reviews";
+import { adminStats, type AdminStats } from "@/lib/api/stats";
 import { useAdminData } from "@/hooks/useAdminData";
 import { formatKES } from "@/lib/format";
-import type { Product, Category } from "@/lib/types";
 
-const LOW_STOCK = 5;
-
-function total(o: OrderWithId): number {
-  return o.total ?? o.subtotal + (o.deliveryFee ?? 0);
-}
-function fmtDate(o: OrderWithId): string {
-  const d = o.createdAt?.toDate?.();
-  return d
-    ? d.toLocaleDateString("en-KE", { day: "numeric", month: "short" })
-    : "—";
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleDateString("en-KE", { day: "numeric", month: "short" });
 }
 
 export default function AdminOverviewPage() {
-  const enabled = isFirebaseConfigured;
-  const { data: products } = useAdminData<Product[]>(
-    "admin:products",
-    fetchAllProducts,
-    enabled
-  );
-  const { data: categories } = useAdminData<Category[]>(
-    "admin:categories",
-    fetchAllCategoriesAdmin,
-    enabled
-  );
-  const { data: orders } = useAdminData<OrderWithId[]>(
-    "admin:orders",
-    fetchAllOrders,
-    enabled
-  );
-  const { data: reviews } = useAdminData<ReviewWithId[]>(
-    "admin:reviews",
-    fetchAllReviews,
-    enabled
-  );
+  const { data: stats, error } = useAdminData<AdminStats>("admin:stats", adminStats);
 
-  const stats = useMemo(() => {
-    const os = orders ?? [];
-    return {
-      products: products?.length ?? null,
-      categories: categories?.length ?? null,
-      pendingOrders: os.filter((o) => o.status === "pending").length,
-      awaitingPayment: os.filter(
-        (o) => o.paymentStatus !== "paid" && o.status !== "cancelled"
-      ).length,
-      revenue: os
-        .filter((o) => o.paymentStatus === "paid")
-        .reduce((s, o) => s + total(o), 0),
-      pendingReviews: (reviews ?? []).filter((r) => !r.approved).length,
-    };
-  }, [products, categories, orders, reviews]);
-
-  const recent = (orders ?? []).slice(0, 5);
-  const lowStock = (products ?? [])
-    .filter(
-      (p) => typeof p.stockCount === "number" && p.stockCount <= LOW_STOCK
-    )
-    .sort((a, b) => (a.stockCount ?? 0) - (b.stockCount ?? 0))
-    .slice(0, 5);
+  const recent = stats?.recentOrders ?? [];
+  const lowStock = stats?.lowStock ?? [];
 
   const cards = [
-    { href: "/admin/products", label: "Products", icon: Package, value: stats.products },
-    { href: "/admin/categories", label: "Categories", icon: Tags, value: stats.categories },
+    { href: "/admin/products", label: "Products", icon: Package, value: stats?.products },
+    { href: "/admin/categories", label: "Categories", icon: Tags, value: stats?.categories },
     {
       href: "/admin/orders",
       label: "Pending orders",
       icon: ClipboardList,
-      value: stats.pendingOrders,
-      alert: stats.pendingOrders > 0,
+      value: stats?.pendingOrders,
+      alert: (stats?.pendingOrders ?? 0) > 0,
     },
     {
       href: "/admin/orders",
       label: "Awaiting payment",
       icon: Wallet,
-      value: stats.awaitingPayment,
-      alert: stats.awaitingPayment > 0,
+      value: stats?.awaitingPayment,
+      alert: (stats?.awaitingPayment ?? 0) > 0,
     },
     {
       href: "/admin/reviews",
       label: "Reviews to approve",
       icon: Star,
-      value: stats.pendingReviews,
-      alert: stats.pendingReviews > 0,
+      value: stats?.pendingReviews,
+      alert: (stats?.pendingReviews ?? 0) > 0,
     },
   ];
 
@@ -110,13 +58,9 @@ export default function AdminOverviewPage() {
       <h1 className="text-xl font-semibold text-ink">Overview</h1>
       <p className="mt-1 text-sm text-muted">Manage your catalogue and orders.</p>
 
-      {!isFirebaseConfigured && (
-        <p className="mt-6 rounded-xl border border-border bg-white p-4 text-sm text-muted">
-          Firebase isn&apos;t configured — add your project credentials to{" "}
-          <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-            .env.local
-          </code>{" "}
-          to manage live data.
+      {error && (
+        <p className="mt-6 rounded-xl border border-danger/30 bg-white p-4 text-sm text-danger">
+          Couldn&apos;t load the dashboard numbers — is the backend running?
         </p>
       )}
 
@@ -127,7 +71,7 @@ export default function AdminOverviewPage() {
             <Wallet className="h-4.5 w-4.5" />
           </div>
           <p className="mt-4 text-2xl font-semibold">
-            {orders ? formatKES(stats.revenue) : "—"}
+            {stats ? formatKES(stats.revenue) : "—"}
           </p>
           <p className="text-sm text-white/70">Revenue (orders marked paid)</p>
         </div>
@@ -179,15 +123,14 @@ export default function AdminOverviewPage() {
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium text-ink">
-                      {o.customer.name}
+                      {o.customerName}
                     </p>
                     <p className="text-xs text-muted">
-                      {o.ref ? `${o.ref} · ` : ""}
-                      {fmtDate(o)} · {o.status}
+                      {o.ref} · {fmtDate(o.createdAt)} · {o.status}
                     </p>
                   </div>
                   <span className="shrink-0 font-semibold text-ink">
-                    {formatKES(total(o))}
+                    {formatKES(o.total)}
                   </span>
                 </li>
               ))}
@@ -207,7 +150,7 @@ export default function AdminOverviewPage() {
               Products <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          {!products ? (
+          {!stats ? (
             <p className="mt-3 text-sm text-muted">—</p>
           ) : lowStock.length === 0 ? (
             <p className="mt-3 text-sm text-muted">
@@ -217,11 +160,11 @@ export default function AdminOverviewPage() {
             <ul className="mt-3 divide-y divide-border">
               {lowStock.map((p) => (
                 <li
-                  key={p.sku}
+                  key={p.id}
                   className="flex items-center justify-between gap-3 py-2.5 text-sm"
                 >
                   <Link
-                    href={`/admin/products/${p.slug}`}
+                    href={`/admin/products/${p.id}`}
                     className="truncate font-medium text-ink hover:text-brand"
                   >
                     {p.name}

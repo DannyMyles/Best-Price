@@ -1,19 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { MessageCircle, MapPin, Copy } from "lucide-react";
-import {
-  fetchAllOrders,
-  updateOrderStatus,
-  updatePaymentStatus,
-  type OrderWithId,
-} from "@/lib/firebase/orders";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { useAdminData } from "@/hooks/useAdminData";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { MessageCircle, MapPin, Copy, Printer } from "lucide-react";
+import { adminOrders, adminUpdateOrder } from "@/lib/api/orders";
+import { errorMessage } from "@/lib/api/client";
 import { useToast } from "@/context/ToastContext";
 import { formatKES, toMsisdn } from "@/lib/format";
 import { BRAND_NAME } from "@/lib/contact";
-import type { OrderStatus, PaymentStatus } from "@/types/firestore";
+import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 
 const statuses: OrderStatus[] = [
   "pending",
@@ -33,15 +28,10 @@ const statusStyles: Record<OrderStatus, string> = {
 };
 
 const PAGE = 15;
-const KEY = "admin:orders";
 
-function orderTotal(o: OrderWithId): number {
-  return o.total ?? o.subtotal + (o.deliveryFee ?? 0);
-}
-
-function fmtDate(o: OrderWithId): string {
-  const d = o.createdAt?.toDate?.();
-  if (!d) return "—";
+function fmtDate(o: Order): string {
+  const d = new Date(o.createdAt);
+  if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleString("en-KE", {
     day: "numeric",
     month: "short",
@@ -50,7 +40,7 @@ function fmtDate(o: OrderWithId): string {
   });
 }
 
-function whatsappForOrder(o: OrderWithId): string {
+function whatsappForOrder(o: Order): string {
   const lines = [
     `Hi ${o.customer.name.split(" ")[0] || "there"} 👋`,
     "",
@@ -60,7 +50,7 @@ function whatsappForOrder(o: OrderWithId): string {
         `• ${i.name}${i.color ? ` (${i.color})` : ""} ×${i.quantity}`
     ),
     "",
-    `Total: ${formatKES(orderTotal(o))}`,
+    `Total: ${formatKES(o.total)}`,
   ];
   return `https://wa.me/${toMsisdn(o.customer.phone)}?text=${encodeURIComponent(
     lines.join("\n")
@@ -69,68 +59,74 @@ function whatsappForOrder(o: OrderWithId): string {
 
 export default function AdminOrdersPage() {
   const { push } = useToast();
-  const { data, loading, error, refresh, mutate } = useAdminData<OrderWithId[]>(
-    KEY,
-    fetchAllOrders,
-    isFirebaseConfigured
-  );
-  const orders = useMemo(() => data ?? [], [data]);
-
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [q, setQ] = useState("");
-  const [limit, setLimit] = useState(PAGE);
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return orders.filter((o) => {
-      if (filter !== "all" && o.status !== filter) return false;
-      if (!needle) return true;
-      return (
-        (o.ref ?? "").toLowerCase().includes(needle) ||
-        o.customer.name.toLowerCase().includes(needle) ||
-        o.customer.phone.replace(/\D/g, "").includes(needle.replace(/\D/g, ""))
-      );
-    });
-  }, [orders, filter, q]);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQ(q.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q]);
 
-  const visible = filtered.slice(0, limit);
+  const load = useCallback(
+    async (signal?: { cancelled: boolean }) => {
+      setLoading(true);
+      setError(false);
+      try {
+        const res = await adminOrders({
+          status: filter === "all" ? undefined : filter,
+          q: debouncedQ || undefined,
+          page: 1,
+          limit: page * PAGE,
+        });
+        if (signal?.cancelled) return;
+        setOrders(res.items);
+        setTotal(res.total);
+      } catch {
+        if (!signal?.cancelled) setError(true);
+      } finally {
+        if (!signal?.cancelled) setLoading(false);
+      }
+    },
+    [filter, debouncedQ, page]
+  );
 
-  async function handleStatusChange(id: string, status: OrderStatus) {
-    mutate(orders.map((o) => (o.id === id ? { ...o, status } : o)));
+  useEffect(() => {
+    const signal = { cancelled: false };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load(signal);
+    return () => {
+      signal.cancelled = true;
+    };
+  }, [load]);
+
+  async function patchOrder(id: number, patch: { status?: OrderStatus; paymentStatus?: PaymentStatus }, fail: string) {
     try {
-      await updateOrderStatus(id, status);
-    } catch {
-      push({ type: "error", message: "Couldn't update status" });
-      refresh();
+      const updated = await adminUpdateOrder(id, patch);
+      setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, fail) });
+      void load();
     }
   }
 
-  async function handlePaymentChange(id: string, paymentStatus: PaymentStatus) {
-    mutate(orders.map((o) => (o.id === id ? { ...o, paymentStatus } : o)));
-    try {
-      await updatePaymentStatus(id, paymentStatus);
-    } catch {
-      push({ type: "error", message: "Couldn't update payment status" });
-      refresh();
-    }
-  }
+  const handleStatusChange = (id: number, status: OrderStatus) =>
+    patchOrder(id, { status }, "Couldn't update status");
+  const handlePaymentChange = (id: number, paymentStatus: PaymentStatus) =>
+    patchOrder(id, { paymentStatus }, "Couldn't update payment status");
 
   function copyRef(ref?: string) {
     if (!ref) return;
     navigator.clipboard?.writeText(ref);
     push({ type: "success", message: `Copied ${ref}` });
-  }
-
-  if (!isFirebaseConfigured) {
-    return (
-      <p className="rounded-xl border border-border bg-white p-4 text-sm text-muted">
-        Firebase isn&apos;t configured — add your project credentials to{" "}
-        <code className="rounded bg-surface-muted px-1.5 py-0.5 text-xs">
-          .env.local
-        </code>{" "}
-        to see orders.
-      </p>
-    );
   }
 
   return (
@@ -140,10 +136,7 @@ export default function AdminOrdersPage() {
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <input
           value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setLimit(PAGE);
-          }}
+          onChange={(e) => setQ(e.target.value)}
           placeholder="Search ref, name or phone"
           className="input h-9 w-56 py-1.5"
         />
@@ -153,7 +146,7 @@ export default function AdminOrdersPage() {
               key={s}
               onClick={() => {
                 setFilter(s);
-                setLimit(PAGE);
+                setPage(1);
               }}
               className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
                 filter === s
@@ -162,33 +155,28 @@ export default function AdminOrdersPage() {
               }`}
             >
               {s}
-              {s !== "all" && (
-                <span className="ml-1 opacity-70">
-                  {orders.filter((o) => o.status === s).length}
-                </span>
-              )}
             </button>
           ))}
         </div>
       </div>
 
-      {loading ? (
+      {loading && orders.length === 0 ? (
         <p className="text-sm text-muted">Loading…</p>
       ) : error ? (
         <div className="rounded-xl border border-danger/30 bg-danger-050 p-4 text-sm text-danger">
-          Couldn&apos;t load orders.{" "}
-          <button onClick={() => refresh()} className="font-semibold underline">
+          Couldn&apos;t load orders — is the backend running?{" "}
+          <button onClick={() => load()} className="font-semibold underline">
             Retry
           </button>
         </div>
-      ) : filtered.length === 0 ? (
+      ) : orders.length === 0 ? (
         <p className="text-sm text-muted">
-          {orders.length === 0 ? "No orders yet." : "No orders match that filter."}
+          {filter === "all" && !debouncedQ ? "No orders yet." : "No orders match that filter."}
         </p>
       ) : (
         <>
           <div className="flex flex-col gap-4">
-            {visible.map((o) => (
+            {orders.map((o) => (
               <div
                 key={o.id}
                 className="rounded-2xl border border-border bg-white p-5"
@@ -240,6 +228,12 @@ export default function AdminOrdersPage() {
                         </option>
                       ))}
                     </select>
+                    <Link
+                      href={`/admin/orders/${o.id}`}
+                      className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink hover:border-brand/40"
+                    >
+                      <Printer className="h-3.5 w-3.5" /> Slip
+                    </Link>
                     <a
                       href={whatsappForOrder(o)}
                       target="_blank"
@@ -283,7 +277,7 @@ export default function AdminOrdersPage() {
                   )}
                   <div className="flex justify-between pt-1 font-semibold text-ink">
                     <span>Total</span>
-                    <span>{formatKES(orderTotal(o))}</span>
+                    <span>{formatKES(o.total)}</span>
                   </div>
                 </div>
 
@@ -330,12 +324,13 @@ export default function AdminOrdersPage() {
             ))}
           </div>
 
-          {limit < filtered.length && (
+          {orders.length < total && (
             <button
-              onClick={() => setLimit((l) => l + PAGE)}
+              disabled={loading}
+              onClick={() => setPage((p) => p + 1)}
               className="mx-auto mt-6 block rounded-full border border-border px-5 py-2 text-sm font-medium text-ink hover:border-brand/40"
             >
-              Load more ({filtered.length - limit})
+              Load more ({total - orders.length})
             </button>
           )}
         </>

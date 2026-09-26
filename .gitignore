@@ -34,7 +34,7 @@ yarn-error.log*
 .env*
 !.env*.example
 
-# firebase
+# legacy service-account keys (never commit)
 service-account*.json
 
 # vercel

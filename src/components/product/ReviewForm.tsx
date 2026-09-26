@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { Star, Check } from "lucide-react";
-import { submitReview } from "@/lib/firebase/reviews";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { submitReview } from "@/lib/api/reviews";
+import { errorMessage } from "@/lib/api/client";
 import { useToast } from "@/context/ToastContext";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
-import { whatsappLink } from "@/lib/contact";
 import { cn } from "@/lib/cn";
 
 export function ReviewForm({
@@ -24,23 +23,6 @@ export function ReviewForm({
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-
-  if (!isFirebaseConfigured) {
-    return (
-      <p className="mt-4 text-sm text-muted">
-        Bought this? Share your experience{" "}
-        <a
-          href={whatsappLink(`Review for ${productName}: `)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold text-brand hover:underline"
-        >
-          on WhatsApp
-        </a>{" "}
-        — we&apos;ll add it here.
-      </p>
-    );
-  }
 
   if (done) {
     return (
@@ -73,14 +55,14 @@ export function ReviewForm({
       await submitReview({
         productSku: sku,
         customerName: name.trim(),
-        rating: rating as 1 | 2 | 3 | 4 | 5,
+        rating,
         comment: comment.trim(),
       });
       setDone(true);
-    } catch {
+    } catch (err) {
       push({
         type: "error",
-        message: "Couldn't submit right now — try again shortly",
+        message: errorMessage(err, "Couldn't submit right now — try again shortly"),
       });
     } finally {
       setBusy(false);

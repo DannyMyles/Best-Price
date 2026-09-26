@@ -1,14 +1,36 @@
-import { isFirebaseConfigured } from "@/lib/firebase/config";
-import { fetchActiveBanners } from "@/lib/firebase/banners";
-import { banners as seedBanners, sortBanners } from "@/lib/data/banners";
+import { fetchActiveBanners } from "@/lib/api/banners";
+import { fetchCategories } from "@/lib/api/categories";
 import type { Banner } from "@/lib/types";
 
+/**
+ * Slides for the homepage carousel. Admin-managed banners win. If none exist
+ * yet, one slide per department is built from the server's category photos, so
+ * the hero is never empty and never uses bundled images.
+ */
 export async function getBanners(): Promise<Banner[]> {
-  if (!isFirebaseConfigured) return sortBanners(seedBanners);
   try {
     const remote = await fetchActiveBanners();
-    return remote.length > 0 ? remote : sortBanners(seedBanners);
+    if (remote.length > 0) return remote;
   } catch {
-    return sortBanners(seedBanners);
+    /* fall through to category slides */
+  }
+  try {
+    const categories = await fetchCategories();
+    return categories
+      .filter((c) => c.image)
+      .slice(0, 6)
+      .map((c, i) => ({
+        id: `category-${c.slug}`,
+        eyebrow: "PriceHub",
+        headline: c.name,
+        subcopy: c.description || undefined,
+        image: c.image!,
+        ctaLabel: `Shop ${c.shortName}`,
+        ctaHref: `/products?category=${c.slug}`,
+        active: true,
+        order: i,
+      }));
+  } catch {
+    return [];
   }
 }
