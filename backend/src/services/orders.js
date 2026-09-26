@@ -29,6 +29,14 @@ function serializeItems(items) {
 }
 
 /** Full order (admin shape — mirrors what the admin UI has always shown). */
+/** DATE column -> "YYYY-MM-DD" (mysql2 returns a local-midnight Date). */
+function toDateString(d) {
+  if (!d) return null;
+  if (typeof d === "string") return d.slice(0, 10);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export function serializeOrder(row, items) {
   return {
     id: row.id,
@@ -52,6 +60,9 @@ export function serializeOrder(row, items) {
     mpesaCode: row.mpesa_code,
     mpesaName: row.mpesa_name,
     status: row.status,
+    courier: row.courier,
+    trackingNumber: row.tracking_number,
+    expectedDelivery: toDateString(row.expected_delivery),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -155,6 +166,7 @@ async function placeOrder(conn, input, wanted, ref) {
 export async function trackOrder(pool, ref, phone) {
   const [rows] = await pool.query(
     `SELECT o.ref, o.status, o.payment_status, o.created_at, o.updated_at, o.delivery_method, o.county, o.total,
+            o.payment_method, o.mpesa_code, o.courier, o.tracking_number, o.expected_delivery,
             (SELECT COALESCE(SUM(quantity), 0) FROM order_items WHERE order_id = o.id) AS item_count
      FROM orders o WHERE o.ref = ? AND o.phone_key = ? LIMIT 1`,
     [ref, phoneKey(phone)]
@@ -171,6 +183,12 @@ export async function trackOrder(pool, ref, phone) {
     county: o.county,
     itemCount: Number(o.item_count),
     total: o.total,
+    paymentMethod: o.payment_method,
+    // Lets the page say "code received, we're confirming" instead of a bare "pending".
+    mpesaCodeSubmitted: Boolean(o.mpesa_code),
+    courier: o.courier,
+    trackingNumber: o.tracking_number,
+    expectedDelivery: toDateString(o.expected_delivery),
   };
 }
 
@@ -237,6 +255,9 @@ export async function updateOrder(pool, id, patch) {
     const params = [];
     if (patch.status) { sets.push("status = ?"); params.push(patch.status); }
     if (patch.paymentStatus) { sets.push("payment_status = ?"); params.push(patch.paymentStatus); }
+    if (patch.courier !== undefined) { sets.push("courier = ?"); params.push(patch.courier); }
+    if (patch.trackingNumber !== undefined) { sets.push("tracking_number = ?"); params.push(patch.trackingNumber); }
+    if (patch.expectedDelivery !== undefined) { sets.push("expected_delivery = ?"); params.push(patch.expectedDelivery); }
     await conn.query(`UPDATE orders SET ${sets.join(", ")} WHERE id = ?`, [...params, id]);
 
     if (patch.status === "cancelled") {

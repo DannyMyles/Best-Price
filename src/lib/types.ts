@@ -101,7 +101,7 @@ export interface Product {
 }
 
 // --- orders / reviews -------------------------------------------------------
-export type OrderStatus = "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+export type OrderStatus = "pending" | "confirmed" | "processing" | "dispatched" | "completed" | "cancelled";
 export type PaymentStatus = "pending" | "paid" | "failed";
 export type PaymentMethod = "mpesa" | "cod" | "bank";
 
@@ -137,6 +137,11 @@ export interface Order {
   mpesaCode?: string | null;
   mpesaName?: string | null;
   status: OrderStatus;
+  /** Courier details, shown to the customer on /track. */
+  courier?: string | null;
+  trackingNumber?: string | null;
+  /** "YYYY-MM-DD" */
+  expectedDelivery?: string | null;
   createdAt: string;
   updatedAt: string;
 }

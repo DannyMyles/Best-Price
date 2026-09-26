@@ -235,6 +235,24 @@ describe("order tracking (public, privacy-preserving)", () => {
     assert.equal(r.body.paymentStatus, "paid");
   });
 
+  it("shows dispatch details; status-only updates keep them; blanks clear them", async () => {
+    const [[o]] = await server.pool.query("SELECT id FROM orders WHERE ref = ?", [ref]);
+    const track = async () => (await anon.post("/api/orders/track", { ref, phone: "0712345678" })).body;
+    const d = await admin.patch(`/api/admin/orders/${o.id}`, {
+      status: "dispatched", courier: "G4S", trackingNumber: "G4S-1", expectedDelivery: "2030-01-02",
+    });
+    assert.equal(d.status, 200);
+    assert.deepEqual([d.body.courier, d.body.trackingNumber, d.body.expectedDelivery], ["G4S", "G4S-1", "2030-01-02"]);
+    await admin.patch(`/api/admin/orders/${o.id}`, { paymentStatus: "paid" });
+    const t = await track();
+    assert.deepEqual([t.status, t.courier, t.trackingNumber, t.expectedDelivery], ["dispatched", "G4S", "G4S-1", "2030-01-02"]);
+    assert.equal(typeof t.mpesaCodeSubmitted, "boolean");
+    assert.equal((await admin.patch(`/api/admin/orders/${o.id}`, { expectedDelivery: "next week" })).status, 422);
+    await admin.patch(`/api/admin/orders/${o.id}`, { courier: "", trackingNumber: null });
+    const cleared = await track();
+    assert.deepEqual([cleared.courier, cleared.trackingNumber, cleared.expectedDelivery], [null, null, "2030-01-02"]);
+  });
+
   it("validates input and has no GET variant (phone stays out of URLs)", async () => {
     assert.equal((await anon.post("/api/orders/track", { ref })).status, 422);
     assert.equal((await anon.post("/api/orders/track", { phone: "0712345678" })).status, 422);

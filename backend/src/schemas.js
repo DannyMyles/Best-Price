@@ -102,7 +102,7 @@ export const reorderSchema = z.object({ files: z.array(z.string().min(1).max(300
 export const idParam = z.object({ id: z.coerce.number().int().min(1) });
 
 // --- orders ---------------------------------------------------------------
-export const ORDER_STATUSES = ["pending", "confirmed", "processing", "completed", "cancelled"];
+export const ORDER_STATUSES = ["pending", "confirmed", "processing", "dispatched", "completed", "cancelled"];
 export const PAYMENT_STATUSES = ["pending", "paid", "failed"];
 
 const phone = z
@@ -155,9 +155,18 @@ export const orderListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(30),
 });
 
+// Omitted -> left unchanged; "" or null -> cleared.
+const clearable = (schema) => schema.nullish().or(z.literal("")).transform((v) => (v === undefined ? undefined : v || null));
 export const orderUpdateSchema = z
-  .object({ status: z.enum(ORDER_STATUSES).optional(), paymentStatus: z.enum(PAYMENT_STATUSES).optional() })
-  .refine((v) => v.status !== undefined || v.paymentStatus !== undefined, "Provide status and/or paymentStatus");
+  .object({
+    status: z.enum(ORDER_STATUSES).optional(),
+    paymentStatus: z.enum(PAYMENT_STATUSES).optional(),
+    // Courier details shown to the customer on the Track Order page.
+    courier: clearable(z.string().trim().max(80)),
+    trackingNumber: clearable(z.string().trim().max(80)),
+    expectedDelivery: clearable(z.iso.date()),
+  })
+  .refine((v) => Object.values(v).some((x) => x !== undefined), "Nothing to update");
 
 // --- reviews ----------------------------------------------------------------
 export const reviewCreateSchema = z.object({

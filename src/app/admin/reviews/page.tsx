@@ -11,14 +11,19 @@ import {
 import { errorMessage } from "@/lib/api/client";
 import { invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
+import { Pagination } from "@/components/admin/Pagination";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { AdminReview } from "@/lib/types";
 
 type Tab = "pending" | "published";
 
+const PAGE = 20;
+
 export default function AdminReviewsPage() {
   const { push } = useToast();
   const [tab, setTab] = useState<Tab>("pending");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [shown, setShown] = useState<AdminReview[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -35,10 +40,11 @@ export default function AdminReviewsPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(false);
-    adminReviews({ approved: tab === "published", limit: 200 })
+    adminReviews({ approved: tab === "published", page, limit: PAGE })
       .then((res) => {
         if (!live) return;
         setShown(res.items);
+        setTotal(res.total);
         setPendingCount(res.pendingCount);
       })
       .catch(() => live && setError(true))
@@ -46,7 +52,7 @@ export default function AdminReviewsPage() {
     return () => {
       live = false;
     };
-  }, [tab, nonce]);
+  }, [tab, page, nonce]);
 
   async function setApproved(r: AdminReview, approved: boolean) {
     setBusyId(r.id);
@@ -54,6 +60,7 @@ export default function AdminReviewsPage() {
       await adminSetReviewApproved(r.id, approved);
       // It moves to the other tab, so drop it from this one.
       setShown((prev) => prev.filter((x) => x.id !== r.id));
+      setTotal((n) => Math.max(0, n - 1));
       setPendingCount((n) => Math.max(0, n + (approved ? -1 : 1)));
       invalidateAdminData("admin:stats");
       push({
@@ -73,6 +80,7 @@ export default function AdminReviewsPage() {
     try {
       await adminDeleteReview(pendingDelete.id);
       setShown((prev) => prev.filter((x) => x.id !== pendingDelete.id));
+      setTotal((n) => Math.max(0, n - 1));
       if (!pendingDelete.approved) setPendingCount((n) => Math.max(0, n - 1));
       invalidateAdminData("admin:stats");
       push({ type: "success", message: "Review deleted" });
@@ -100,7 +108,10 @@ export default function AdminReviewsPage() {
         {(["pending", "published"] as Tab[]).map((t) => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => {
+              setTab(t);
+              setPage(1);
+            }}
             className={`rounded-full px-4 py-1.5 font-medium capitalize transition-colors ${
               tab === t ? "bg-brand text-white" : "text-muted hover:text-ink"
             }`}
@@ -193,6 +204,16 @@ export default function AdminReviewsPage() {
               </div>
             );
           })}
+          <Pagination
+            page={page}
+            pageSize={PAGE}
+            total={total}
+            label="reviews"
+            onPage={(p) => {
+              setPage(p);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         </div>
       )}
 

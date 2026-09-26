@@ -47,6 +47,13 @@ export interface TrackedOrder {
   county: string | null;
   itemCount: number;
   total: number;
+  paymentMethod: "mpesa" | "cod" | "bank";
+  /** An M-Pesa code was entered at checkout (payment may still be unconfirmed). */
+  mpesaCodeSubmitted: boolean;
+  courier: string | null;
+  trackingNumber: string | null;
+  /** "YYYY-MM-DD" */
+  expectedDelivery: string | null;
 }
 
 export const trackOrder = (ref: string, phone: string) =>
@@ -64,7 +71,15 @@ export interface OrderQuery {
 export const adminOrders = (query: OrderQuery = {}) =>
   api<Page<Order>>("/admin/orders", { query: query as Record<string, string | number | undefined> });
 
-export const adminUpdateOrder = (id: number, patch: { status?: OrderStatus; paymentStatus?: PaymentStatus }) =>
+export interface OrderPatch {
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+  courier?: string | null;
+  trackingNumber?: string | null;
+  expectedDelivery?: string | null;
+}
+
+export const adminUpdateOrder = (id: number, patch: OrderPatch) =>
   api<Order>(`/admin/orders/${id}`, { method: "PATCH", json: patch });
 
 export const adminGetOrder = (id: number) => api<Order>(`/admin/orders/${id}`);

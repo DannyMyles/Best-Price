@@ -51,6 +51,8 @@ const FOLDER_CATEGORY = {
   "11_wireless-mics": "audio", "12_mics-other-maono-fifine": "audio",
   "14_tv-hisense": "tvs", "15_tv-sony": "tvs", "16_tv-samsung": "tvs", "17_tv-tcl": "tvs",
   "18_soundbars-brand-TBD": "audio", "19_jbl": "audio", "20_portable-speakers-brand-TBD": "audio",
+  "22_hp-laptops": "laptops", "23_apple-iphone": "phones", "24_apple-macbook": "laptops", "25_apple-imac": "desktops",
+  "26_samsung-phones": "phones", "27_samsung-tablets": "tablets", "28_oppo-phones": "phones", "29_chargers": "accessories",
 };
 function categoryFor(row) {
   const n = row.normalized_name.toLowerCase();
@@ -89,7 +91,7 @@ const OVERRIDES = {
   S400: { name: "Sony HT-S400 2.1ch Soundbar", brand: "Sony" },
 };
 
-const BRAND_CODE = { canon: "CAN", sony: "SNY", dji: "DJI", nikon: "NIK", jbl: "JBL", gopro: "GPR", insta360: "INS", rode: "ROD", maono: "MAO", fifine: "FIF", hollyland: "HOL", boya: "BOY", tcl: "TCL", hisense: "HIS", samsung: "SAM", lg: "LG", ea: "EA", sandisk: "SAN", lexar: "LEX", "harman kardon": "HK" };
+const BRAND_CODE = { canon: "CAN", sony: "SNY", dji: "DJI", nikon: "NIK", jbl: "JBL", gopro: "GPR", insta360: "INS", rode: "ROD", maono: "MAO", fifine: "FIF", hollyland: "HOL", boya: "BOY", tcl: "TCL", hisense: "HIS", samsung: "SAM", lg: "LG", ea: "EA", sandisk: "SAN", lexar: "LEX", "harman kardon": "HK", hp: "HP", apple: "APL", oppo: "OPP" };
 
 // Strip "(brand?)", "- confirm ..." and stray "?" left in the manifest's guesses
 // (the uncertainty is kept in admin_notes via the confidence column instead).

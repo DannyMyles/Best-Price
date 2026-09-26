@@ -23,12 +23,15 @@ import { useToast } from "@/context/ToastContext";
 import { formatKES } from "@/lib/format";
 import { toCsv } from "@/lib/csv";
 import { PRODUCT_CSV_COLUMNS, productToCsvRow } from "@/lib/productCsv";
+import { Pagination } from "@/components/admin/Pagination";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import type { Product } from "@/lib/types";
 import { ImportCsv } from "./ImportCsv";
 
 const LOW_STOCK_THRESHOLD = 5;
 const KEY = "admin:products";
+
+const PAGE_SIZE = 25;
 
 export default function AdminProductsPage() {
   const { push } = useToast();
@@ -46,6 +49,7 @@ export default function AdminProductsPage() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [department, setDepartment] = useState("");
+  const [page, setPage] = useState(1);
 
   const departments = useMemo(
     () => [...new Set(products.map((p) => p.category))].sort(),
@@ -59,6 +63,9 @@ export default function AdminProductsPage() {
         (!q || `${p.name} ${p.sku} ${p.brand ?? ""}`.toLowerCase().includes(q))
     );
   }, [products, query, department]);
+  const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
+  const current = Math.min(page, pageCount); // stays valid after deletes/filters
+  const pageRows = shown.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   const reload = useCallback(() => {
     refresh();
@@ -207,7 +214,10 @@ export default function AdminProductsPage() {
                   <input
                     type="search"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) => {
+                  setQuery(e.target.value);
+                  setPage(1);
+                }}
                     placeholder="Search by name, SKU or brand"
                     aria-label="Search products"
                     className="admin-input pl-9"
@@ -215,7 +225,10 @@ export default function AdminProductsPage() {
                 </div>
                 <select
                   value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
+                  onChange={(e) => {
+                setDepartment(e.target.value);
+                setPage(1);
+              }}
                   aria-label="Filter by department"
                   className="admin-input capitalize sm:w-52"
                 >
@@ -247,7 +260,7 @@ export default function AdminProductsPage() {
                         </td>
                       </tr>
                     )}
-                    {shown.map((p) => (
+                    {pageRows.map((p) => (
                       <tr
                         key={p.id}
                         className={p.active === false ? "opacity-55" : undefined}
@@ -345,6 +358,16 @@ export default function AdminProductsPage() {
                 </tbody>
               </table>
             </div>
+            <Pagination
+              page={current}
+              pageSize={PAGE_SIZE}
+              total={shown.length}
+              label="products"
+              onPage={(p) => {
+                setPage(p);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
             </>
           )}
         </>

@@ -2,18 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { MessageCircle, MapPin, Copy, Printer } from "lucide-react";
-import { adminOrders, adminUpdateOrder } from "@/lib/api/orders";
+import { MessageCircle, MapPin, Copy, Printer, Truck } from "lucide-react";
+import { adminOrders, adminUpdateOrder, type OrderPatch } from "@/lib/api/orders";
 import { errorMessage } from "@/lib/api/client";
 import { useToast } from "@/context/ToastContext";
 import { formatKES, toMsisdn } from "@/lib/format";
 import { BRAND_NAME } from "@/lib/contact";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
+import { Pagination } from "@/components/admin/Pagination";
 
 const statuses: OrderStatus[] = [
   "pending",
   "confirmed",
   "processing",
+  "dispatched",
   "completed",
   "cancelled",
 ];
@@ -23,6 +25,7 @@ const statusStyles: Record<OrderStatus, string> = {
   pending: "bg-amber-100 text-amber-700",
   confirmed: "bg-blue-100 text-blue-700",
   processing: "bg-sky-100 text-sky-700",
+  dispatched: "bg-violet-100 text-violet-700",
   completed: "bg-success/10 text-success",
   cancelled: "bg-red-100 text-red-600",
 };
@@ -40,21 +43,40 @@ function fmtDate(o: Order): string {
   });
 }
 
+function formatDay(ymd: string) {
+  return new Date(`${ymd}T12:00:00`).toLocaleDateString("en-KE", { weekday: "long", day: "numeric", month: "short" });
+}
+
+/** A ready-to-send WhatsApp update for the order's current status, with a
+ *  link to its tracking page. Built at click time (needs the site origin). */
 function whatsappForOrder(o: Order): string {
+  const first = o.customer.name.split(" ")[0] || "there";
+  const trackUrl = `${window.location.origin}/track?ref=${encodeURIComponent(o.ref)}`;
+  const pickup = o.deliveryMethod === "pickup";
+  const update: Record<OrderStatus, string> = {
+    pending: "we've received your order and will confirm it shortly.",
+    confirmed: "your order is confirmed. We're getting it ready.",
+    processing: pickup ? "your order is being prepared for collection." : "your order is being packed for delivery.",
+    dispatched: [
+      `your order is on its way${o.courier ? ` with ${o.courier}` : ""}.`,
+      o.trackingNumber ? `Tracking number: ${o.trackingNumber}.` : "",
+      o.expectedDelivery ? `Expected: ${formatDay(o.expectedDelivery)}.` : "",
+    ].filter(Boolean).join(" "),
+    completed: pickup ? "thanks for collecting your order! Enjoy it." : "your order has been delivered. Enjoy it!",
+    cancelled: "your order has been cancelled. Reply here if you have any questions.",
+  };
   const lines = [
-    `Hi ${o.customer.name.split(" ")[0] || "there"} 👋`,
+    `Hi ${first} 👋`,
     "",
-    `About your ${BRAND_NAME} order${o.ref ? ` ${o.ref}` : ""}:`,
-    ...o.items.map(
-      (i) =>
-        `• ${i.name}${i.color ? ` (${i.color})` : ""} ×${i.quantity}`
-    ),
+    `Update on your ${BRAND_NAME} order ${o.ref}: ${update[o.status]}`,
+    o.paymentStatus === "paid" && o.status !== "cancelled" ? "Payment received — thank you." : "",
     "",
+    ...o.items.map((i) => `• ${i.name}${i.color ? ` (${i.color})` : ""} ×${i.quantity}`),
     `Total: ${formatKES(o.total)}`,
-  ];
-  return `https://wa.me/${toMsisdn(o.customer.phone)}?text=${encodeURIComponent(
-    lines.join("\n")
-  )}`;
+    "",
+    o.status === "cancelled" ? "" : `Track it any time: ${trackUrl}`,
+  ].filter((l, i, all) => l !== "" || (all[i - 1] ?? "") !== "");
+  return `https://wa.me/${toMsisdn(o.customer.phone)}?text=${encodeURIComponent(lines.join("\n").trim())}`;
 }
 
 export default function AdminOrdersPage() {
@@ -84,8 +106,8 @@ export default function AdminOrdersPage() {
         const res = await adminOrders({
           status: filter === "all" ? undefined : filter,
           q: debouncedQ || undefined,
-          page: 1,
-          limit: page * PAGE,
+          page,
+          limit: PAGE,
         });
         if (signal?.cancelled) return;
         setOrders(res.items);
@@ -108,13 +130,15 @@ export default function AdminOrdersPage() {
     };
   }, [load]);
 
-  async function patchOrder(id: number, patch: { status?: OrderStatus; paymentStatus?: PaymentStatus }, fail: string) {
+  async function patchOrder(id: number, patch: OrderPatch, fail: string) {
     try {
       const updated = await adminUpdateOrder(id, patch);
       setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+      return true;
     } catch (err) {
       push({ type: "error", message: errorMessage(err, fail) });
       void load();
+      return false;
     }
   }
 
@@ -234,14 +258,14 @@ export default function AdminOrdersPage() {
                     >
                       <Printer className="h-3.5 w-3.5" /> Slip
                     </Link>
-                    <a
-                      href={whatsappForOrder(o)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => window.open(whatsappForOrder(o), "_blank", "noopener,noreferrer")}
+                      title="Opens WhatsApp with a status update and tracking link — review and send"
                       className="flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white hover:brightness-95"
                     >
-                      <MessageCircle className="h-3.5 w-3.5" /> Message
-                    </a>
+                      <MessageCircle className="h-3.5 w-3.5" /> Notify customer
+                    </button>
                   </div>
                 </div>
 
@@ -280,6 +304,17 @@ export default function AdminOrdersPage() {
                     <span>{formatKES(o.total)}</span>
                   </div>
                 </div>
+
+                {o.deliveryMethod === "courier" && o.status !== "cancelled" && (
+                  <CourierDetails
+                    order={o}
+                    onSave={async (patch) => {
+                      const ok = await patchOrder(o.id, patch, "Couldn't save delivery details");
+                      if (ok) push({ type: "success", message: "Delivery details saved — the customer sees them on Track Order" });
+                      return ok;
+                    }}
+                  />
+                )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3 text-xs">
                   <span className="capitalize text-muted">
@@ -324,15 +359,16 @@ export default function AdminOrdersPage() {
             ))}
           </div>
 
-          {orders.length < total && (
-            <button
-              disabled={loading}
-              onClick={() => setPage((p) => p + 1)}
-              className="mx-auto mt-6 block rounded-full border border-border px-5 py-2 text-sm font-medium text-ink hover:border-brand/40"
-            >
-              Load more ({total - orders.length})
-            </button>
-          )}
+          <Pagination
+            page={page}
+            pageSize={PAGE}
+            total={total}
+            label="orders"
+            onPage={(p) => {
+              setPage(p);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         </>
       )}
     </div>
@@ -344,6 +380,70 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex justify-between text-muted">
       <span>{label}</span>
       <span>{value}</span>
+    </div>
+  );
+}
+
+/** Courier, tracking number and expected date for courier orders — shown to
+ *  the customer on the Track Order page. Saving also marks the order
+ *  "dispatched" if it hasn't got that far yet. */
+function CourierDetails({ order, onSave }: { order: Order; onSave: (patch: OrderPatch) => Promise<boolean> }) {
+  const [courier, setCourier] = useState(order.courier ?? "");
+  const [tracking, setTracking] = useState(order.trackingNumber ?? "");
+  const [expected, setExpected] = useState(order.expectedDelivery ?? "");
+  const [saving, setSaving] = useState(false);
+  const dirty =
+    courier !== (order.courier ?? "") || tracking !== (order.trackingNumber ?? "") || expected !== (order.expectedDelivery ?? "");
+  const early = ["pending", "confirmed", "processing"].includes(order.status);
+
+  async function save() {
+    setSaving(true);
+    await onSave({
+      courier: courier.trim() || null,
+      trackingNumber: tracking.trim() || null,
+      expectedDelivery: expected || null,
+      ...(early && (courier.trim() || tracking.trim()) ? { status: "dispatched" as const } : {}),
+    });
+    setSaving(false);
+  }
+
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink">
+        <Truck className="h-3.5 w-3.5" /> Delivery details
+        <span className="font-normal text-muted">— shown to the customer on Track Order</span>
+      </p>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto_auto]">
+        <input
+          value={courier}
+          onChange={(e) => setCourier(e.target.value)}
+          placeholder="Courier (e.g. G4S, Wells Fargo)"
+          aria-label="Courier"
+          className="admin-input h-9"
+        />
+        <input
+          value={tracking}
+          onChange={(e) => setTracking(e.target.value)}
+          placeholder="Tracking number"
+          aria-label="Tracking number"
+          className="admin-input h-9 font-mono"
+        />
+        <input
+          type="date"
+          value={expected}
+          onChange={(e) => setExpected(e.target.value)}
+          aria-label="Expected delivery date"
+          className="admin-input h-9 sm:w-40"
+        />
+        <button
+          type="button"
+          onClick={save}
+          disabled={!dirty || saving}
+          className="h-9 rounded-[8px] bg-brand px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-strong disabled:opacity-40"
+        >
+          {saving ? "Saving…" : early && (courier.trim() || tracking.trim()) ? "Save & mark dispatched" : "Save"}
+        </button>
+      </div>
     </div>
   );
 }

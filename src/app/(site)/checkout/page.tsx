@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Headphones,
   Pencil,
+  Package,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
@@ -35,6 +36,7 @@ import { AnimatedButton, AnimatedLinkButton } from "@/components/ui/AnimatedButt
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { MpesaInstructions } from "@/components/checkout/MpesaInstructions";
 import { CopyInline } from "@/components/ui/CopyInline";
+import { rememberOrder } from "@/lib/recentOrders";
 
 const DRAFT_KEY = "pricehub-checkout-draft";
 
@@ -82,6 +84,9 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [orderRef, setOrderRef] = useState<string | null>(null);
+  // false when the backend couldn't save the order and it went over WhatsApp
+  // only — then /track can't find it, so we don't offer tracking.
+  const [savedOnline, setSavedOnline] = useState(true);
   const [placedSnapshot, setPlacedSnapshot] = useState<{
     items: typeof lines;
     total: number;
@@ -239,7 +244,11 @@ export default function CheckoutPage() {
         break;
       }
     }
-    if (placed) ref = placed.ref;
+    if (placed) {
+      ref = placed.ref;
+      rememberOrder({ ref, phone: toMsisdn(draft.phone), total: placed.total, placedAt: new Date().toISOString() });
+    }
+    setSavedOnline(Boolean(placed));
     const totals = placed
       ? { subtotal: placed.subtotal, deliveryFee: placed.deliveryFee, total: placed.total }
       : { subtotal, deliveryFee, total };
@@ -271,10 +280,22 @@ export default function CheckoutPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success-050">
             <CheckCircle2 className="h-8 w-8 text-success" />
           </div>
-          <h1 className="mt-4 text-xl font-bold text-ink">Order placed</h1>
+          <h1 className="mt-4 text-xl font-bold text-ink">
+            {savedOnline ? "Order placed" : "Almost there — send us your order"}
+          </h1>
           <p className="mt-1.5 text-sm text-muted">
-            We&apos;ve opened WhatsApp with your order — send the message so our
-            team can confirm payment and delivery.
+            {savedOnline ? (
+              <>
+                We&apos;ve opened WhatsApp with your order — send the message so our team can confirm payment and
+                delivery.
+              </>
+            ) : (
+              <>
+                Our system couldn&apos;t save your order just now, so it isn&apos;t in online tracking yet.{" "}
+                <b className="text-ink">Send the WhatsApp message we opened</b> and we&apos;ll confirm it there — nothing
+                is lost.
+              </>
+            )}
           </p>
           <p className="chamfer-sm mt-3 inline-block bg-surface-muted px-4 py-1.5 font-mono text-sm font-semibold text-ink">
             Order {orderRef}
@@ -342,14 +363,26 @@ export default function CheckoutPage() {
           </dl>
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <AnimatedLinkButton href="/track" variant="primary">
-              <MessageCircle className="h-4 w-4" /> Track this order
-            </AnimatedLinkButton>
+            {savedOnline ? (
+              <AnimatedLinkButton href={`/track?ref=${encodeURIComponent(orderRef)}`} variant="primary">
+                <Package className="h-4 w-4" /> Track this order
+              </AnimatedLinkButton>
+            ) : (
+              <AnimatedLinkButton
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(orderRef, { subtotal: placedSnapshot.total - placedSnapshot.deliveryFee, deliveryFee: placedSnapshot.deliveryFee, total: placedSnapshot.total }))}`}
+                variant="primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-4 w-4" /> Send order on WhatsApp
+              </AnimatedLinkButton>
+            )}
             <AnimatedLinkButton href="/products" variant="secondary">
               Continue Shopping
             </AnimatedLinkButton>
           </div>
           <p className="mt-3 text-xs text-muted">
+            {savedOnline && <>We&apos;ve saved this order on this device, so the Track page will show it. </>}
             Keep your reference <b>{orderRef}</b>. You can also{" "}
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(trackMsg)}`}

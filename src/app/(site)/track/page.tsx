@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { TrackView } from "./TrackView";
 
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function TrackPage() {
-  return <TrackView />;
+  // TrackView reads ?ref=; the boundary keeps the page statically renderable.
+  return (
+    <Suspense>
+      <TrackView />
+    </Suspense>
+  );
 }
