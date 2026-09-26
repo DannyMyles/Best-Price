@@ -17,12 +17,11 @@ export function HomeRails() {
 
   const bestSellers = useMemo(() => selectBestSellers(products), [products]);
   const deals = useMemo(() => selectDeals(products), [products]);
-  const newArrivals = useMemo(() => {
-    const shown = new Set(bestSellers.slice(0, 8).map((p) => p.sku));
-    const all = selectNewArrivals(products);
-    const fresh = all.filter((p) => !shown.has(p.sku));
-    return fresh.length >= 4 ? fresh : all;
-  }, [products, bestSellers]);
+  // Never repeat a product the rails above already show.
+  const newArrivals = useMemo(
+    () => selectNewArrivals(products, 8, new Set([...bestSellers, ...deals].map((p) => p.sku))),
+    [products, bestSellers, deals]
+  );
 
   return (
     <>
@@ -50,15 +49,17 @@ export function HomeRails() {
         onQuickView={setQuickView}
       />
 
-      <ProductRail
-        eyebrow="Fresh in"
-        title="New Arrivals"
-        description="The latest devices to land in store"
-        viewAllHref="/products"
-        products={newArrivals}
-        loading={loading}
-        onQuickView={setQuickView}
-      />
+      {(loading || newArrivals.length >= 4) && (
+        <ProductRail
+          eyebrow="Fresh in"
+          title="New Arrivals"
+          description="The latest devices to land in store"
+          viewAllHref="/products"
+          products={newArrivals}
+          loading={loading}
+          onQuickView={setQuickView}
+        />
+      )}
 
       <QuickViewModal product={quickView} onClose={() => setQuickView(null)} />
     </>

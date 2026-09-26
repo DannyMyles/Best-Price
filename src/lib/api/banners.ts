@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { Banner } from "@/lib/types";
+import type { Banner, BannerLayout } from "@/lib/types";
 
 interface RawBanner {
   id: number;
@@ -7,9 +7,13 @@ interface RawBanner {
   headline: string;
   subcopy: string | null;
   image: string;
+  layout: BannerLayout;
+  accent: string | null;
   badge: string | null;
   ctaLabel: string | null;
   ctaHref: string | null;
+  cta2Label: string | null;
+  cta2Href: string | null;
   dealEndsAt: string | null;
   active: boolean;
   order: number;
@@ -21,9 +25,13 @@ const toBanner = (r: RawBanner): Banner => ({
   headline: r.headline,
   subcopy: r.subcopy ?? undefined,
   image: r.image,
+  layout: r.layout,
+  accent: r.accent ?? undefined,
   badge: r.badge ?? undefined,
   ctaLabel: r.ctaLabel ?? undefined,
   ctaHref: r.ctaHref ?? undefined,
+  cta2Label: r.cta2Label ?? undefined,
+  cta2Href: r.cta2Href ?? undefined,
   dealEndsAt: r.dealEndsAt,
   active: r.active,
   order: r.order,
@@ -37,9 +45,13 @@ export interface BannerInput {
   headline: string;
   subcopy?: string | null;
   image: string;
+  layout?: BannerLayout;
+  accent?: string | null;
   badge?: string | null;
   ctaLabel?: string | null;
   ctaHref?: string | null;
+  cta2Label?: string | null;
+  cta2Href?: string | null;
   dealEndsAt?: string | null;
   active?: boolean;
 }

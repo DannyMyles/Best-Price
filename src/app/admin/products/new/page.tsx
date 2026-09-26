@@ -1,9 +1,14 @@
+import { PageHeader } from "@/components/admin/PageHeader";
 import { ProductForm } from "../ProductForm";
 
 export default function NewProductPage() {
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-ink">Add product</h1>
+      <PageHeader
+        title="Add product"
+        description="Fill in the details, then create it. You can edit everything later."
+        back={{ href: "/admin/products", label: "Products" }}
+      />
       <ProductForm />
     </div>
   );

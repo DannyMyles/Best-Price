@@ -3,282 +3,268 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-  type Variants,
-} from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Pause, Play } from "lucide-react";
 import { useBanners } from "@/hooks/useBanners";
 import { useCountdownTo } from "@/hooks/useCountdown";
+import { useCutout } from "@/hooks/useCutout";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/cn";
 import type { Banner } from "@/lib/types";
 
-const AUTOPLAY_MS = 6500;
-const MotionLink = motion.create(Link);
+const AUTOPLAY_MS = 6000;
+const SWIPE_PX = 50;
+/** Primary-button colour when a slide has no accent of its own (brand green,
+ *  the AA-contrast shade). */
+const DEFAULT_ACCENT = "#178549";
 
-const slideVariants: Variants = {
-  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
-};
+/** Black or white — whichever reads better on `hex` (WCAG relative luminance). */
+function readableOn(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return (lum + 0.05) / 0.05 > 1.05 / (lum + 0.05) ? "#111111" : "#ffffff";
+}
 
-/** Full-bleed, auto-advancing promo carousel for the top of the homepage.
- *  Beyond the usual slider mechanics (swipe, arrows, dots, autoplay), each
- *  slide is pointer-reactive — the photo drifts and tilts toward the
- *  cursor like a physical object, the copy parallaxes against it, the CTA
- *  is magnetic, and the whole block recedes as you scroll past it. Slides
- *  come from the admin-managed banners API (or, until some exist, one per
- *  department using photos from the server). */
+/** Retail-style promo carousel for the top of the homepage (modelled on the
+ *  big camera retailers): a contained banner with the picture on the left and
+ *  a badge, brand line, bold headline, short copy and up to two buttons on
+ *  the right. Slides cross-fade, autoplay pauses on hover/focus or via the
+ *  pause button, and touch users can swipe. Slides come from the
+ *  admin-managed banners API (or, until some exist, one per department). */
 export function HeroCarousel() {
   const { banners, loading } = useBanners();
   const reduced = useReducedMotion();
   const count = banners.length;
 
   const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [paused, setPaused] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [stopped, setStopped] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
-  // Pointer position, normalised to -0.5..0.5 of the hero box, smoothed with
-  // a spring so slides drift rather than snap.
-  const rawX = useMotionValue(0);
-  const rawY = useMotionValue(0);
-  const pointerX = useSpring(rawX, { stiffness: 150, damping: 20, mass: 0.4 });
-  const pointerY = useSpring(rawY, { stiffness: 150, damping: 20, mass: 0.4 });
+  const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
+  const next = useCallback(() => go(index + 1), [go, index]);
+  const prev = useCallback(() => go(index - 1), [go, index]);
 
-  function onPointerMove(e: React.PointerEvent<HTMLElement>) {
-    if (reduced || e.pointerType !== "mouse" || !sectionRef.current) return;
-    const r = sectionRef.current.getBoundingClientRect();
-    rawX.set((e.clientX - r.left) / r.width - 0.5);
-    rawY.set((e.clientY - r.top) / r.height - 0.5);
-  }
-  function onPointerLeave() {
-    rawX.set(0);
-    rawY.set(0);
-  }
-
-  // Whole hero gently recedes (zooms + rises) as the page scrolls past it.
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 40]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 1, 0.6]);
-
-  const go = useCallback(
-    (rawNext: number, dir: number) => {
-      setDirection(dir);
-      setIndex(((rawNext % count) + count) % count);
-    },
-    [count]
-  );
-  const nextSlide = useCallback(() => go(index + 1, 1), [go, index]);
-  const prevSlide = useCallback(() => go(index - 1, -1), [go, index]);
-
+  const playing = count > 1 && !reduced && !stopped && !hovered && !focused;
   useEffect(() => {
-    if (paused || reduced || count <= 1) return;
-    const id = window.setInterval(() => {
-      setDirection(1);
-      setIndex((i) => (i + 1) % count);
-    }, AUTOPLAY_MS);
-    return () => window.clearInterval(id);
-  }, [paused, reduced, count]);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowLeft") prevSlide();
-      else if (e.key === "ArrowRight") nextSlide();
-    }
-    el.addEventListener("keydown", onKey);
-    return () => el.removeEventListener("keydown", onKey);
-  }, [prevSlide, nextSlide]);
+    if (!playing) return;
+    const id = window.setTimeout(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
+    return () => window.clearTimeout(id);
+  }, [playing, index, count]);
 
   if (!loading && count === 0) return null;
 
-  const slide = banners[index];
-
   return (
-    <section
-      ref={sectionRef}
-      tabIndex={0}
-      aria-roledescription="carousel"
-      aria-label="Promotions"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => {
-        setPaused(false);
-        onPointerLeave();
-      }}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
-      onPointerMove={onPointerMove}
-      className="relative overflow-hidden bg-panel-dark focus:outline-none"
-    >
-      <motion.div
-        style={
-          reduced
-            ? undefined
-            : { scale: heroScale, y: heroY, opacity: heroOpacity, perspective: 1000 }
-        }
-        className="relative h-[380px] sm:h-[440px] lg:h-[500px]"
+    <section className="bg-panel-dark" aria-roledescription="carousel" aria-label="Promotions">
+      <div
+        className="group/hero relative h-[460px] overflow-hidden bg-panel-dark sm:h-[340px] lg:h-[390px]"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") prev();
+          else if (e.key === "ArrowRight") next();
+        }}
+        onTouchStart={(e) => (touchStartX.current = e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchStartX.current === null) return;
+          const dx = e.changedTouches[0].clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (dx < -SWIPE_PX) next();
+          else if (dx > SWIPE_PX) prev();
+        }}
       >
-        {slide && (
-          <AnimatePresence initial={false} custom={direction} mode="popLayout">
-            <motion.div
-              key={slide.id}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: reduced ? 0.2 : 0.55, ease: [0.22, 1, 0.36, 1] }}
-              drag={count > 1 ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.55}
-              onDragEnd={(_e, info) => {
-                if (info.offset.x < -80 || info.velocity.x < -400) nextSlide();
-                else if (info.offset.x > 80 || info.velocity.x > 400) prevSlide();
-              }}
-              className="absolute inset-0 cursor-grab active:cursor-grabbing"
-            >
-              <BannerSlide
-                banner={slide}
-                pointerX={pointerX}
-                pointerY={pointerY}
-                reduced={reduced}
-              />
-            </motion.div>
-          </AnimatePresence>
-        )}
+        {loading && count === 0 && <div className="absolute inset-0 animate-pulse bg-white/5" />}
 
-        {!reduced && count > 1 && (
-          <div
-            key={`progress-${slide?.id}-${paused}`}
-            className="absolute inset-x-0 top-0 z-10 h-0.5 bg-white/15"
-          >
-            <div
-              className="h-full origin-left bg-white/80"
-              style={{
-                animation: paused
-                  ? "none"
-                  : `carousel-progress ${AUTOPLAY_MS}ms linear`,
-              }}
-            />
-          </div>
-        )}
+        {banners.map((b, i) => (
+          <Slide
+            key={b.id}
+            banner={b}
+            active={i === index}
+            first={i === 0}
+            label={`${i + 1} of ${count}`}
+            reduced={reduced}
+          />
+        ))}
 
         {count > 1 && (
-          <>
-            <button
-              type="button"
-              aria-label="Previous slide"
-              onClick={prevSlide}
-              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/55 sm:left-5 sm:p-2.5"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              aria-label="Next slide"
-              onClick={nextSlide}
-              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/55 sm:right-5 sm:p-2.5"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
+          <div className="pointer-events-none absolute inset-0 z-20 mx-auto max-w-[1600px] *:pointer-events-auto">
+            <ArrowButton side="left" onClick={prev} />
+            <ArrowButton side="right" onClick={next} />
 
-            <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center gap-2 sm:bottom-5">
+            <div className="absolute inset-x-0 bottom-2.5 z-20 flex items-center justify-center gap-0.5">
               {banners.map((b, i) => (
                 <button
                   key={b.id}
                   type="button"
-                  aria-label={`Go to slide ${i + 1}`}
+                  aria-label={`Show slide ${i + 1}`}
                   aria-current={i === index}
-                  onClick={() => go(i, i > index ? 1 : -1)}
-                  className={cn(
-                    "h-1.5 rounded-full transition-all",
-                    i === index ? "w-6 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"
-                  )}
-                />
+                  onClick={() => go(i)}
+                  className="p-1.5"
+                >
+                  <span
+                    className={cn(
+                      "block h-2 w-2 rounded-full transition-colors",
+                      i === index ? "bg-white" : "bg-white/35 hover:bg-white/70"
+                    )}
+                  />
+                </button>
               ))}
+              {!reduced && (
+                <button
+                  type="button"
+                  onClick={() => setStopped((s) => !s)}
+                  aria-label={stopped ? "Play slideshow" : "Pause slideshow"}
+                  className={cn(
+                    "ml-1 p-1.5 text-white/55 transition-colors hover:text-white"
+                  )}
+                >
+                  {stopped ? <Play className="h-3 w-3 fill-current" /> : <Pause className="h-3 w-3 fill-current" />}
+                </button>
+              )}
             </div>
-          </>
+          </div>
         )}
-      </motion.div>
+      </div>
     </section>
+  );
+}
+
+/** A white-background product photo with the white removed, so the product
+ *  floats on the dark banner (see useCutout). Stays hidden until processed,
+ *  then fades in; photos that aren't on white are shown as-is. */
+function ProductShot({ src, active, motion }: { src: string; active: boolean; motion: string }) {
+  const shot = useCutout(src);
+  return (
+    <div className="relative h-full w-full max-w-[560px] sm:h-[96%]">
+      {shot && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={shot.url}
+          alt=""
+          draggable={false}
+          className={cn(
+            "absolute inset-0 h-full w-full object-contain transition-all ease-out group-hover/hero:scale-[1.03]",
+            shot.cutout
+              ? "drop-shadow-[0_22px_28px_rgba(0,0,0,0.55)]"
+              : "rounded-[12px] object-cover",
+            motion,
+            active ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-95 opacity-0"
+          )}
+        />
+      )}
+    </div>
+  );
+}
+
+function ArrowButton({ side, onClick }: { side: "left" | "right"; onClick: () => void }) {
+  const Icon = side === "left" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      aria-label={side === "left" ? "Previous slide" : "Next slide"}
+      onClick={onClick}
+      className={cn(
+        "absolute top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white shadow-lg transition hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:flex",
+        side === "left" ? "left-4 lg:left-6" : "right-4 lg:right-6"
+      )}
+    >
+      <Icon className="h-6 w-6" strokeWidth={1.75} />
+    </button>
   );
 }
 
 interface SlideProps {
   banner: Banner;
-  pointerX: MotionValue<number>;
-  pointerY: MotionValue<number>;
+  active: boolean;
+  first: boolean;
+  label: string;
   reduced: boolean;
 }
 
-function BannerSlide({ banner, pointerX, pointerY, reduced }: SlideProps) {
+function Slide({ banner, active, first, label, reduced }: SlideProps) {
+  const product = banner.layout === "product";
+  const accent = banner.accent ?? DEFAULT_ACCENT;
+  const onAccent = readableOn(accent);
   const countdown = useCountdownTo(banner.dealEndsAt);
   const showCountdown = banner.dealEndsAt && !countdown.done;
-
-  // Background drifts opposite the cursor and tilts slightly — a physical,
-  // "looking at the product" feel rather than a flat photo.
-  const imageX = useTransform(pointerX, [-0.5, 0.5], [18, -18]);
-  const imageY = useTransform(pointerY, [-0.5, 0.5], [12, -12]);
-  const rotateY = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
-  const rotateX = useTransform(pointerY, [-0.5, 0.5], [4, -4]);
-  // Copy sits "closer" to the viewer, so it drifts with (not against) the
-  // cursor, and by a smaller amount — the parallax separation reads as depth.
-  const contentX = useTransform(pointerX, [-0.5, 0.5], [-8, 8]);
+  const motion = reduced ? "duration-0" : "duration-700";
 
   return (
-    <div className="relative h-full w-full">
-      <div className="chamfer absolute inset-4 overflow-hidden border border-accent/30 sm:inset-6">
-        <motion.div
+    <div
+      role="group"
+      aria-roledescription="slide"
+      aria-label={label}
+      aria-hidden={!active}
+      inert={!active}
+      className={cn(
+        "absolute inset-0 transition-opacity ease-out [--glow-x:50%] [--glow-y:26%] sm:[--glow-x:33%] sm:[--glow-y:50%]",
+        motion,
+        active ? "z-10 opacity-100" : "z-0 opacity-0"
+      )}
+    >
+      {/* ---- background ---- */}
+      {product ? (
+        <div
           className="absolute inset-0"
-          style={
-            reduced
-              ? undefined
-              : { x: imageX, y: imageY, rotateX, rotateY, scale: 1.08 }
-          }
+          style={{
+            backgroundColor: "#0e1013",
+            backgroundImage: `radial-gradient(circle at var(--glow-x) var(--glow-y), ${accent}59 0%, ${accent}1f 28%, transparent 58%), linear-gradient(115deg, #16191e 0%, #0e1013 55%, #08090b 100%)`,
+          }}
         >
+          {/* faint dot grid for texture */}
+          <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:18px_18px] [mask-image:linear-gradient(90deg,black,transparent_70%)]" />
+        </div>
+      ) : (
+        <>
           <Image
             src={banner.image}
             alt=""
             fill
-            priority
+            priority={first}
             unoptimized
-            sizes="100vw"
-            className="object-cover"
+            sizes="(min-width: 1600px) 1600px, 100vw"
+            className="object-cover object-left"
             draggable={false}
           />
-        </motion.div>
-        <div className="absolute inset-0 bg-linear-to-r from-panel-dark/92 via-panel-dark/50 to-transparent" />
-        <div className="circuit-tick left-3 top-3 text-accent" />
-        <div className="circuit-tick bottom-3 right-3 rotate-180 text-accent" />
-      </div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/55 to-black/0 sm:bg-linear-to-r sm:from-black/0 sm:via-black/45 sm:to-black/85" />
+        </>
+      )}
 
-      <div className="section relative flex h-full items-center">
-        <motion.div
-          style={reduced ? undefined : { x: contentX }}
-          className="max-w-lg pl-10 sm:pl-11"
+      {/* ---- content: kept in a centred column so picture and copy stay together on wide screens ---- */}
+      <div className="relative mx-auto grid h-full max-w-6xl grid-rows-[1fr_auto] items-center gap-5 px-5 pb-12 pt-6 text-white sm:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] sm:grid-rows-1 sm:gap-12 sm:px-24 sm:py-0 lg:gap-16">
+        <div className="flex h-full items-center justify-center sm:justify-end">
+          {product && <ProductShot src={banner.image} active={active} motion={motion} />}
+        </div>
+
+        <div
+          className={cn(
+            "max-w-xl transition-all ease-out",
+            reduced ? "duration-0" : "delay-150 duration-700",
+            active ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"
+          )}
         >
-          {(banner.badge || showCountdown) && (
-            <div className="mb-3 flex flex-wrap items-center gap-2">
+          {(banner.badge || banner.eyebrow || showCountdown) && (
+            <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
               {banner.badge && (
-                <span className="badge chamfer-sm bg-accent font-mono uppercase tracking-wide text-white">
+                <span
+                  className="py-1 pl-2.5 pr-4 text-[11px] font-bold uppercase leading-none tracking-[0.06em] [clip-path:polygon(0_0,100%_0,calc(100%-8px)_100%,0_100%)] sm:text-xs"
+                  style={{ backgroundColor: accent, color: onAccent }}
+                >
                   {banner.badge}
                 </span>
               )}
+              {banner.eyebrow && (
+                <span className="text-base font-bold leading-none tracking-tight sm:text-lg">{banner.eyebrow}</span>
+              )}
               {showCountdown && (
-                <span className="inline-flex items-center gap-1.5 border border-white/15 bg-white/5 px-3 py-1 font-mono text-xs text-white backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded bg-white/10 px-2 py-1 font-mono text-xs tabular-nums">
                   <Clock className="h-3.5 w-3.5" />
                   Ends in {countdown.hours}:{countdown.minutes}:{countdown.seconds}
                 </span>
@@ -286,69 +272,39 @@ function BannerSlide({ banner, pointerX, pointerY, reduced }: SlideProps) {
             </div>
           )}
 
-          {banner.eyebrow && (
-            <p className="font-mono text-xs uppercase tracking-[0.12em] text-brand-2">
-              {banner.eyebrow}
-            </p>
-          )}
-          <h2 className="mt-3 text-balance text-3xl font-bold leading-[1.02] tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="line-clamp-2 text-balance text-[28px] font-extrabold leading-[1.02] tracking-[-0.025em] sm:text-[36px] lg:text-[46px]">
             {banner.headline}
           </h2>
+
           {banner.subcopy && (
-            <p className="mt-3 max-w-md text-pretty text-sm text-white/75 sm:text-base">
+            <p className="mt-2.5 line-clamp-2 max-w-md text-pretty text-sm leading-snug text-white/75 sm:text-base">
               {banner.subcopy}
             </p>
           )}
-          {banner.ctaLabel && banner.ctaHref && (
-            <MagneticCta href={banner.ctaHref} reduced={reduced}>
-              {banner.ctaLabel} <ArrowRight className="h-4 w-4" />
-            </MagneticCta>
+
+          {((banner.cta2Label && banner.cta2Href) || (banner.ctaLabel && banner.ctaHref)) && (
+            <div className="mt-5 flex flex-wrap gap-3 sm:mt-6">
+              {banner.cta2Label && banner.cta2Href && (
+                <Link
+                  href={banner.cta2Href}
+                  className="inline-flex h-10 items-center rounded-[5px] border-2 border-white/90 px-5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-black sm:h-11 sm:px-6"
+                >
+                  {banner.cta2Label}
+                </Link>
+              )}
+              {banner.ctaLabel && banner.ctaHref && (
+                <Link
+                  href={banner.ctaHref}
+                  className="inline-flex h-10 items-center rounded-[5px] px-6 text-sm font-semibold shadow-sm transition hover:brightness-[0.92] sm:h-11 sm:px-7"
+                  style={{ backgroundColor: accent, color: onAccent }}
+                >
+                  {banner.ctaLabel}
+                </Link>
+              )}
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
-  );
-}
-
-/** A button that pulls gently toward the cursor while hovered, and springs
- *  back on release — the small, tactile signal that this UI responds to you. */
-function MagneticCta({
-  href,
-  reduced,
-  children,
-}: {
-  href: string;
-  reduced: boolean;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 250, damping: 16, mass: 0.3 });
-  const sy = useSpring(y, { stiffness: 250, damping: 16, mass: 0.3 });
-
-  function onMove(e: React.PointerEvent<HTMLAnchorElement>) {
-    if (reduced || e.pointerType !== "mouse" || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    x.set((e.clientX - (r.left + r.width / 2)) * 0.3);
-    y.set((e.clientY - (r.top + r.height / 2)) * 0.3);
-  }
-  function onLeave() {
-    x.set(0);
-    y.set(0);
-  }
-
-  return (
-    <MotionLink
-      ref={ref}
-      href={href}
-      draggable={false}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-      style={reduced ? undefined : { x: sx, y: sy }}
-      className="btn-electric chamfer-sm mt-6 inline-flex w-fit px-6 py-3"
-    >
-      {children}
-    </MotionLink>
   );
 }

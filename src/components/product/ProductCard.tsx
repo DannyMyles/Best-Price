@@ -97,8 +97,7 @@ export function ProductCard({
   return (
     <div className="chamfer card-hover group relative flex h-full flex-col overflow-hidden border border-border bg-surface transition-colors hover:border-accent/40">
       <Link href={`/products/${product.slug}`} className="flex h-full flex-col">
-        <div className="relative overflow-hidden bg-surface-muted">
-          <span className="circuit-tick bottom-2 left-2 z-10 text-accent/50" />
+        <div className="relative overflow-hidden bg-white">
           <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
             {badges.map((b) => (
               <Badge key={b} variant={b} />
@@ -129,7 +128,9 @@ export function ProductCard({
             aria-label={comparing ? "Remove from compare" : "Add to compare"}
             aria-pressed={comparing}
             className={cn(
-              "absolute right-3 top-12 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors",
+              "absolute right-3 top-12 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-sm backdrop-blur transition-[color,background-color,opacity]",
+              // Hover-only on mouse devices; always visible on touch screens.
+              !comparing && "[@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 focus-visible:opacity-100",
               comparing
                 ? "bg-brand text-white"
                 : "bg-white/85 text-ink/60 hover:text-brand"
@@ -144,9 +145,10 @@ export function ProductCard({
               category={product.category}
               alt={product.name}
               priority={priority}
+              fit="contain"
               className={cn(
-                "h-full w-full transition-transform duration-500 group-hover:scale-105",
-                soldOut && "opacity-70"
+                "h-full w-full p-4 transition-transform duration-500 group-hover:scale-[1.04] sm:p-5",
+                soldOut && "opacity-60"
               )}
               iconClassName="h-16 w-16 sm:h-20 sm:w-20"
             />
@@ -162,9 +164,9 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <div className="flex flex-1 flex-col gap-1.5 border-t border-border/70 p-4">
           <p className="font-mono text-[11px] uppercase tracking-wide text-muted">
-            {product.category.replace(/-/g, " ")}
+            {product.brand || product.category.replace(/-/g, " ")}
           </p>
           <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink">
             {product.name}
@@ -174,6 +176,7 @@ export function ProductCard({
           )}
           <div className="mt-auto pt-1">
             <Price price={product.price} compareAtPrice={product.compareAtPrice} />
+            <StockLine product={product} soldOut={soldOut} />
           </div>
 
           {soldOut ? (
@@ -193,10 +196,10 @@ export function ProductCard({
               onClick={handleAdd}
               whileTap={{ scale: 0.96 }}
               className={cn(
-                "mt-2 flex w-full items-center justify-center gap-1.5 rounded-full py-2.5 text-sm font-semibold transition-colors",
+                "mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border py-2.5 text-sm font-semibold transition-colors",
                 added
-                  ? "bg-success text-white"
-                  : "bg-brand text-white hover:bg-brand-strong"
+                  ? "border-success bg-success text-white"
+                  : "border-ink/85 text-ink hover:bg-ink hover:text-white"
               )}
             >
               {added ? (
@@ -213,5 +216,24 @@ export function ProductCard({
         </div>
       </Link>
     </div>
+  );
+}
+
+/** One quiet line under the price: in stock / only N left / out of stock. */
+function StockLine({ product, soldOut }: { product: Product; soldOut: boolean }) {
+  const few = !soldOut && product.stockCount != null && product.stockCount > 0 && product.stockCount <= 3;
+  return (
+    <p
+      className={cn(
+        "mt-1 flex items-center gap-1.5 text-xs",
+        soldOut ? "text-muted" : few ? "text-warning" : "text-accent-strong"
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn("h-1.5 w-1.5 rounded-full", soldOut ? "bg-muted" : few ? "bg-warning" : "bg-accent")}
+      />
+      {soldOut ? "Out of stock" : few ? `Only ${product.stockCount} left` : "In stock"}
+    </p>
   );
 }

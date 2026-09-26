@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { getCategories } from "@/services/categoryService";
 import type { Category } from "@/lib/types";
-import { categories as seedCategories } from "@/lib/data/categories";
 
 let cache: Category[] | null = null;
 
 export function useCategories() {
-  const [categories, setCategories] = useState<Category[]>(cache ?? seedCategories);
+  const [categories, setCategories] = useState<Category[]>(cache ?? []);
   const [loading, setLoading] = useState(!cache);
 
   useEffect(() => {

@@ -84,18 +84,14 @@ export function ImageManager({
 
   return (
     <div>
-      <p className="mb-2 text-xs font-medium text-ink/70">
-        Photos
-      </p>
-
       {images === null && !error && <p className="text-sm text-muted">Loading photos…</p>}
 
       <div className="flex flex-wrap gap-3">
         {list.map((img, i) => (
-          <div key={img.file} className="w-24">
+          <div key={img.file} className="w-28">
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt="" className="h-24 w-24 rounded-lg border border-border object-cover" />
+              <img src={img.url} alt="" className="h-28 w-28 rounded-[8px] border border-border bg-white object-contain p-1" />
               {i === 0 && (
                 <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded-full bg-panel-dark px-1.5 py-0.5 text-[10px] font-semibold text-white">
                   <Star className="h-2.5 w-2.5" /> Main
@@ -125,9 +121,9 @@ export function ImageManager({
         ))}
 
         {images !== null && (max === 0 || list.length < max) && (
-          <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted hover:border-brand/50">
+          <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[8px] border-2 border-dashed border-border-strong/70 text-muted transition-colors hover:border-ink/40 hover:bg-surface-muted/50 hover:text-ink">
             {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-            <span className="text-[10px]">Upload</span>
+            <span className="text-xs font-medium">Add photos</span>
             <input
               ref={input}
               type="file"
@@ -142,9 +138,8 @@ export function ImageManager({
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      <p className="mt-1.5 text-xs text-muted">
-        JPG, PNG or WebP. The first photo is the main one; use the arrows to reorder. Photos are stored in the
-        database. With none, the category&apos;s default picture is shown.
+      <p className="mt-3 text-xs text-muted">
+        Use the arrows to reorder. With no photos, the category&apos;s default picture is shown.
       </p>
     </div>
   );

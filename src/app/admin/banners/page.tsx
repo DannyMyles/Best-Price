@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
-import { Trash2, Pencil, Plus, Eye, EyeOff, GripVertical } from "lucide-react";
+import { Trash2, Pencil, Plus, Eye, EyeOff, GripVertical, Upload, ImageIcon } from "lucide-react";
 import {
   adminBanners,
   adminCreateBanner,
@@ -16,16 +16,32 @@ import { useAdminData, invalidateAdminData } from "@/hooks/useAdminData";
 import { useToast } from "@/context/ToastContext";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import type { Banner } from "@/lib/types";
+import { ChoiceCard, Field, FormCard, Switch } from "@/components/admin/FormKit";
+import type { Banner, BannerLayout } from "@/lib/types";
+import { departmentSlides } from "@/services/bannerService";
+
+/** Quick picks for the button/badge colour; any #rrggbb works. */
+const ACCENT_PRESETS = [
+  { name: "PriceHub green", hex: "#178549" },
+  { name: "Yellow", hex: "#ffc20e" },
+  { name: "Blue", hex: "#1a6fc9" },
+  { name: "Red", hex: "#d7182a" },
+  { name: "Orange", hex: "#f26b1d" },
+  { name: "Black", hex: "#111111" },
+];
 
 const emptyForm = {
   eyebrow: "",
   headline: "",
   subcopy: "",
   image: "",
+  layout: "photo" as BannerLayout,
+  accent: "",
   badge: "",
   ctaLabel: "",
   ctaHref: "",
+  cta2Label: "",
+  cta2Href: "",
   dealEndsAt: "",
   active: true,
 };
@@ -69,9 +85,13 @@ export default function AdminBannersPage() {
       headline: b.headline,
       subcopy: b.subcopy ?? "",
       image: b.image,
+      layout: b.layout ?? "photo",
+      accent: b.accent ?? "",
       badge: b.badge ?? "",
       ctaLabel: b.ctaLabel ?? "",
       ctaHref: b.ctaHref ?? "",
+      cta2Label: b.cta2Label ?? "",
+      cta2Href: b.cta2Href ?? "",
       dealEndsAt: toDatetimeLocal(b.dealEndsAt),
       active: b.active !== false,
     });
@@ -100,9 +120,13 @@ export default function AdminBannersPage() {
         headline: form.headline.trim(),
         subcopy: form.subcopy.trim() || null,
         image: form.image.trim(),
+        layout: form.layout,
+        accent: form.accent || null,
         badge: form.badge.trim() || null,
         ctaLabel: form.ctaLabel.trim() || null,
         ctaHref: form.ctaHref.trim() || null,
+        cta2Label: form.cta2Label.trim() || null,
+        cta2Href: form.cta2Href.trim() || null,
         dealEndsAt: form.dealEndsAt
           ? new Date(form.dealEndsAt).toISOString()
           : null,
@@ -185,8 +209,8 @@ export default function AdminBannersPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      <div className="lg:col-span-2">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_440px]">
+      <div className="min-w-0">
         <h1 className="mb-1 text-xl font-semibold text-ink">Homepage Banners</h1>
         <p className="mb-6 text-sm text-muted">
           Drag to reorder — this is the order slides play in the carousel.
@@ -201,9 +225,7 @@ export default function AdminBannersPage() {
             </button>
           </div>
         ) : banners.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
-            No slides yet — add your first one.
-          </p>
+          <AutomaticSlides onImported={() => { invalidateAdminData(KEY); refresh(); }} />
         ) : (
           <Reorder.Group
             axis="y"
@@ -272,114 +294,199 @@ export default function AdminBannersPage() {
         )}
       </div>
 
-      <div>
-        <h2 className="mb-6 text-sm font-semibold text-ink">
-          {editingId ? "Edit slide" : "Add slide"}
-        </h2>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5"
-        >
-          <input
-            required
-            placeholder="Headline"
-            value={form.headline}
-            onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))}
-            className="input"
-          />
-          <input
-            placeholder="Eyebrow (small label above headline)"
-            value={form.eyebrow}
-            onChange={(e) => setForm((f) => ({ ...f, eyebrow: e.target.value }))}
-            className="input"
-          />
-          <textarea
-            placeholder="Subcopy"
-            rows={2}
-            value={form.subcopy}
-            onChange={(e) => setForm((f) => ({ ...f, subcopy: e.target.value }))}
-            className="input"
-          />
-          <div className="flex flex-col gap-2">
-            {form.image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={form.image} alt="" className="h-28 w-full rounded-lg border border-border object-cover" />
-            )}
-            <label className="btn-secondary cursor-pointer justify-center">
-              {uploading ? "Uploading…" : form.image ? "Replace picture" : "Upload picture"}
+      <div className="lg:sticky lg:top-6 lg:self-start">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <FormCard
+            title={editingId ? "Edit slide" : "Add slide"}
+            description="Slides you add here replace the automatic department slides."
+          >
+            <Field label="Headline">
               <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                disabled={uploading}
-                onChange={(e) => {
-                  void handleUpload(e.target.files?.[0]);
-                  e.target.value = "";
-                }}
+                required
+                placeholder="e.g. Create freely with the Z5II"
+                value={form.headline}
+                onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))}
+                className="admin-input"
               />
-            </label>
-            <input
-              required
-              placeholder="…or paste an image URL (https://… or /path)"
-              value={form.image}
-              onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-              className="input"
-            />
-          </div>
-          <div className="flex gap-3">
-            <input
-              placeholder="Badge (e.g. New, Deal)"
-              value={form.badge}
-              onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
-              className="input flex-1"
-            />
-          </div>
-          <div className="flex gap-3">
-            <input
-              placeholder="Button label"
-              value={form.ctaLabel}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, ctaLabel: e.target.value }))
-              }
-              className="input flex-1"
-            />
-            <input
-              placeholder="Button link (/products?…)"
-              value={form.ctaHref}
-              onChange={(e) => setForm((f) => ({ ...f, ctaHref: e.target.value }))}
-              className="input flex-1"
-            />
-          </div>
-          <label className="flex flex-col gap-1 text-xs font-medium text-ink/70">
-            Flash-deal countdown ends at (optional)
-            <input
-              type="datetime-local"
-              value={form.dealEndsAt}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, dealEndsAt: e.target.value }))
-              }
-              className="input"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Brand line" optional>
+                <input
+                  placeholder="e.g. Nikon"
+                  value={form.eyebrow}
+                  onChange={(e) => setForm((f) => ({ ...f, eyebrow: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+              <Field label="Badge" optional>
+                <input
+                  placeholder="e.g. New"
+                  value={form.badge}
+                  onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+            </div>
+            <Field label="Description" optional>
+              <textarea
+                rows={2}
+                placeholder="One or two short lines under the headline"
+                value={form.subcopy}
+                onChange={(e) => setForm((f) => ({ ...f, subcopy: e.target.value }))}
+                className="admin-input min-h-0"
+              />
+            </Field>
+          </FormCard>
+
+          <FormCard title="Picture">
+            <div className="flex items-center gap-3">
+              <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-border bg-surface-muted">
+                {form.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={form.image} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="h-5 w-5 text-muted" />
+                )}
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 rounded-[8px] border border-border px-3 py-2 text-sm font-medium text-ink transition-colors hover:border-border-strong hover:bg-surface-muted/60">
+                <Upload className="h-4 w-4" />
+                {uploading ? "Uploading…" : form.image ? "Replace" : "Upload picture"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    void handleUpload(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <Field label="…or picture address" hint="A link starting with https:// or a /path on this site.">
+              <input
+                required
+                placeholder="https://…"
+                value={form.image}
+                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                className="admin-input"
+              />
+            </Field>
+            <div role="radiogroup" aria-label="Picture style" className="flex flex-col gap-2">
+              <span className="text-[13px] font-medium text-ink">Picture style</span>
+              <ChoiceCard
+                selected={form.layout === "photo"}
+                onSelect={() => setForm((f) => ({ ...f, layout: "photo" }))}
+                title="Lifestyle photo"
+                description="A wide picture (about 1600×400) fills the banner."
+              />
+              <ChoiceCard
+                selected={form.layout === "product"}
+                onSelect={() => setForm((f) => ({ ...f, layout: "product" }))}
+                title="Product on white"
+                description="A product photo; the white background is removed automatically."
+              />
+            </div>
+          </FormCard>
+
+          <FormCard title="Buttons & colour">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[13px] font-medium text-ink">Colour</span>
+              <div className="flex flex-wrap items-center gap-2">
+                {ACCENT_PRESETS.map((c) => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    title={c.name}
+                    aria-label={c.name}
+                    aria-pressed={form.accent === c.hex}
+                    onClick={() => setForm((f) => ({ ...f, accent: c.hex }))}
+                    className={`h-8 w-8 rounded-full border border-black/10 transition-transform hover:scale-110 ${
+                      form.accent === c.hex ? "ring-2 ring-ink ring-offset-2" : ""
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                ))}
+                <input
+                  type="color"
+                  aria-label="Custom colour"
+                  value={form.accent || "#178549"}
+                  onChange={(e) => setForm((f) => ({ ...f, accent: e.target.value }))}
+                  className="h-8 w-10 cursor-pointer rounded-[6px] border border-border bg-transparent"
+                />
+                {form.accent && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, accent: "" }))}
+                    className="text-xs text-muted underline hover:text-ink"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+              <span className="text-xs text-muted">Used for the badge and the main button.</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Main button" optional>
+                <input
+                  placeholder="Shop now"
+                  value={form.ctaLabel}
+                  onChange={(e) => setForm((f) => ({ ...f, ctaLabel: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+              <Field label="Links to">
+                <input
+                  placeholder="/products?category=cameras"
+                  value={form.ctaHref}
+                  onChange={(e) => setForm((f) => ({ ...f, ctaHref: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+              <Field label="Second button" optional>
+                <input
+                  placeholder="Learn more"
+                  value={form.cta2Label}
+                  onChange={(e) => setForm((f) => ({ ...f, cta2Label: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+              <Field label="Links to">
+                <input
+                  placeholder="/products"
+                  value={form.cta2Href}
+                  onChange={(e) => setForm((f) => ({ ...f, cta2Href: e.target.value }))}
+                  className="admin-input"
+                />
+              </Field>
+            </div>
+          </FormCard>
+
+          <FormCard title="Visibility">
+            <Switch
               checked={form.active}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, active: e.target.checked }))
-              }
+              onChange={(active) => setForm((f) => ({ ...f, active }))}
+              label="Visible in storefront"
+              description="Off keeps the slide saved but hidden."
             />
-            Visible in storefront
-          </label>
-          {formError && <p className="text-xs text-danger">{formError}</p>}
+            <Field label="Flash-deal countdown" optional hint="Shows “Ends in HH:MM:SS” on the slide until this time.">
+              <input
+                type="datetime-local"
+                value={form.dealEndsAt}
+                onChange={(e) => setForm((f) => ({ ...f, dealEndsAt: e.target.value }))}
+                className="admin-input"
+              />
+            </Field>
+          </FormCard>
+
+          {formError && <p className="text-sm text-danger">{formError}</p>}
           <div className="flex gap-2">
-            <AnimatedButton
-              type="submit"
-              variant="primary"
-              isLoading={saving}
-              className="flex-1"
-            >
-              <Plus className="h-4 w-4" /> {editingId ? "Save" : "Add"}
+            <AnimatedButton type="submit" variant="primary" isLoading={saving} className="flex-1">
+              {editingId ? "Save changes" : (
+                <>
+                  <Plus className="h-4 w-4" /> Add slide
+                </>
+              )}
             </AnimatedButton>
             {editingId && (
               <AnimatedButton type="button" variant="secondary" onClick={resetForm}>
@@ -400,6 +507,87 @@ export default function AdminBannersPage() {
         onCancel={() => setPendingDelete(null)}
         body={<span>This slide will no longer show in the carousel.</span>}
       />
+    </div>
+  );
+}
+
+/** Shown while no slides are saved: explains that the homepage is using the
+ *  automatic department slides, previews them, and can save them as real,
+ *  editable slides in one click. */
+function AutomaticSlides({ onImported }: { onImported: () => void }) {
+  const { push } = useToast();
+  const [slides, setSlides] = useState<Banner[] | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  useEffect(() => {
+    departmentSlides().then(setSlides).catch(() => setSlides([]));
+  }, []);
+
+  async function importAll() {
+    if (!slides?.length) return;
+    setImporting(true);
+    try {
+      for (const b of slides) {
+        // Store a site-relative picture path (/images/…) so it keeps working
+        // after deployment, and drop the live product count, which would go stale.
+        const url = new URL(b.image, window.location.origin);
+        await adminCreateBanner({
+          headline: b.headline,
+          subcopy: b.subcopy ?? null,
+          image: url.pathname.startsWith("/images/") ? url.pathname : b.image,
+          layout: b.layout,
+          accent: b.accent ?? null,
+          badge: null,
+          ctaLabel: b.ctaLabel ?? null,
+          ctaHref: b.ctaHref ?? null,
+          cta2Label: b.cta2Label ?? null,
+          cta2Href: b.cta2Href ?? null,
+          active: true,
+        });
+      }
+      push({ type: "success", message: `Saved ${slides.length} slides. You can now edit them.` });
+      onImported();
+    } catch (err) {
+      push({ type: "error", message: errorMessage(err, "Couldn't save the slides") });
+      onImported();
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  return (
+    <div className="rounded-[12px] border border-border bg-white p-5">
+      <h2 className="text-[15px] font-semibold text-ink">No saved slides yet</h2>
+      <p className="mt-1 max-w-xl text-sm text-muted">
+        Until you add one, the homepage shows these <b className="font-medium text-ink">automatic slides</b>, one per
+        department, using your product photos. Add a slide with the form, or save these as a starting point and edit them.
+      </p>
+
+      {slides === null ? (
+        <p className="mt-4 text-sm text-muted">Loading…</p>
+      ) : slides.length === 0 ? (
+        <p className="mt-4 text-sm text-muted">No departments have photos yet, so the homepage shows no slides.</p>
+      ) : (
+        <>
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {slides.map((b) => (
+              <li key={b.id} className="overflow-hidden rounded-[8px] border border-border">
+                <div className="flex h-20 items-center justify-center bg-panel-dark p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={b.image} alt="" className="h-full w-auto rounded-[4px] bg-white object-contain" />
+                </div>
+                <div className="flex items-center gap-2 px-2.5 py-2">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: b.accent }} />
+                  <span className="truncate text-sm font-medium text-ink">{b.headline}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <AnimatedButton type="button" variant="primary" isLoading={importing} onClick={importAll} className="mt-4">
+            Save these {slides.length} as editable slides
+          </AnimatedButton>
+        </>
+      )}
     </div>
   );
 }

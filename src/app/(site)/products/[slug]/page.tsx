@@ -188,7 +188,7 @@ export default async function ProductPage({
 
         <ScrollReveal y={16} delay={0.1}>
           <p className="font-mono text-xs uppercase tracking-wide text-muted">
-            {category?.name}
+            {product.brand ? `${product.brand} · ${category?.name ?? ""}` : category?.name}
           </p>
           <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             {product.name}
@@ -218,7 +218,7 @@ export default async function ProductPage({
             <StockPill product={product} />
           </div>
 
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted">
+          <p className="mt-4 line-clamp-3 max-w-lg text-sm leading-relaxed text-muted">
             {product.description}
           </p>
 
@@ -246,17 +246,19 @@ export default async function ProductPage({
             </div>
           )}
 
-          <div className="chamfer-sm mt-6 grid grid-cols-1 gap-2 border border-border bg-surface-muted/50 p-4 sm:grid-cols-2">
-            {product.specs.map((spec) => (
-              <div
-                key={spec.label}
-                className="flex justify-between gap-2 text-sm"
-              >
-                <span className="text-muted">{spec.label}</span>
-                <span className="font-medium text-ink">{spec.value}</span>
-              </div>
-            ))}
-          </div>
+          {product.specs.length > 0 && (
+            <div className="chamfer-sm mt-6 grid grid-cols-1 gap-2 border border-border bg-surface-muted/50 p-4 sm:grid-cols-2">
+              {product.specs.map((spec) => (
+                <div
+                  key={spec.label}
+                  className="flex justify-between gap-2 text-sm"
+                >
+                  <span className="text-muted">{spec.label}</span>
+                  <span className="font-medium text-ink">{spec.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-7">
             <ProductActions product={product} />

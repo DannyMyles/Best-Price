@@ -153,6 +153,14 @@ describe("homepage banners", () => {
     assert.equal(b.body.order, 1);
     const c = await admin.post("/api/admin/banners", banner({ headline: "C", active: false }));
 
+    assert.equal(a.body.layout, "photo", "layout defaults to photo");
+    assert.equal(a.body.accent, null);
+    const styled = await admin.patch(`/api/admin/banners/${b.body.id}`, { layout: "product", accent: "#1E6FD9", cta2Label: "Learn More", cta2Href: "/about" });
+    assert.equal(styled.body.layout, "product");
+    assert.equal(styled.body.accent, "#1e6fd9", "accent is stored lower-case");
+    assert.deepEqual([styled.body.cta2Label, styled.body.cta2Href], ["Learn More", "/about"]);
+    assert.equal((await admin.patch(`/api/admin/banners/${b.body.id}`, { accent: "" })).body.accent, null, "empty accent clears it");
+
     const upd = await admin.patch(`/api/admin/banners/${a.body.id}`, { headline: "A2", dealEndsAt: null, badge: null });
     assert.equal(upd.body.headline, "A2");
     assert.equal(upd.body.dealEndsAt, null);
@@ -172,7 +180,7 @@ describe("homepage banners", () => {
   it("refuses dangerous URLs (javascript:, data:, protocol-relative) and bad input", async () => {
     for (const over of [
       { image: "javascript:alert(1)" }, { image: "data:text/html,<script>alert(1)</script>" }, { image: "//evil.example/x.jpg" }, { image: "ftp://x/y.jpg" }, { image: "relative.jpg" },
-      { ctaHref: "javascript:alert(document.cookie)" }, { ctaHref: "//evil.example" }, { ctaHref: "data:text/html;base64,AAAA" },
+      { ctaHref: "javascript:alert(document.cookie)" }, { cta2Href: "javascript:alert(1)" }, { layout: "fullscreen" }, { accent: "red" }, { accent: "#12345" }, { ctaHref: "//evil.example" }, { ctaHref: "data:text/html;base64,AAAA" },
       { headline: "" }, { headline: "x".repeat(201) }, { dealEndsAt: "tomorrow" }, { badge: "x".repeat(41) },
     ]) {
       const r = await admin.post("/api/admin/banners", banner(over));

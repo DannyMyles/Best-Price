@@ -117,12 +117,12 @@ export function ProductFilters({
             type="number"
             inputMode="numeric"
             min={0}
-            placeholder={formatKES(bounds[0]).replace("KES", "").trim()}
+            placeholder="Min"
             value={filters.minPrice ?? ""}
             onChange={(e) =>
               onChange({ minPrice: e.target.value ? Number(e.target.value) : null })
             }
-            className="field py-2"
+            className="field min-w-0 px-3 py-2"
             aria-label="Minimum price"
           />
           <span className="text-muted">–</span>
@@ -130,15 +130,18 @@ export function ProductFilters({
             type="number"
             inputMode="numeric"
             min={0}
-            placeholder={formatKES(bounds[1]).replace("KES", "").trim()}
+            placeholder="Max"
             value={filters.maxPrice ?? ""}
             onChange={(e) =>
               onChange({ maxPrice: e.target.value ? Number(e.target.value) : null })
             }
-            className="field py-2"
+            className="field min-w-0 px-3 py-2"
             aria-label="Maximum price"
           />
         </div>
+        <p className="mt-2 text-xs text-muted">
+          {formatKES(bounds[0])} – {formatKES(bounds[1])}
+        </p>
       </Section>
 
       <Section title="Availability">

@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { adminGetProduct } from "@/lib/api/products";
 import type { Product } from "@/lib/types";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { ProductForm } from "../ProductForm";
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +27,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-ink">Edit product</h1>
+      <PageHeader
+        title={product.name}
+        description={<span className="font-mono text-xs">{product.sku}</span>}
+        back={{ href: "/admin/products", label: "Products" }}
+      />
       <ProductForm initial={product} />
     </div>
   );

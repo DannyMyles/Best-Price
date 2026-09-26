@@ -118,28 +118,32 @@ export function ProductsView() {
         </aside>
 
         <div className="min-w-0">
-          <div className="mb-4 flex flex-col gap-3">
-            <SearchBar
-              value={filters.query}
-              onChange={(q) => patch({ query: q })}
-            />
-            <div className="flex items-center justify-between gap-3">
-              <button
-                onClick={() => setSheetOpen(true)}
-                className="btn-secondary lg:hidden"
-              >
-                <SlidersHorizontal className="h-4 w-4" /> Filters
-                {count > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-bold text-white">
-                    {count}
-                  </span>
-                )}
-              </button>
-              <SortSelect
-                sort={filters.sort}
-                onSortChange={(s) => patch({ sort: s })}
-                className="ml-auto"
-              />
+          <div className="mb-5 flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="min-w-0 flex-1">
+                <SearchBar
+                  value={filters.query}
+                  onChange={(q) => patch({ query: q })}
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={() => setSheetOpen(true)}
+                  className="btn-secondary lg:hidden"
+                >
+                  <SlidersHorizontal className="h-4 w-4" /> Filters
+                  {count > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-bold text-white">
+                      {count}
+                    </span>
+                  )}
+                </button>
+                <SortSelect
+                  sort={filters.sort}
+                  onSortChange={(s) => patch({ sort: s })}
+                  className="ml-auto"
+                />
+              </div>
             </div>
             <ActiveFilterChips
               filters={filters}

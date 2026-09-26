@@ -187,9 +187,13 @@ export const bannerCreateSchema = z.object({
   headline: z.string().trim().min(1).max(200),
   subcopy: z.string().trim().max(400).nullish(),
   image: safeUrl,
+  layout: z.enum(["photo", "product"]).optional(),
+  accent: z.string().trim().regex(/^#[0-9a-f]{6}$/i, "Must be a colour like #1e6fd9").nullish().or(z.literal("")),
   badge: z.string().trim().max(40).nullish(),
   ctaLabel: z.string().trim().max(60).nullish(),
   ctaHref: safeUrl.nullish().or(z.literal("")),
+  cta2Label: z.string().trim().max(60).nullish(),
+  cta2Href: safeUrl.nullish().or(z.literal("")),
   dealEndsAt: z.iso.datetime({ offset: true }).nullish(),
   active: z.boolean().optional(),
 });

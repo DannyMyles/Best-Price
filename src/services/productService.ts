@@ -54,21 +54,52 @@ export function getColorVariants(all: Product[], product: Product): Product[] {
 
 /** Home-page rail selectors — each is defensive so an empty result just
  *  hides the rail rather than erroring. */
+
+/** Worth putting on the homepage: priced, photographed and in stock. */
+const presentable = (p: Product) => p.price !== null && (p.images?.length ?? 0) > 0 && p.inStock;
+
+/** Takes one product per department in turn, so a rail shows variety
+ *  instead of eight near-identical items from the first category. */
+function spreadAcrossCategories(list: Product[], max: number): Product[] {
+  const byCat = new Map<string, Product[]>();
+  for (const p of list) byCat.set(p.category, [...(byCat.get(p.category) ?? []), p]);
+  const queues = [...byCat.values()];
+  const out: Product[] = [];
+  while (out.length < max && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      const next = q.shift();
+      if (next && out.length < max) out.push(next);
+    }
+  }
+  return out;
+}
+
 export function selectBestSellers(all: Product[], max = 8): Product[] {
   const picked = all.filter(
     (p) => p.badge === "Best Seller" || p.badge === "Popular" || p.featured
   );
-  return (picked.length >= 4 ? picked : all).slice(0, max);
+  if (picked.length >= 4) return picked.slice(0, max);
+  // Nothing flagged yet: rank by feature rank, then reviews, across departments.
+  const ranked = all
+    .filter((p) => presentable(p) && !picked.includes(p))
+    .sort(
+      (a, b) =>
+        (a.featureRank ?? Infinity) - (b.featureRank ?? Infinity) ||
+        (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
+    );
+  return [...picked, ...spreadAcrossCategories(ranked, max)].slice(0, max);
 }
 
-export function selectNewArrivals(all: Product[], max = 8): Product[] {
-  const picked = all.filter((p) => p.badge === "New");
-  if (picked.length >= 4) return picked.slice(0, max);
-  // Fill from products that look presentable (have a price + image).
-  const filler = all.filter(
-    (p) => p.price !== null && (p.images?.length ?? 0) > 0 && p.badge !== "New"
-  );
-  return [...picked, ...filler].slice(0, max);
+/** Products tagged "New" first, then the most recently added. `exclude`
+ *  keeps it from repeating what another rail already shows. */
+export function selectNewArrivals(all: Product[], max = 8, exclude: Set<string> = new Set()): Product[] {
+  const fresh = all.filter((p) => !exclude.has(p.sku));
+  const tagged = fresh.filter((p) => p.badge === "New");
+  if (tagged.length >= 4) return tagged.slice(0, max);
+  const newest = fresh
+    .filter((p) => presentable(p) && p.badge !== "New")
+    .sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+  return [...tagged, ...spreadAcrossCategories(newest, max)].slice(0, max);
 }
 
 export function isDeal(p: Product): boolean {

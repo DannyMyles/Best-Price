@@ -10,9 +10,13 @@ export function serializeBanner(r) {
     headline: r.headline,
     subcopy: r.subcopy,
     image: r.image,
+    layout: r.layout,
+    accent: r.accent,
     badge: r.badge,
     ctaLabel: r.cta_label,
     ctaHref: r.cta_href,
+    cta2Label: r.cta2_label,
+    cta2Href: r.cta2_href,
     dealEndsAt: r.deal_ends_at ? new Date(r.deal_ends_at).toISOString() : null,
     active: Boolean(r.active),
     order: r.sort_order,
@@ -35,11 +39,13 @@ async function getBanner(pool, id) {
 export async function createBanner(pool, input) {
   const [[{ next }]] = await pool.query("SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM banners");
   const [result] = await pool.query(
-    `INSERT INTO banners (eyebrow, headline, subcopy, image, badge, cta_label, cta_href, deal_ends_at, active, sort_order)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO banners (eyebrow, headline, subcopy, image, layout, accent, badge, cta_label, cta_href, cta2_label, cta2_href,
+                          deal_ends_at, active, sort_order)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      nullIfEmpty(input.eyebrow), input.headline, nullIfEmpty(input.subcopy), input.image, nullIfEmpty(input.badge),
-      nullIfEmpty(input.ctaLabel), nullIfEmpty(input.ctaHref),
+      nullIfEmpty(input.eyebrow), input.headline, nullIfEmpty(input.subcopy), input.image,
+      input.layout ?? "photo", nullIfEmpty(input.accent)?.toLowerCase() ?? null, nullIfEmpty(input.badge),
+      nullIfEmpty(input.ctaLabel), nullIfEmpty(input.ctaHref), nullIfEmpty(input.cta2Label), nullIfEmpty(input.cta2Href),
       input.dealEndsAt ? new Date(input.dealEndsAt) : null,
       (input.active ?? true) ? 1 : 0, next,
     ]
@@ -48,13 +54,15 @@ export async function createBanner(pool, input) {
 }
 
 const COLUMN = {
-  eyebrow: "eyebrow", headline: "headline", subcopy: "subcopy", image: "image", badge: "badge",
-  ctaLabel: "cta_label", ctaHref: "cta_href", dealEndsAt: "deal_ends_at", active: "active",
+  eyebrow: "eyebrow", headline: "headline", subcopy: "subcopy", image: "image", layout: "layout", accent: "accent",
+  badge: "badge", ctaLabel: "cta_label", ctaHref: "cta_href", cta2Label: "cta2_label", cta2Href: "cta2_href",
+  dealEndsAt: "deal_ends_at", active: "active",
 };
 const TO_DB = {
   active: (v) => (v ? 1 : 0),
   dealEndsAt: (v) => (v ? new Date(v) : null),
   eyebrow: nullIfEmpty, subcopy: nullIfEmpty, badge: nullIfEmpty, ctaLabel: nullIfEmpty, ctaHref: nullIfEmpty,
+  cta2Label: nullIfEmpty, cta2Href: nullIfEmpty, accent: (v) => nullIfEmpty(v)?.toLowerCase() ?? null,
 };
 
 export async function updateBanner(pool, id, input) {

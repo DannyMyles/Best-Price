@@ -14,6 +14,8 @@ import { useToast } from "@/context/ToastContext";
 import { slugify } from "@/lib/format";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Field, FormCard, Switch } from "@/components/admin/FormKit";
+import { categoryIconMap, DEFAULT_CATEGORY_ICON } from "@/lib/categoryIcons";
 import type { Category } from "@/lib/types";
 
 const ICONS = [
@@ -242,90 +244,105 @@ export default function AdminCategoriesPage() {
         )}
       </div>
 
-      <div>
-        <h2 className="mb-6 text-sm font-semibold text-ink">
-          {editing ? "Edit category" : "Add category"}
-        </h2>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-5"
-        >
-          <input
-            required
-            placeholder="Name"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="input"
-          />
-          <input
-            placeholder="Short name (nav label)"
-            value={form.shortName}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, shortName: e.target.value }))
-            }
-            className="input"
-          />
-          <textarea
-            placeholder="Description"
-            rows={2}
-            value={form.description}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, description: e.target.value }))
-            }
-            className="input"
-          />
-          <div className="flex gap-3">
-            <select
-              value={form.icon}
-              onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
-              className="input flex-1"
-            >
-              {ICONS.map((icon) => (
-                <option key={icon} value={icon}>
-                  {icon}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              aria-label="Nav order"
-              title="Nav order (lower shows first)"
-              value={form.order}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, order: e.target.value }))
-              }
-              className="input w-20"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, active: e.target.checked }))
-              }
-            />
-            Visible in storefront
-          </label>
-          <div className="flex gap-2">
-            <AnimatedButton
-              type="submit"
-              variant="primary"
-              isLoading={saving}
-              className="flex-1"
-            >
-              <Plus className="h-4 w-4" /> {editing ? "Save" : "Add"}
-            </AnimatedButton>
-            {editing && (
-              <AnimatedButton
-                type="button"
-                variant="secondary"
-                onClick={resetForm}
-              >
-                Cancel
-              </AnimatedButton>
+      <div className="lg:sticky lg:top-6 lg:self-start">
+        <form onSubmit={handleSubmit}>
+          <FormCard
+            title={editing ? `Edit “${editing.name}”` : "Add category"}
+            description={editing ? "Changes show on the storefront straight away." : "New departments appear in the menu and filters."}
+          >
+            <Field label="Name">
+              <input
+                required
+                placeholder="e.g. Drones"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                className="admin-input"
+              />
+            </Field>
+            <Field label="Short name" optional hint="Used in the menu. Defaults to the name.">
+              <input
+                placeholder={form.name || "e.g. Drones"}
+                value={form.shortName}
+                onChange={(e) => setForm((f) => ({ ...f, shortName: e.target.value }))}
+                className="admin-input"
+              />
+            </Field>
+            {!editing && (
+              <Field label="URL name" optional hint={`Link: /products?category=${form.slug.trim() || slugify(form.name) || "…"}`}>
+                <input
+                  placeholder={slugify(form.name) || "drones"}
+                  value={form.slug}
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  className="admin-input font-mono"
+                />
+              </Field>
             )}
-          </div>
+            <Field label="Description" optional>
+              <textarea
+                rows={3}
+                placeholder="One line shown on the department page"
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                className="admin-input"
+              />
+            </Field>
+            <fieldset className="flex flex-col gap-1.5">
+              <legend className="mb-1.5 text-[13px] font-medium text-ink">Icon</legend>
+              <div role="radiogroup" aria-label="Icon" className="grid grid-cols-5 gap-2">
+                {ICONS.map((icon) => {
+                  const Icon = categoryIconMap[icon] ?? DEFAULT_CATEGORY_ICON;
+                  const selected = form.icon === icon;
+                  return (
+                    <button
+                      key={icon}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      aria-label={icon}
+                      title={icon}
+                      onClick={() => setForm((f) => ({ ...f, icon }))}
+                      className={`flex aspect-square items-center justify-center rounded-[8px] border transition-colors ${
+                        selected
+                          ? "border-ink bg-ink text-white"
+                          : "border-border text-ink/70 hover:border-border-strong hover:bg-surface-muted/60 hover:text-ink"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <Field label="Menu position" hint="Lower numbers show first.">
+              <input
+                type="number"
+                min={0}
+                value={form.order}
+                onChange={(e) => setForm((f) => ({ ...f, order: e.target.value }))}
+                className="admin-input w-28"
+              />
+            </Field>
+            <Switch
+              checked={form.active}
+              onChange={(active) => setForm((f) => ({ ...f, active }))}
+              label="Visible in storefront"
+              description="Off hides the department and its menu link."
+            />
+            <div className="flex gap-2 border-t border-border pt-4">
+              <AnimatedButton type="submit" variant="primary" isLoading={saving} className="flex-1">
+                {editing ? "Save changes" : (
+                  <>
+                    <Plus className="h-4 w-4" /> Add category
+                  </>
+                )}
+              </AnimatedButton>
+              {editing && (
+                <AnimatedButton type="button" variant="secondary" onClick={resetForm}>
+                  Cancel
+                </AnimatedButton>
+              )}
+            </div>
+          </FormCard>
         </form>
       </div>
 
@@ -349,7 +366,7 @@ export default function AdminCategoriesPage() {
               <select
                 value={reassignTo}
                 onChange={(e) => setReassignTo(e.target.value)}
-                className="input"
+                className="admin-input"
               >
                 <option value="">Select a category…</option>
                 {reassignOptions.map((c) => (

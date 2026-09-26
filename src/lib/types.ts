@@ -36,6 +36,8 @@ export type ProductBadge =
   | "Clearance"
   | "Limited";
 
+export type BannerLayout = "photo" | "product";
+
 export interface Banner {
   /** Numeric for saved banners, a string for the built-in fallback slides. */
   id: string | number;
@@ -43,9 +45,18 @@ export interface Banner {
   headline: string;
   subcopy?: string;
   image: string;
+  /** "photo": full-bleed lifestyle picture with white copy over a dark scrim.
+   *  "product": product shot on a white background, shown on a light stage
+   *  with dark copy. Defaults to "photo". */
+  layout?: BannerLayout;
+  /** "#rrggbb" — colour of the badge and the primary button. */
+  accent?: string;
   badge?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  /** Optional secondary (outline) button, e.g. "Learn More". */
+  cta2Label?: string;
+  cta2Href?: string;
   /** ISO datetime. When set and in the future, the slide shows a live
    *  "Ends in HH:MM:SS" countdown chip (flash-deal urgency). */
   dealEndsAt?: string | null;
