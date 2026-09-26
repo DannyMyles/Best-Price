@@ -55,18 +55,18 @@ export async function Footer() {
   const categories = await getCategories();
 
   return (
-    <footer className="border-t border-border bg-surface-muted text-ink">
+    <footer className="bg-panel-dark text-white">
       <div className="section py-12 sm:py-14">
-        <div className="grid grid-cols-3 gap-6 border-b border-border pb-8 sm:gap-4">
+        <div className="grid grid-cols-3 gap-6 border-b border-white/10 pb-8 sm:gap-4">
           {trust.map((t) => (
             <div
               key={t.label}
               className="flex flex-col items-center gap-2 text-center sm:flex-row sm:gap-3 sm:text-left"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-050 text-brand">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/8 text-accent">
                 <t.icon className="h-4.5 w-4.5" strokeWidth={1.7} />
               </span>
-              <span className="text-xs font-medium text-ink/80 sm:text-sm">
+              <span className="text-xs font-medium text-white/80 sm:text-sm">
                 {t.label}
               </span>
             </div>
@@ -75,10 +75,10 @@ export async function Footer() {
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 pt-10 md:grid-cols-4 md:gap-10">
           <div className="col-span-2 md:col-span-1">
-            <span className="text-panel-dark">
-              <LogoFull className="text-[1.3rem]" />
+            <span className="text-white">
+              <LogoFull className="text-[1.3rem]" onDark />
             </span>
-            <p className="mt-3 max-w-xs text-sm text-muted">
+            <p className="mt-3 max-w-xs text-sm text-white/60">
               Honest prices on laptops, phones, cameras, TVs, audio and accessories —
               delivered across Kenya, paid securely with M-Pesa.
             </p>
@@ -88,7 +88,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/75 transition-colors hover:bg-white hover:text-ink"
               >
                 <FacebookIcon className="h-4 w-4" />
               </a>
@@ -97,7 +97,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/75 transition-colors hover:bg-white hover:text-ink"
               >
                 <InstagramIcon className="h-4 w-4" />
               </a>
@@ -106,7 +106,7 @@ export async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink/70 shadow-sm transition-colors hover:bg-brand hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/75 transition-colors hover:bg-white hover:text-ink"
               >
                 <TikTokIcon className="h-4 w-4" />
               </a>
@@ -123,12 +123,12 @@ export async function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-ink">Shop</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-muted">
+            <h4 className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-white/45">Shop</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li>
                 <Link
                   href="/deals"
-                  className="font-semibold text-accent-strong transition-colors hover:text-accent-strong/80"
+                  className="font-semibold text-electric transition-colors hover:text-electric/80"
                 >
                   Deals &amp; Clearance
                 </Link>
@@ -137,7 +137,7 @@ export async function Footer() {
                 <li key={c.slug}>
                   <Link
                     href={`/products?category=${c.slug}`}
-                    className="transition-colors hover:text-brand"
+                    className="transition-colors hover:text-white"
                   >
                     {c.name}
                   </Link>
@@ -147,40 +147,40 @@ export async function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-ink">Help</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-muted">
+            <h4 className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-white/45">Help</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li>
-                <Link href="/about" className="transition-colors hover:text-brand">
+                <Link href="/about" className="transition-colors hover:text-white">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/faqs" className="transition-colors hover:text-brand">
+                <Link href="/faqs" className="transition-colors hover:text-white">
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/returns" className="transition-colors hover:text-brand">
+                <Link href="/returns" className="transition-colors hover:text-white">
                   Returns &amp; Refunds
                 </Link>
               </li>
               <li>
-                <Link href="/track" className="transition-colors hover:text-brand">
+                <Link href="/track" className="transition-colors hover:text-white">
                   Track Order
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="transition-colors hover:text-brand">
+                <Link href="/contact" className="transition-colors hover:text-white">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="transition-colors hover:text-brand">
+                <Link href="/privacy" className="transition-colors hover:text-white">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="transition-colors hover:text-brand">
+                <Link href="/terms" className="transition-colors hover:text-white">
                   Terms of Service
                 </Link>
               </li>
@@ -191,33 +191,33 @@ export async function Footer() {
           </div>
 
           <div className="col-span-2 min-w-0 md:col-span-1">
-            <h4 className="text-sm font-semibold text-ink">Visit &amp; Pay</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-muted">
+            <h4 className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-white/45">Visit &amp; Pay</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted/70" />
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/40" />
                 <a
                   href={STORE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-brand"
+                  className="transition-colors hover:text-white"
                 >
                   {STORE_ADDRESS}
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 shrink-0 text-muted/70" />
+                <Phone className="h-3.5 w-3.5 shrink-0 text-white/40" />
                 <a
                   href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/\s/g, "")}`}
-                  className="transition-colors hover:text-brand"
+                  className="transition-colors hover:text-white"
                 >
                   {SUPPORT_PHONE_DISPLAY}
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5 shrink-0 text-muted/70" />
+                <Clock className="h-3.5 w-3.5 shrink-0 text-white/40" />
                 {STORE_HOURS}
               </li>
-              <li className="mt-3 max-w-xs rounded-xl border border-border bg-surface px-3.5 py-2.5">
+              <li className="mt-3 max-w-xs rounded-[10px] bg-white px-3.5 py-2.5">
                 <div className="relative h-8 w-40 max-w-full overflow-hidden">
                   <Image
                     src="/mpesa.jpg"
@@ -227,7 +227,7 @@ export async function Footer() {
                     className="object-cover object-center"
                   />
                 </div>
-                <p className="mt-1 text-xs text-muted">
+                <p className="mt-1 text-xs text-ink/65">
                   Send Money to{" "}
                   <CopyInline
                     value={MPESA_PAYBILL_NUMBER.replace(/\s/g, "")}
@@ -243,7 +243,7 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-border pt-6 text-center text-xs text-muted/70">
+        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/45">
           &copy; {year} PriceHub. All rights reserved.
         </div>
       </div>

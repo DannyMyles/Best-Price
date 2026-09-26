@@ -6,7 +6,7 @@ export function CookieSettingsButton() {
   return (
     <button
       onClick={openConsent}
-      className="text-left transition-colors hover:text-brand"
+      className="text-left transition-colors hover:text-white"
     >
       Cookie settings
     </button>
