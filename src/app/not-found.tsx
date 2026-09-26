@@ -12,7 +12,7 @@ export default function NotFound() {
         The page or product you&apos;re looking for doesn&apos;t exist or may have
         been moved.
       </p>
-      <AnimatedLinkButton href="/products" variant="dark" className="mt-2">
+      <AnimatedLinkButton href="/products" variant="primary" className="mt-2">
         Browse Products
       </AnimatedLinkButton>
     </div>

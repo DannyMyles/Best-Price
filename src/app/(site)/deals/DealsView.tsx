@@ -63,7 +63,7 @@ export function DealsView() {
             New deals and clearance stock land regularly. Browse the full range
             in the meantime.
           </p>
-          <AnimatedLinkButton href="/products" variant="dark" className="mt-1">
+          <AnimatedLinkButton href="/products" variant="primary" className="mt-1">
             Shop all products
           </AnimatedLinkButton>
         </div>

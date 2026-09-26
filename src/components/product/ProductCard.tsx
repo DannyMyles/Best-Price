@@ -199,7 +199,7 @@ export function ProductCard({
                 "mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border py-2.5 text-sm font-semibold transition-colors",
                 added
                   ? "border-success bg-success text-white"
-                  : "border-ink/85 text-ink hover:bg-ink hover:text-white"
+                  : "border-brand text-brand hover:bg-brand hover:text-brand-foreground"
               )}
             >
               {added ? (
@@ -226,7 +226,7 @@ function StockLine({ product, soldOut }: { product: Product; soldOut: boolean })
     <p
       className={cn(
         "mt-1 flex items-center gap-1.5 text-xs",
-        soldOut ? "text-muted" : few ? "text-warning" : "text-accent-strong"
+        soldOut || !few ? "text-muted" : "text-warning"
       )}
     >
       <span

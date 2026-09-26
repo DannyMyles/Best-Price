@@ -372,7 +372,7 @@ export default function CheckoutPage() {
       <div className="section flex max-w-lg flex-col items-center justify-center gap-4 py-24 text-center">
         <h1 className="text-xl font-semibold text-ink">Your cart is empty</h1>
         <p className="text-sm text-muted">Add a product before checking out.</p>
-        <AnimatedLinkButton href="/products" variant="dark" className="mt-2">
+        <AnimatedLinkButton href="/products" variant="primary" className="mt-2">
           Browse Products
         </AnimatedLinkButton>
       </div>

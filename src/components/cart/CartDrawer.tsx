@@ -59,7 +59,7 @@ export function CartDrawer() {
                   Browse our products and add something you love.
                 </p>
                 <AnimatedLinkButton
-                  variant="dark"
+                  variant="primary"
                   href="/products"
                   onClick={closeCart}
                   className="mt-2"

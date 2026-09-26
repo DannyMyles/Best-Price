@@ -122,7 +122,7 @@ export function ProductActions({ product }: { product: Product }) {
             "Add to Cart"
           )}
         </AnimatedButton>
-        <AnimatedButton variant="dark" onClick={handleBuyNow} className="flex-1">
+        <AnimatedButton variant="primary" onClick={handleBuyNow} className="flex-1">
           Buy Now
         </AnimatedButton>
       </div>

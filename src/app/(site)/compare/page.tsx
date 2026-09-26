@@ -49,7 +49,7 @@ export default function ComparePage() {
           Tap the compare icon on any product card to line up to four items side
           by side.
         </p>
-        <AnimatedLinkButton href="/products" variant="dark" className="mt-1">
+        <AnimatedLinkButton href="/products" variant="primary" className="mt-1">
           Browse products
         </AnimatedLinkButton>
       </div>

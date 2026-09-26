@@ -36,7 +36,7 @@ export default function WishlistPage() {
           <p className="max-w-xs text-sm text-muted">
             Tap the heart on any product to save it here for later.
           </p>
-          <AnimatedLinkButton href="/products" variant="dark" className="mt-2">
+          <AnimatedLinkButton href="/products" variant="primary" className="mt-2">
             Browse Products
           </AnimatedLinkButton>
         </div>

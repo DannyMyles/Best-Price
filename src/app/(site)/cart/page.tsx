@@ -36,7 +36,7 @@ export default function CartPage() {
           Explore our products and find something you love. Everything ships
           countrywide with secure M-Pesa payment.
         </p>
-        <AnimatedLinkButton href="/products" variant="dark" className="mt-2">
+        <AnimatedLinkButton href="/products" variant="primary" className="mt-2">
           Start Shopping
         </AnimatedLinkButton>
       </div>
