@@ -21,6 +21,7 @@ interface RawProduct {
   featured: boolean;
   featureRank: number | null;
   images: string[];
+  updatedAt?: string;
   // admin-only
   active?: boolean;
   adminNotes?: string | null;
@@ -47,6 +48,7 @@ export function toProduct(r: RawProduct): Product {
     featured: r.featured,
     featureRank: r.featureRank,
     images: r.images ?? [],
+    updatedAt: r.updatedAt,
     active: r.active ?? true,
     adminNotes: r.adminNotes,
   };

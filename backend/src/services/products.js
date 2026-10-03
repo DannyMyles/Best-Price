@@ -37,13 +37,14 @@ export function serializeProduct(row, images, { admin = false } = {}) {
     featured: Boolean(row.featured),
     featureRank: row.feature_rank,
     images: images.map((i) => i.url),
+    // Public too, so the sitemap can report real last-change dates.
+    updatedAt: row.updated_at,
   };
   if (admin) {
     out.active = Boolean(row.active);
     out.imageDir = row.image_dir;
     out.adminNotes = row.admin_notes;
     out.createdAt = row.created_at;
-    out.updatedAt = row.updated_at;
   }
   return out;
 }

@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
-import { getProducts } from "@/services/productService";
-import { getCategories } from "@/services/categoryService";
+import { fetchAllProducts } from "@/lib/api/products";
+import { fetchCategories } from "@/lib/api/categories";
 
 const base = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://pricehub.co.ke"
 ).replace(/\/$/, "");
 
-// Rebuild alongside the product ISR window.
+// Rebuilt at most once a minute. If the backend can't be reached, the request
+// throws instead of publishing a sitemap with missing products: Next keeps
+// serving the last good copy until the backend is back.
 export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -14,88 +16,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
-    {
-      url: `${base}/products`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${base}/about`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.4,
-    },
-    {
-      url: `${base}/faqs`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
-    {
-      url: `${base}/contact`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${base}/deals`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${base}/track`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-    {
-      url: `${base}/returns`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${base}/privacy`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    {
-      url: `${base}/terms`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
+    { url: `${base}/products`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/deals`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${base}/about`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${base}/faqs`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${base}/contact`, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${base}/track`, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${base}/returns`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${base}/terms`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  let categoryRoutes: MetadataRoute.Sitemap = [];
-  let productRoutes: MetadataRoute.Sitemap = [];
+  // Only live data: hidden categories and products are excluded by the API itself.
+  const [categories, products] = await Promise.all([fetchCategories(), fetchAllProducts()]);
 
-  try {
-    const categories = await getCategories();
-    categoryRoutes = categories.map((c) => ({
-      url: `${base}/products?category=${c.slug}`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
-  } catch {
-    /* fall back to just the static + product routes */
-  }
+  const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
+    url: `${base}/products?category=${encodeURIComponent(c.slug)}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 
-  try {
-    const products = await getProducts();
-    productRoutes = products.map((p) => ({
-      url: `${base}/products/${p.slug}`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }));
-  } catch {
-    /* ignore */
-  }
+  const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
+    url: `${base}/products/${p.slug}`,
+    lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
 
   return [...staticRoutes, ...categoryRoutes, ...productRoutes];
 }

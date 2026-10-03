@@ -89,6 +89,8 @@ export interface Product {
   rating?: number | null;
   reviewCount?: number | null;
   badge?: ProductBadge;
+  /** Last change (ISO); used for sitemap dates. */
+  updatedAt?: string;
   /** Photo URLs, primary image first (served from the pricehub image
    *  library). Falls back to a category stock photo when empty. */
   images?: string[];
