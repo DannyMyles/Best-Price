@@ -53,9 +53,16 @@ function LoginCard() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
+      {/* Background photo: place your image at public/admin-login-bg.jpg. Without it,
+          the dark gradient below is shown on its own. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-linear-to-br from-panel-dark via-panel-dark to-accent/30"
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/admin-login-bg.jpg')" }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-linear-to-br from-panel-dark/90 via-panel-dark/75 to-accent/30"
       />
 
       <div className="chamfer relative w-full max-w-sm border border-white/15 bg-surface/95 p-8 shadow-xl backdrop-blur">
