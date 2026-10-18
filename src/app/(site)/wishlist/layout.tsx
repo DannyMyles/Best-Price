@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Your Wishlist",
-  description: "Products you've saved on PriceHub for later.",
+  description: "Products you've saved on Bally Digital Solutions for later.",
   robots: { index: false, follow: true },
 };
 

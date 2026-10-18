@@ -28,7 +28,7 @@ import {
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Talk to PriceHub — WhatsApp, call, email or visit our shop at Bihi Towers, Nairobi CBD. We reply within minutes, Mon–Sat 9am–6pm.",
+    "Talk to Bally Digital Solutions — WhatsApp, call, email or visit our shop at Bihi Towers, Nairobi CBD. We reply within minutes, Mon–Sat 9am–6pm.",
   alternates: { canonical: "/contact" },
 };
 
@@ -40,7 +40,7 @@ const mapSrc =
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ElectronicsStore",
-  name: "PriceHub",
+  name: "Bally Digital Solutions",
   description:
     "Multi-brand electronics shop in Nairobi — laptops, phones, tablets, cameras, TVs, audio and accessories.",
   telephone: SUPPORT_PHONE_DISPLAY,
@@ -163,7 +163,7 @@ export default function ContactPage() {
               style={{ border: 0 }}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="PriceHub location — Bihi Towers, Nairobi CBD"
+              title="Bally Digital Solutions location — Bihi Towers, Nairobi CBD"
             />
           </div>
 
@@ -189,7 +189,7 @@ export default function ContactPage() {
             </p>
             <a
               href={whatsappLink(
-                "Hi PriceHub, I'd like a wholesale / bulk quote. Here's my list:"
+                "Hi Bally Digital Solutions, I'd like a wholesale / bulk quote. Here's my list:"
               )}
               target="_blank"
               rel="noopener noreferrer"

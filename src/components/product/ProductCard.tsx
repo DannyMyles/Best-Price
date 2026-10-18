@@ -182,7 +182,7 @@ export function ProductCard({
           {soldOut ? (
             <a
               href={whatsappLink(
-                `Hi PriceHub, is "${product.name}" back in stock?`
+                `Hi Bally Digital Solutions, is "${product.name}" back in stock?`
               )}
               target="_blank"
               rel="noopener noreferrer"

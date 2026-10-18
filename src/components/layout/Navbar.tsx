@@ -55,7 +55,7 @@ export function Navbar() {
         <div className="section flex h-16 items-center gap-4 lg:h-[72px]">
           <Link
             href="/"
-            aria-label="PriceHub home"
+            aria-label="Bally Digital Solutions home"
             className="shrink-0 text-panel-dark"
           >
             <LogoFull className="text-[1.15rem] sm:text-[1.35rem]" />

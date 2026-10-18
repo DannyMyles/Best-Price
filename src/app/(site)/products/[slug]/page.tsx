@@ -61,7 +61,7 @@ export async function generateMetadata({
     description: `${product.description}${priceLine}. Genuine, warrantied, delivered countrywide with M-Pesa payment.`,
     alternates: { canonical: `/products/${product.slug}` },
     openGraph: {
-      title: `${product.name} · PriceHub`,
+      title: `${product.name} · Bally Digital Solutions`,
       description: product.description,
       url: `/products/${product.slug}`,
       type: "website",
@@ -117,7 +117,7 @@ export default async function ProductPage({
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
             url: `${siteUrl}/products/${product.slug}`,
-            seller: { "@type": "Organization", name: "PriceHub" },
+            seller: { "@type": "Organization", name: "Bally Digital Solutions" },
           },
         }
       : {}),

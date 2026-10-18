@@ -69,7 +69,7 @@ function FlagshipTile({ product, category }: { product: Product; category: strin
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group relative flex h-100 flex-col overflow-hidden rounded-[12px] border border-white/8 bg-[radial-gradient(ellipse_at_50%_85%,rgba(31,163,92,0.22),transparent_60%),linear-gradient(160deg,#16191e,#0d0f12)] p-6 transition-colors hover:border-white/20"
+      className="group relative flex h-100 flex-col overflow-hidden rounded-[12px] border border-white/8 bg-[radial-gradient(ellipse_at_50%_85%,rgba(78,166,255,0.22),transparent_60%),linear-gradient(160deg,#16191e,#0d0f12)] p-6 transition-colors hover:border-white/20"
     >
       <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/50">{category}</p>
       <h3 className="mt-2 line-clamp-2 text-lg font-semibold leading-snug tracking-tight">{product.name}</h3>

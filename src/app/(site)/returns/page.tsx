@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Returns & Refunds",
   description:
-    "PriceHub's return and refund policy — 7-day returns on unopened items, faulty-on-arrival cover and manufacturer warranty support.",
+    "Bally Digital Solutions's return and refund policy — 7-day returns on unopened items, faulty-on-arrival cover and manufacturer warranty support.",
   alternates: { canonical: "/returns" },
 };
 
@@ -40,7 +40,7 @@ export default function ReturnsPage() {
           Return &amp; Refund Policy
         </h1>
         <p className="mt-3 text-sm text-muted">
-          We want you to be confident buying from PriceHub. Here&apos;s
+          We want you to be confident buying from Bally Digital Solutions. Here&apos;s
           how returns work.
         </p>
       </ScrollReveal>

@@ -72,7 +72,7 @@ export function ProductActions({ product }: { product: Product }) {
           know as soon as it&apos;s back.
         </div>
         <a
-          href={whatsappLink(`Hi PriceHub, is "${product.name}" back in stock?`)}
+          href={whatsappLink(`Hi Bally Digital Solutions, is "${product.name}" back in stock?`)}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-mpesa w-full sm:w-auto"

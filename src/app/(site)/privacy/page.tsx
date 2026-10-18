@@ -6,14 +6,14 @@ import { SUPPORT_EMAIL, SUPPORT_PHONE_DISPLAY } from "@/lib/contact";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How PriceHub collects, uses and protects your personal data, in line with Kenya's Data Protection Act, 2019.",
+    "How Bally Digital Solutions collects, uses and protects your personal data, in line with Kenya's Data Protection Act, 2019.",
   alternates: { canonical: "/privacy" },
 };
 
 const sections: { title: string; body: React.ReactNode }[] = [
   {
     title: "Who we are",
-    body: "PriceHub (“we”, “us”) is a multi-brand electronics retailer based at Bihi Towers, G7 Ground Floor, Nairobi CBD, Kenya. We are the data controller for the personal data described in this policy.",
+    body: "Bally Digital Solutions (“we”, “us”) is a multi-brand electronics retailer based at Bihi Towers, G7 Ground Floor, Nairobi CBD, Kenya. We are the data controller for the personal data described in this policy.",
   },
   {
     title: "What we collect",

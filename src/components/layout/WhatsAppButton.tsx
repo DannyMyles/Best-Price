@@ -12,7 +12,7 @@ export function WhatsAppIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function WhatsAppButton({
-  message = "Hi PriceHub, I'd like to enquire about a product.",
+  message = "Hi Bally Digital Solutions, I'd like to enquire about a product.",
 }: {
   message?: string;
 }) {

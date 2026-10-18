@@ -24,7 +24,7 @@ export function ContactForm() {
     e.preventDefault();
     if (!message.trim()) return;
     const body = [
-      "Hi PriceHub 👋",
+      "Hi Bally Digital Solutions 👋",
       "",
       `Reason: ${reason}`,
       name.trim() ? `Name: ${name.trim()}` : undefined,

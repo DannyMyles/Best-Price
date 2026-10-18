@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "FAQs",
   description:
-    "Answers to common questions about PriceHub — genuine stock, delivery times, M-Pesa payment, warranty and returns.",
+    "Answers to common questions about Bally Digital Solutions — genuine stock, delivery times, M-Pesa payment, warranty and returns.",
   alternates: { canonical: "/faqs" },
 };
 

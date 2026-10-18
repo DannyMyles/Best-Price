@@ -1,4 +1,4 @@
-# PriceHub
+# Bally Digital Solutions
 
 A modern storefront for selling electronics in Kenya — laptops, phones, cameras,
 TVs, audio and accessories. Built with Next.js 16 (App Router), React 19 and

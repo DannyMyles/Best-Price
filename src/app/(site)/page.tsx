@@ -8,10 +8,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "PriceHub — Genuine electronics at honest prices in Kenya",
+    absolute: "Bally Digital Solutions — Genuine electronics at honest prices in Kenya",
   },
   description:
-    "PriceHub is a multi-brand electronics shop in Nairobi — laptops, phones, tablets, cameras, TVs, audio and accessories. Genuine stock, honest prices, secure M-Pesa payment and countrywide delivery.",
+    "Bally Digital Solutions is a multi-brand electronics shop in Nairobi — laptops, phones, tablets, cameras, TVs, audio and accessories. Genuine stock, honest prices, secure M-Pesa payment and countrywide delivery.",
   alternates: { canonical: "/" },
 };
 

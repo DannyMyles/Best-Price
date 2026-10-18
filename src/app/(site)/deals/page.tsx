@@ -4,10 +4,10 @@ import { DealsView } from "./DealsView";
 export const metadata: Metadata = {
   title: "Deals & Clearance",
   description:
-    "Genuine price drops and clearance stock at PriceHub — laptops, phones, cameras, TVs and audio at their lowest prices while stock lasts.",
+    "Genuine price drops and clearance stock at Bally Digital Solutions — laptops, phones, cameras, TVs and audio at their lowest prices while stock lasts.",
   alternates: { canonical: "/deals" },
   openGraph: {
-    title: "Deals & Clearance · PriceHub",
+    title: "Deals & Clearance · Bally Digital Solutions",
     description:
       "Genuine price drops and clearance stock — while it lasts.",
     url: "/deals",

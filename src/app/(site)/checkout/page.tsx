@@ -167,7 +167,7 @@ export default function CheckoutPage() {
       .join("\n");
     const method = paymentMethods.find((p) => p.value === draft.payment)?.label;
     return [
-      `New PriceHub order ${ref}`,
+      `New Bally Digital Solutions order ${ref}`,
       "",
       itemLines,
       "",
@@ -272,7 +272,7 @@ export default function CheckoutPage() {
 
   /* ---- Confirmation ---- */
   if (placed && orderRef && placedSnapshot) {
-    const trackMsg = `Hi PriceHub, I'd like to track my order ${orderRef}.`;
+    const trackMsg = `Hi Bally Digital Solutions, I'd like to track my order ${orderRef}.`;
     return (
       <div className="section max-w-2xl py-12 sm:py-16">
         <div className="chamfer relative border border-border bg-surface p-6 text-center sm:p-8">

@@ -13,9 +13,9 @@ import type { Banner } from "@/lib/types";
 
 const AUTOPLAY_MS = 6000;
 const SWIPE_PX = 50;
-/** Primary-button colour when a slide has no accent of its own (brand green,
+/** Primary-button colour when a slide has no accent of its own (brand blue,
  *  the AA-contrast shade). */
-const DEFAULT_ACCENT = "#178549";
+const DEFAULT_ACCENT = "#1a3d8c";
 
 /** Black or white — whichever reads better on `hex` (WCAG relative luminance). */
 function readableOn(hex: string) {

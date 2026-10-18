@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "PriceHub (formerly BallyTech Electronics) is a multi-brand electronics shop at Bihi Towers, Nairobi CBD — genuine products, honest prices, countrywide delivery.",
+    "Bally Digital Solutions (formerly BallyTech Electronics) is a multi-brand electronics shop at Bihi Towers, Nairobi CBD — genuine products, honest prices, countrywide delivery.",
   alternates: { canonical: "/about" },
 };
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <ScrollReveal>
         <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          About PriceHub
+          About Bally Digital Solutions
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">
           We sell quality electronics at honest prices across Kenya — laptops, phones,

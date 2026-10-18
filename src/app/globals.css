@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  /* ---- PriceHub design tokens — "Circuit Editorial" ---------------------
-     White page, ink-black text, M-Pesa green for everything clickable, and
-     a yellow highlight reserved for dark sections.
+  /* ---- Ballytech Electronics design tokens -------------------------------
+     White page, ink-black text, the brand's own royal blue for everything
+     clickable, and its red for secondary accents/tags — both colours lifted
+     directly from the "ballytech electronics" logo (see Logo.tsx). A light
+     sky-blue highlight is reserved for dark sections, replacing the old
+     yellow.
      Chamfered corners are a deliberate signature (see .chamfer / .chamfer-sm
      below) and are opt-in on marketing-level surfaces, not on form
      controls — inputs and small buttons stay pill/rounded for usability. */
@@ -20,25 +23,27 @@
   --ink: #121212;
   --ink-inverse: #ffffff;
 
-  /* Brand — green is the primary interactive colour (buttons, links,
-     focus): the one colour shoppers learn to click. #0f8a4a keeps white
-     button text above WCAG AA. Text stays ink (--ink). */
-  --brand: #0f8a4a;
-  --brand-strong: #0b703c;
-  --brand-050: #e6f4ec;
+  /* Brand — the wordmark's royal blue is the primary interactive colour
+     (buttons, links, focus): the one colour shoppers learn to click.
+     #1a3d8c keeps white button text at 10:1 contrast. Text stays ink. */
+  --brand: #1a3d8c;
+  --brand-strong: #122c68;
+  --brand-050: #eaf0fb;
   --brand-foreground: #ffffff;
 
-  /* Accent — the structural M-Pesa green: hairlines, tags, secondary
-     buttons, success states. Works on both light and dark surfaces. */
-  --accent: #12a150;
-  --accent-strong: #0c8a43;
-  --accent-050: #e7f6ec;
+  /* Accent — the logo's red (used for "electronics" + its flanking dashes):
+     hairlines, tags, sale badges, secondary buttons. Works on both light
+     and dark surfaces. */
+  --accent: #c92b21;
+  --accent-strong: #a61e17;
+  --accent-050: #fbeae9;
   --accent-foreground: #ffffff;
 
-  /* Electric — yellow highlight for dark panels only (deals, CTAs on the
+  /* Electric — a bright sky-blue highlight (lifted from the lighter stop of
+     the icon's gradient) for dark panels only (deals, CTAs on the
      footer/hero). Far too low-contrast on white. */
-  --electric: #ffcf1f;
-  --electric-foreground: #0b0c0e;
+  --electric: #4ea6ff;
+  --electric-foreground: #0b1b33;
 
   /* Status */
   --success: #1fa35c;

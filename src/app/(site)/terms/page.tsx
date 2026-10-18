@@ -5,14 +5,14 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "The terms that apply when you browse PriceHub and place an order — pricing, payment, delivery, warranty and returns.",
+    "The terms that apply when you browse Bally Digital Solutions and place an order — pricing, payment, delivery, warranty and returns.",
   alternates: { canonical: "/terms" },
 };
 
 const sections: { title: string; body: React.ReactNode }[] = [
   {
     title: "Using this site",
-    body: "By browsing PriceHub or placing an order you agree to these terms. You must be at least 18, or have the consent of a parent or guardian, to buy from us.",
+    body: "By browsing Bally Digital Solutions or placing an order you agree to these terms. You must be at least 18, or have the consent of a parent or guardian, to buy from us.",
   },
   {
     title: "Products and pricing",

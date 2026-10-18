@@ -16,7 +16,7 @@ try {
 
 const app = createApp({ config, pool });
 const server = app.listen(config.port, config.host, () => {
-  console.log(`PriceHub backend listening on http://${config.host}:${config.port} (${config.env})`);
+  console.log(`Bally Digital Solutions backend listening on http://${config.host}:${config.port} (${config.env})`);
 });
 
 async function shutdown(signal) {

@@ -185,7 +185,7 @@ export function TrackView() {
         <div className="mt-4 rounded-xl border border-danger/30 bg-danger-050 p-4 text-sm text-ink">
           {error}
           <a
-            href={whatsappLink(`Hi PriceHub, I need help tracking order ${ref || "(ref)"}.`)}
+            href={whatsappLink(`Hi Bally Digital Solutions, I need help tracking order ${ref || "(ref)"}.`)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-1 flex items-center gap-1.5 font-semibold text-brand hover:underline"
@@ -285,7 +285,7 @@ export function TrackView() {
           )}
 
           <a
-            href={whatsappLink(`Hi PriceHub, an update on order ${result.ref}?`)}
+            href={whatsappLink(`Hi Bally Digital Solutions, an update on order ${result.ref}?`)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-5 flex w-fit items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-strong"

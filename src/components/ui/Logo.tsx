@@ -1,39 +1,28 @@
 import { cn } from "@/lib/cn";
 
 /**
- * PriceHub wordmark, drawn inline so it recolours with the surrounding text
- * ("Price" uses `currentColor`, "Hub" + the mark use the brand colour) and
- * needs no image request. Works on both light and dark surfaces.
+ * The "b" mark — the real logo artwork (public/brand/), not a redrawn
+ * approximation: the source file had a white background, so it's
+ * pre-processed into a transparent PNG (see the crop/key script used to make
+ * it) and trimmed to its own bounding box. If a vector (.ai/.eps/.svg)
+ * original ever becomes available, swap it in here for a crisper mark at
+ * large sizes.
  */
-
-export function PriceHubMark({ className, onDark }: { className?: string; onDark?: boolean }) {
+export function BallytechMark({ className }: { className?: string; onDark?: boolean }) {
   return (
-    <svg
-      viewBox="0 0 40 40"
-      role="img"
-      aria-label="PriceHub"
-      className={cn("shrink-0", className)}
-    >
-      <path d="M1 1 L29 1 L39 11 L39 39 L1 39 Z" fill={onDark ? "var(--accent-strong)" : "var(--brand)"} />
-      {/* stylised "h" / price-tag hybrid */}
-      <path
-        d="M14 10v20M14 20c0-3.6 2.5-6 6-6s6 2.4 6 6v10"
-        stroke="#fff"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="27.5" cy="12.5" r="2.6" fill="#fff" />
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element -- scales via em-based className, not a fixed size next/image wants
+    <img src="/brand/ballytech-mark.png" alt="" className={cn("inline-block shrink-0 object-contain", className)} />
   );
 }
 
+/** @deprecated kept so older imports keep compiling — use `BallytechMark`. */
+export const PriceHubMark = BallytechMark;
+
 export function LogoMark({ className }: { className?: string }) {
-  return <PriceHubMark className={className} />;
+  return <BallytechMark className={className} />;
 }
 
-/** `onDark`: for dark backgrounds, where the brand ink would disappear. */
+/** `onDark`: for dark backgrounds, where the ink wordmark would disappear. */
 export function LogoFull({ className, onDark }: { className?: string; onDark?: boolean }) {
   return (
     <span
@@ -42,9 +31,17 @@ export function LogoFull({ className, onDark }: { className?: string; onDark?: b
         className
       )}
     >
-      <PriceHubMark className="h-[1.5em] w-[1.5em]" onDark={onDark} />
-      <span className="text-current">
-        Price<span className={onDark ? "text-accent" : "text-brand"}>Hub</span>
+      <BallytechMark className="h-[1.5em] w-[1.5em]" />
+      <span className="inline-flex items-baseline gap-[0.3em]">
+        <span className={onDark ? "text-white" : "text-brand"}>Bally</span>
+        <span
+          className={cn(
+            "text-[0.42em] font-semibold uppercase tracking-[0.1em]",
+            onDark ? "text-electric" : "text-accent"
+          )}
+        >
+          Digital Solutions
+        </span>
       </span>
     </span>
   );

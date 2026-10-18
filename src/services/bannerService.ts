@@ -2,8 +2,9 @@ import { fetchActiveBanners } from "@/lib/api/banners";
 import { fetchCategories } from "@/lib/api/categories";
 import type { Banner } from "@/lib/types";
 
-/** Rotated across the built-in department slides so they don't all look alike. */
-const FALLBACK_ACCENTS = ["#178549", "#ffc20e", "#1a6fc9", "#f26b1d", "#d7182a"];
+/** Rotated across the built-in department slides so they don't all look alike,
+ *  while staying in the brand's blue/red family. */
+const FALLBACK_ACCENTS = ["#1a3d8c", "#c92b21", "#4ea6ff", "#a61e17", "#122c68"];
 
 /** One slide per department (max 6), built from the server's category photos.
  *  Shown on the homepage until the admin saves slides of their own. */

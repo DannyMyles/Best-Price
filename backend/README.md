@@ -1,6 +1,6 @@
-# PriceHub backend (Node.js + MariaDB)
+# Bally Digital Solutions backend (Node.js + MariaDB)
 
-The API behind the PriceHub storefront and admin dashboard: sign-in/out, products, prices,
+The API behind the Bally Digital Solutions storefront and admin dashboard: sign-in/out, products, prices,
 categories, product photos, orders (with stock and tracking), reviews and homepage banners —
 plus the read endpoints the storefront needs (list, search, filter, sort, paginate).
 

@@ -244,7 +244,7 @@ export async function Footer() {
         </div>
 
         <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/45">
-          &copy; {year} PriceHub. All rights reserved.
+          &copy; {year} Bally Digital Solutions. All rights reserved.
         </div>
       </div>
     </footer>

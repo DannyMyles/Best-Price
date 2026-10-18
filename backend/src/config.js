@@ -39,7 +39,7 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  STORE_NAME: z.string().default("PriceHub"),
+  STORE_NAME: z.string().default("Bally Digital Solutions"),
 });
 
 /** Parses `mysql://user:pass@host:3306/db` into discrete pieces. */

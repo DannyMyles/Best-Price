@@ -25,7 +25,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const title = "PriceHub — The best price on the tech you want";
+const title = "Bally Digital Solutions — The best price on the tech you want";
 const description =
   "Shop laptops, phones, tablets, cameras, TVs, audio and accessories at honest prices in Kenya. Secure M-Pesa payment, countrywide delivery.";
 
@@ -33,15 +33,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: title,
-    template: "%s · PriceHub",
+    template: "%s · Bally Digital Solutions",
   },
   description,
-  applicationName: "PriceHub",
+  applicationName: "Bally Digital Solutions",
   openGraph: {
     title,
     description,
     url: siteUrl,
-    siteName: "PriceHub",
+    siteName: "Bally Digital Solutions",
     locale: "en_KE",
     type: "website",
   },
@@ -59,7 +59,7 @@ export const viewport: Viewport = {
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "PriceHub",
+  name: "Bally Digital Solutions",
   alternateName: "BallyTech Electronics",
   url: siteUrl,
   logo: `${siteUrl}/icon.svg`,
@@ -84,7 +84,7 @@ const orgJsonLd = {
 const siteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "PriceHub",
+  name: "Bally Digital Solutions",
   url: siteUrl,
   potentialAction: {
     "@type": "SearchAction",

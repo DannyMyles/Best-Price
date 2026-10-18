@@ -46,7 +46,7 @@ const badges = [
 
 export function TrustBadges() {
   return (
-    <section aria-label="Why shop with PriceHub" className="py-5">
+    <section aria-label="Why shop with Bally Digital Solutions" className="py-5">
       <Marquee className="py-1" duration={38}>
         {badges.map((b) => (
           <span

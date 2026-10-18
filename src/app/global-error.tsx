@@ -21,7 +21,7 @@ export default function GlobalError({
         }}
       >
         <div style={{ maxWidth: 420, padding: 24, textAlign: "center" }}>
-          <title>Something went wrong · PriceHub</title>
+          <title>Something went wrong · Bally Digital Solutions</title>
           <h1 style={{ fontSize: 20, fontWeight: 700 }}>Something went wrong</h1>
           <p style={{ fontSize: 14, color: "#6b6860", marginTop: 8 }}>
             An unexpected error occurred. Please try again.

@@ -1,5 +1,5 @@
 /**
- * Thin fetch wrapper for the PriceHub backend (Node + MariaDB).
+ * Thin fetch wrapper for the Bally Digital Solutions backend (Node + MariaDB).
  *
  * - In the browser it calls same-origin `/api/...`; `next.config.ts` rewrites
  *   that to the backend, so the admin session cookie is first-party and no CORS

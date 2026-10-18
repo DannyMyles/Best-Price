@@ -22,11 +22,11 @@ import { departmentSlides } from "@/services/bannerService";
 
 /** Quick picks for the button/badge colour; any #rrggbb works. */
 const ACCENT_PRESETS = [
-  { name: "PriceHub green", hex: "#178549" },
-  { name: "Yellow", hex: "#ffc20e" },
-  { name: "Blue", hex: "#1a6fc9" },
-  { name: "Red", hex: "#d7182a" },
-  { name: "Orange", hex: "#f26b1d" },
+  { name: "Brand blue", hex: "#1a3d8c" },
+  { name: "Brand navy", hex: "#122c68" },
+  { name: "Brand red", hex: "#c92b21" },
+  { name: "Sky blue", hex: "#4ea6ff" },
+  { name: "Dark red", hex: "#a61e17" },
   { name: "Black", hex: "#111111" },
 ];
 
@@ -410,7 +410,7 @@ export default function AdminBannersPage() {
                 <input
                   type="color"
                   aria-label="Custom colour"
-                  value={form.accent || "#178549"}
+                  value={form.accent || "#1a3d8c"}
                   onChange={(e) => setForm((f) => ({ ...f, accent: e.target.value }))}
                   className="h-8 w-10 cursor-pointer rounded-[6px] border border-border bg-transparent"
                 />
